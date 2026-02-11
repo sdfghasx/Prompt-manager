@@ -974,18 +974,28 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.collectionModal.el.classList.remove('visible');
     }
 
-    // --- 👇 НОВЫЙ БЛОК: ФУНКЦИИ ДЛЯ РЕЖИМА ВЫДЕЛЕНИЯ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function activateSelectionMode(noteId) {
         isSelectionModeActive = true;
         selectedNoteIds.clear();
         selectedNoteIds.add(noteId);
 
         document.querySelectorAll('.note-tile.is-selected').forEach(t => t.classList.remove('is-selected'));
-        document.querySelector(`.note-tile[data-id="${noteId}"]`)?.classList.add('is-selected');
+        
+        // --- НОВАЯ ЛОГИКА С ЗАДЕРЖКОЙ ---
+        // Даем DOM мгновение, чтобы "прийти в себя" после закрытия контекстного меню
+        setTimeout(() => {
+            const tile = document.querySelector(`.note-tile[data-id="${noteId}"]`);
+            if (tile) {
+                tile.classList.add('is-selected');
+            }
+        }, 30);
+        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
         
         dom.selectionToolbar.classList.remove('hidden');
         updateSelectionCounter();
     }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     function deactivateSelectionMode() {
         isSelectionModeActive = false;
@@ -1313,8 +1323,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ВОТ ВОССТАНОВЛЕННАЯ СТРОКА ---
     dom.collectionModal.cancelBtn.addEventListener('click', closeCollectionModal);
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
+    
 
-// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     async function handleNoteClick(event) {
@@ -1792,6 +1802,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault();
                 return;
             }
+            document.body.classList.add('is-dragging-collection');
             draggedElement = { id: collectionItem.dataset.id, type: 'collection', source: 'collections-list' };
             setTimeout(() => collectionItem.classList.add('dragging'), 0);
             return;
@@ -1818,23 +1829,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.body.classList.add('is-dragging-note');
             
+            const sourceGrid = noteTile.closest('#collection-notes-grid') ? 'collection-notes-grid' : 'notes-grid';
             draggedElement = { 
                 id: noteId, 
                 type: 'note', 
                 isBatch: isBatchDrag,
-                source: noteTile.closest('#collection-notes-grid') ? 'collection-notes-grid' : 'notes-grid' 
+                source: sourceGrid 
             };
             
             idsToDrag.forEach(id => {
                 document.querySelector(`.note-tile[data-id="${id}"]`)?.classList.add('dragging');
             });
     
-            document.querySelectorAll('#collections-list .collection-item').forEach(item => {
-                const collId = item.dataset.id;
-                if (collId && collId !== 'coll_favorites' && !idsToDrag.some(id => state.collectionNotes[collId]?.includes(id))) {
-                    item.classList.add('drag-over');
-                }
-            });
+            // --- ВОТ ИСПРАВЛЕНИЕ ---
+            // Если тащим из панели коллекции, подсвечиваем основную сетку
+            if (sourceGrid === 'collection-notes-grid') {
+                dom.notesGrid.classList.add('drag-over');
+            } 
+            // Иначе (тащим из основной сетки), подсвечиваем коллекции
+            else {
+                document.querySelectorAll('#collections-list .collection-item').forEach(item => {
+                    const collId = item.dataset.id;
+                    if (collId && collId !== 'coll_favorites' && !idsToDrag.some(id => state.collectionNotes[collId]?.includes(id))) {
+                        item.classList.add('drag-over');
+                    }
+                });
+            }
+            // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
         }
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -1866,15 +1887,19 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.collectionsList.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; const oldIndicator = document.querySelector('.collection-item.drag-over-indicator'); if (oldIndicator) { oldIndicator.classList.remove('drag-over-indicator'); } const target = e.target.closest('.collection-item'); if (draggedElement.type === 'collection' && target && draggedElement.id !== target.dataset.id) { target.classList.add('drag-over-indicator'); } });
 
     
-    // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.collectionsList.addEventListener('drop', async (e) => {
         e.preventDefault();
         const dropTarget = e.target.closest('.collection-item');
         if (!dropTarget) return;
 
+        if (dropTarget.dataset.id === 'coll_favorites') {
+            dropTarget.classList.remove('drag-over');
+            return;
+        }
+
         dropTarget.classList.remove('drag-over', 'drag-over-indicator');
 
-        // --- НОВАЯ ЛОГИКА: ПРОВЕРКА НА ПАКЕТНОЕ ДЕЙСТВИЕ ---
         if (draggedElement.type === 'note') {
             const collectionId = dropTarget.dataset.id;
             const t = translations[state.settings.language];
@@ -1882,19 +1907,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const idsToProcess = draggedElement.isBatch ? Array.from(selectedNoteIds) : [draggedElement.id];
 
             const result = await eel.add_notes_to_collection_batch(idsToProcess, collectionId)();
-            if (result.success && result.added_count > 0) {
+            if (result.success) {
                 idsToProcess.forEach(id => {
                     if (!state.collectionNotes[collectionId].includes(id)) {
                         state.collectionNotes[collectionId].push(id);
                     }
                 });
                 updateCounters();
-                showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
+                if (result.added_count > 0) {
+                    showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
+                }
+
+                // --- 👇 ВОТ ИСПРАВЛЕНИЕ ---
+                // Если мы бросили заметку в уже открытую коллекцию, перерисовываем ее
+                if (currentOpenCollectionId === collectionId) {
+                    renderCollectionView(collectionId);
+                }
+                // --- 👆 КОНЕЦ ИСПРАВЛЕНИЯ ---
             }
-            // Выходим из режима выделения после любого успешного drop
             deactivateSelectionMode();
         } 
-        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
         else if (draggedElement.type === 'collection' && draggedElement.id !== dropTarget.dataset.id) {
             const draggedId = draggedElement.id;
             const targetId = dropTarget.dataset.id;
@@ -1909,11 +1941,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newCollections = {};
                 collectionIds.forEach(id => { newCollections[id] = state.collections[id]; });
                 state.collections = newCollections;
-                renderFullUI(); // Полная перерисовка для сохранения порядка
+                renderFullUI();
             }
         }
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
     dom.notesGrid.addEventListener('dragover', (e) => { if (draggedElement.type === 'note' && currentOpenCollectionId && draggedElement.source === 'collection-notes-grid') { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } });
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
