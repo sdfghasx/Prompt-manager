@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# PyInstaller временные файлы
+/build/
+/dist/
+*.spec
+
+# Inno Setup временные файлы
+/Output/
+
+# Системные файлы
+.DS_Store
+Thumbs.db

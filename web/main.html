@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Manager</title>
+    <!-- Иконка приложения -->
+    <link rel="icon" type="image/png" href="icons/app_icon.ico">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="tutorial.css">
+    <script type="text/javascript" src="/eel.js"></script>
+</head>
+
+<body data-theme-base="dark" data-theme-accent="blue">
+
+    <div class="app-container">
+        <!-- Левая панель -->
+        <div class="left-sidebar">
+            <div class="workspace-header">
+                <h2 data-translate="myWorkspace">My Workspace <span class="note-count-total"></span></h2>
+            </div>
+            <div class="divider"></div>
+            <div class="collections-section">
+                <div class="collections-header">
+                    <img src="icons/icon_collections.svg" class="icon">
+                    <span data-translate="collections">Collections</span>
+                </div>
+                <div id="collections-list"></div>
+                <div class="divider"></div>
+                <div id="add-collection-btn" class="collection-item">
+                    <img src="icons/icon_add.svg" class="icon">
+                    <span data-translate="newCollection">New Collection</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основная панель -->
+        <div class="main-panel">
+<!-- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+            <div class="top-bar">
+                <div class="top-bar-left">
+                    <button id="hamburger-btn" class="icon-btn">
+                        <img src="icons/icon_menu.svg">
+                    </button>
+                    <button id="new-note-btn" data-translate="newNote">New</button>
+                    
+                    <!-- Корзина теперь ВНУТРИ левого блока -->
+                    <div id="drag-delete-zone">
+                        <img src="icons/icon_trash.svg" class="icon">
+                        <span data-translate="dropToDelete">Drop to delete</span>
+                    </div>
+                </div>
+
+                <div id="vault-display-container">
+                    <span id="current-vault-display"></span>
+                </div>
+
+                <div class="top-bar-right">
+                    <div id="uncollected-filter-container">
+                        <label for="uncollected-filter-toggle" data-translate="uncollected">Uncollected</label>
+                        <label class="switch">
+                            <input type="checkbox" id="uncollected-filter-toggle">
+                            <div class="slider-track">
+                                <div class="slider-nub"></div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="search-container">
+                        <img src="icons/icon_search.svg" class="search-icon">
+                        <input type="text" id="search-input" placeholder="Search Prompts...">
+                    </div>
+                    <button id="options-btn" class="icon-btn">
+                        <img src="icons/icon_options.svg">
+                    </button>
+                </div>
+            </div>
+<!-- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+
+            <div id="hamburger-menu" class="dropdown-menu"></div>
+            <div id="options-menu" class="dropdown-menu">
+                <div class="dropdown-submenu-container" id="theme-submenu-container">
+                    <div class="dropdown-menu-item"><span data-translate="changeTheme">Change Theme</span></div>
+                    <div class="dropdown-menu submenu">
+                        <div class="dropdown-menu-item" data-theme-base="dark"><span data-translate="darkTheme">Dark
+                                Theme</span></div>
+                        <div class="dropdown-menu-item" data-theme-base="light"><span data-translate="lightTheme">Light
+                                Theme</span></div>
+                        <div class="dropdown-divider"></div>
+                        <div id="accent-colors-container"></div>
+                    </div>
+                </div>
+                <div class="dropdown-submenu-container" id="language-submenu-container">
+                    <div class="dropdown-menu-item"><span data-translate="language">Language</span></div>
+                    <div class="dropdown-menu submenu">
+                        <div class="dropdown-menu-item" data-lang="ru">Русский</div>
+                        <div class="dropdown-menu-item" data-lang="en">English</div>
+                    </div>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-menu-item" data-action="about-app"><span data-translate="aboutApp">About app</span>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div id="collection-view-panel">
+                    <h3 id="collection-view-title"></h3>
+                    <div id="collection-notes-grid"></div>
+                    <div id="collection-view-curtain"></div>
+                </div>
+                <div id="notes-grid">
+                    <div class="empty-state-container">
+                        <img src="icons/icon_add.svg" class="empty-state-icon">
+                        <p data-translate="emptyStateMessage">No prompts yet. Click "New" to create your first one!</p>
+                    </div>
+                    <div id="notes-grid-curtain"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="note-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title"></h3>
+            <input type="text" id="note-title-input" class="mousetrap">
+            <textarea id="note-content-input" class="mousetrap"></textarea>
+            <div class="modal-buttons"> <button class="modal-btn" data-action="cancel"></button> <button
+                    class="modal-btn accent" data-action="save"></button> </div>
+        </div>
+    </div>
+    <div id="collection-modal" class="modal">
+        <div class="modal-content">
+            <h3 data-translate="newCollection"></h3>
+            <input type="text" id="collection-name-input" class="mousetrap">
+            <div class="modal-buttons"> <button class="modal-btn" data-action="cancel" data-translate="cancel"></button>
+                <button class="modal-btn accent" data-action="save" data-translate="ok"></button> </div>
+        </div>
+    </div>
+    <div id="alert-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="alert-title"></h3>
+            <p id="alert-message"></p>
+            <div id="alert-buttons" class="modal-buttons"></div>
+        </div>
+    </div>
+    <div id="prompt-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="prompt-title"></h3>
+            <p id="prompt-message"></p> <input type="text" id="prompt-input">
+            <div id="prompt-buttons" class="modal-buttons"></div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="modal">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Контекстное меню -->
+    <div id="context-menu" class="dropdown-menu"></div>
+    <div id="clipboard-notification"></div>
+    <div id="note-tooltip"></div>
+    <div id="drag-ghost"></div>
+
+    <!-- 👇 ЗАМЕНИТЕ ВЕСЬ ЭТОТ БЛОК -->
+    <div id="selection-toolbar" class="hidden">
+        <span id="selection-counter"></span>
+        <div class="selection-actions">
+            <button class="text-icon-btn" data-action="add-to-collection">
+                <img src="icons/icon_collections.svg">
+                <span data-translate="collection">Collection</span>
+            </button>
+            <button class="text-icon-btn" data-action="move-to-vault">
+                <img src="icons/icon_vault.svg">
+                <span data-translate="move">Move</span>
+            </button>
+            <button class="text-icon-btn danger" data-action="delete-selected">
+                <img src="icons/icon_trash.svg">
+                <span data-translate="delete">Delete</span>
+            </button>
+        </div>
+        <button id="selection-done-btn" data-translate="done">Done</button>
+    </div>
+    <!-- 👆 КОНЕЦ ЗАМЕНЫ -->
+
+    <!-- 👇 НОВЫЙ БЛОК -->
+    <div id="tutorial-overlay" class="hidden"></div>
+    <div id="tutorial-popover" class="hidden">
+        <div id="tutorial-text"></div>
+        <div id="tutorial-footer">
+            <span id="tutorial-step-counter"></span>
+            <button id="tutorial-next-btn"></button>
+        </div>
+    </div>
+    <!-- 👆 КОНЕЦ НОВОГО БЛОКА -->
+     
+    <div id="tutorial-pointer"></div>
+
+    <script src="mousetrap.min.js"></script>
+
+    <script src="script.js"></script>
+
+    <script src="tutorial.js"></script>
+
+
+
+    
+</body>
+
+</html>
