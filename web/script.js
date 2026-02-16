@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let notificationTimer = null;
     let isSelectionModeActive = false;
     let selectedNoteIds = new Set();
-
+    let previousThemeBase = null; 
 
     // --- 2. Ссылки на DOM-элементы ---
     const dom = {
@@ -100,10 +100,26 @@ document.addEventListener('DOMContentLoaded', () => {
         blush: { name: 'Blush', color: '#EBBAB9' }
     };
 // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
+// --- 👇 НОВЫЙ БЛОК ---
+    const visualStyles = {
+        'default': { name: 'Default', file: '' },
+        'soft-pastel': { name: 'Soft Pastel', file: 'styles/soft-pastel.css' },
+        'apple': { name: 'Apple Style', file: 'styles/apple.css' },
+        'arc': { name: 'Arc Arc', file: 'styles/arc.css' },
+        'cyber-tech': { name: 'Cyber Tech', file: 'styles/cyber-tech.css' },
+        'synthwave': { name: 'Synthwave', file: 'styles/synthwave.css' },
+        'frosted-glass': { name: 'Frosted Glass', file: 'styles/frosted-glass.css' },
+        'glass': { name: 'True Glass', file: 'styles/glass.css' },
+        'sketch': { name: 'Sketch & Ink', file: 'styles/sketch.css' }
+    };
+// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
     
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     const translations = {
         en: {
+            changeStyle: 'Change Style', // <-- НОВОЕ
+            styleUpdated: 'Style updated', // <-- НОВОЕ
             myWorkspace: 'My Workspace', 
             collections: 'Collections', 
             newCollection: 'New Collection', 
@@ -187,7 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
             done: 'Done',
             selected: 'Selected'
         },
-        ru: { 
+        ru: {
+            changeStyle: 'Сменить стиль', // <-- НОВОЕ
+            styleUpdated: 'Стиль обновлен', // <-- НОВОЕ
             myWorkspace: 'My Workspace', 
             collections: 'Коллекции',
             emptyStateMessage: "Пока нет ни одной записки. Нажмите Создать, чтобы добавить первую!",
@@ -352,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         { 
             element: null, 
-            text: '17. Теперь вы продвинутый юзер бабушкиного ноутбука. Приятного пользования!' 
+            text: '17. Приятного пользования, извините!' 
         },
     ];
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -496,6 +514,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
+// --- 👇 ЗАМЕНИТЕ ЭТУ ФУНКЦИЮ ---
+    function applyVisualStyle(styleKey) {
+        const styleLink = document.getElementById('theme-style-link');
+        const styleData = visualStyles[styleKey];
+        
+        if (styleData) {
+            styleLink.href = styleData.file;
+            state.settings.current_style = styleKey;
+            
+            // --- НОВАЯ ЛОГИКА: АВТО-ПЕРЕКЛЮЧЕНИЕ ТЕМЫ ---
+            if (styleKey === 'sketch') {
+                // Если тема темная, запоминаем ее и переключаем на светлую
+                if (state.settings.theme_base === 'dark') {
+                    previousThemeBase = 'dark';
+                    applyTheme('light', state.settings.theme_accent);
+                    // Важно: не сохраняем это изменение в settings, чтобы не перезаписать выбор пользователя навсегда
+                }
+            } else {
+                // Если мы ушли со стиля sketch и у нас была сохранена темная тема
+                if (previousThemeBase === 'dark') {
+                    applyTheme('dark', state.settings.theme_accent);
+                    previousThemeBase = null; // Сбрасываем
+                }
+            }
+            // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
+            
+            document.querySelectorAll('[data-visual-style]').forEach(el => {
+                if (el.dataset.visualStyle === styleKey) {
+                    el.classList.add('selected');
+                } else {
+                    el.classList.remove('selected');
+                }
+            });
+        }
+    }
+// --- 👆 КОНЕЦ ЗАМЕНЫ ---
 
     function generateAccentColorButtons() {
         dom.accentColorsContainer.innerHTML = '';
@@ -1819,7 +1874,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 isBatchDrag = true;
                 idsToDrag = Array.from(selectedNoteIds);
             } else {
-                deactivateSelectionMode();
                 isBatchDrag = false;
                 idsToDrag = [noteId];
             }
@@ -1978,22 +2032,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.appContainer.addEventListener('dragend', () => {
-        // --- НОВАЯ ЛОГИКА: Прячем и очищаем призрак ---
+        // 1. Прячем призрак
         dom.dragGhost.classList.remove('visible');
         dom.dragGhost.innerHTML = '';
-        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
 
+        // 2. Убираем глобальные классы перетаскивания
         document.body.classList.remove('is-dragging-note');
         document.body.classList.remove('is-dragging-collection');
         
-        // Убираем класс .dragging со всех плиток
-        document.querySelectorAll('.note-tile.dragging').forEach(tile => tile.classList.remove('dragging'));
-        
-        dom.notesGrid.classList.remove('drag-over');
-        document.querySelectorAll('#collections-list .collection-item.drag-over').forEach(item => {
-            item.classList.remove('drag-over');
+        // 3. Убираем класс .dragging со всех заметок И коллекций
+        document.querySelectorAll('.note-tile.dragging, .collection-item.dragging').forEach(el => {
+            el.classList.remove('dragging');
         });
-        draggedElement = { id: null, type: null, source: null };
+        
+        // 4. Убираем классы подсветки
+        dom.notesGrid.classList.remove('drag-over');
+        
+        // 5. ТЩАТЕЛЬНАЯ ОЧИСТКА КОЛЛЕКЦИЙ
+        document.querySelectorAll('.collection-item').forEach(item => {
+            item.classList.remove('drag-over');
+            item.classList.remove('drag-over-indicator');
+            // Принудительно сбрасываем стиль, если он "залип"
+            item.style.backgroundColor = ''; 
+        });
+
+        // 6. Очистка корзины
+        dom.dragDeleteZone.classList.remove('drag-over');
+
+        draggedElement = { id: null, type: null, source: null, isBatch: false };
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
@@ -2072,7 +2138,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = e.target.closest('.dropdown-menu-item, .theme-dot');
         if (!target) return;
 
-        // --- Логика для смены акцентного цвета ---
+        // --- НОВЫЙ БЛОК: СМЕНА СТИЛЯ ---
+        if (target.matches('[data-visual-style]')) {
+            const newStyle = target.dataset.visualStyle;
+            if (newStyle !== state.settings.current_style) {
+                applyVisualStyle(newStyle);
+                await eel.save_settings({ current_style: newStyle })();
+                showNotification('styleUpdated');
+            }
+            return;
+        }
+        // --- КОНЕЦ НОВОГО БЛОКА ---
+
         if (target.matches('[data-theme-accent]')) {
             const newAccent = target.dataset.themeAccent;
             if (newAccent !== state.settings.theme_accent) {
@@ -2080,11 +2157,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 await eel.save_settings({ theme_accent: newAccent })();
                 showNotification('themeUpdated');
             }
-            // hideAllAnimatedMenus(); // <-- УДАЛЕНО
-            return;
+            return; 
         }
-        
-        // --- Логика для смены цвета ТЕКСТА ---
+
         if (target.matches('[data-theme-text]')) {
             const newTextTheme = target.dataset.themeText;
             if (newTextTheme !== state.settings.theme_text) {
@@ -2092,22 +2167,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 await eel.save_settings({ theme_text: newTextTheme })();
                 showNotification('themeUpdated');
             }
-            // hideAllAnimatedMenus(); // <-- УДАЛЕНО
             return;
         }
 
-        // --- Логика для смены основной темы ---
         if (target.matches('[data-theme-base]')) {
             const newBase = target.dataset.themeBase;
             if (newBase !== state.settings.theme_base) {
-                applyTheme(newBase, state.settings.theme_accent, state.settings.theme_accent_custom);
+                applyTheme(newBase, state.settings.theme_accent);
                 await eel.save_settings({ theme_base: newBase })();
                 showNotification('themeUpdated');
             }
             return;
         }
         
-        // --- Логика для смены языка ---
         if (target.matches('[data-lang]')) {
             const newLang = target.dataset.lang;
             if (newLang !== state.settings.language) {
@@ -2118,16 +2190,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- Логика для смены директории ---
         if (target.matches('[data-action="change-notes-dir"]')) {
             hideAllAnimatedMenus();
             await eel.change_notes_directory()();
             return;
         }
 
-        // --- Логика для прочих пунктов меню ---
+        // --- ИЗМЕНЕННАЯ ЛОГИКА ---
+        if (target.matches('[data-action="tutorial"]')) {
+            hideAllAnimatedMenus();
+            // Напрямую запускаем обучение без лишних вопросов
+            startTutorial(tutorialSteps, state.settings.language);
+            return;
+        }
+        // --- КОНЕЦ ИЗМЕНЕНИЯ ---
+
         if (target.matches('[data-action="about-app"]')) {
-            await showCustomAlert('About app', 'Prompt Manager v1.1');
+            await showCustomAlert('About app', 'Prompt Manager v1.5');
             hideAllAnimatedMenus();
         }
     });
@@ -2445,7 +2524,9 @@ dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.targ
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
+
     // --- 7. Инициализация приложения ---
+
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     async function initializeApp() {
         // Устанавливаем иконки при запуске
@@ -2469,6 +2550,14 @@ dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.targ
             
             // РИСУЕМ МЕНЮ ОПЦИЙ НА ОСНОВЕ ЗАГРУЖЕННЫХ ДАННЫХ
             const t = translations[state.settings.language] || translations.en;
+
+            // 👇 ВСТАВЬТЕ ЭТОТ БЛОК ПЕРЕД dom.optionsMenu.innerHTML = ...
+            let stylesMenuHtml = '';
+            for (const [key, value] of Object.entries(visualStyles)) {
+                stylesMenuHtml += `<div class="dropdown-menu-item" data-visual-style="${key}">${value.name}</div>`;
+            }
+            // 👆 КОНЕЦ БЛОКА
+
             dom.optionsMenu.innerHTML = `
                 <div class="dropdown-submenu-container" id="theme-submenu-container">
                     <div class="dropdown-menu-item"><span data-translate="changeTheme">${t.changeTheme}</span></div>
@@ -2485,6 +2574,16 @@ dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.targ
 
                     </div>
                 </div>
+
+                <!-- 👇 ВСТАВЬТЕ ЭТОТ БЛОК -->
+                <div class="dropdown-submenu-container">
+                    <div class="dropdown-menu-item"><span data-translate="changeStyle">${t.changeStyle}</span></div>
+                    <div class="dropdown-menu submenu">
+                        ${stylesMenuHtml}
+                    </div>
+                </div>
+                <!-- 👆 КОНЕЦ БЛОКА -->
+
                 <div class="dropdown-submenu-container" id="language-submenu-container">
                     <div class="dropdown-menu-item"><span data-translate="language">${t.language}</span></div>
                     <div class="dropdown-menu submenu">
@@ -2528,6 +2627,7 @@ dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.targ
             applyTranslations(state.settings.language);
             applyTheme(state.settings.theme_base, state.settings.theme_accent);
             applyTextTheme(state.settings.theme_text || 'default');
+            applyVisualStyle(state.settings.current_style || 'default');
             
             // Отрисовываем основной интерфейс
             renderFullUI();

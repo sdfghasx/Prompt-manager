@@ -1,0 +1,159 @@
+/* ✨ ПАКЕТ 21: CYBER RETRO (SYNTHWAVE) ✨ */
+
+/* 1. Общее */
+body {
+    background-color: #2b213a; /* Темно-фиолетовый */
+    font-family: 'Courier New', Courier, monospace;
+    letter-spacing: 1px;
+    color: #e0e0e0;
+    /* Эффект сетки на фоне */
+    background-image: 
+        linear-gradient(rgba(255, 0, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 0, 255, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+/* 2. Боковая Панель */
+.left-sidebar {
+    background-color: rgba(20, 15, 30, 0.9);
+    border-right: 2px solid #ff00ff; /* Неоново-розовый */
+    box-shadow: 5px 0 20px rgba(255, 0, 255, 0.2);
+}
+
+.collection-item {
+    border-radius: 0;
+    border: 1px solid transparent;
+    color: #00ffff; /* Неоново-голубой */
+    text-transform: uppercase;
+}
+
+.collection-item:hover {
+    background-color: rgba(0, 255, 255, 0.1);
+    border-color: #00ffff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+}
+
+.collection-item.selected {
+    background-color: #ff00ff;
+    color: #2b213a;
+    font-weight: bold;
+    box-shadow: 0 0 15px #ff00ff;
+}
+
+/* 3. Верхняя Панель */
+.top-bar {
+    background-color: rgba(20, 15, 30, 0.9);
+    border-bottom: 2px solid #00ffff;
+}
+
+#search-input {
+    background-color: #1a1a2e;
+    border: 1px solid #ff00ff;
+    color: #00ffff;
+    border-radius: 0;
+}
+
+#search-input:focus {
+    box-shadow: 0 0 10px #ff00ff;
+}
+
+/* 4. Кнопка NEW */
+#new-note-btn {
+    background: transparent;
+    color: #ff00ff;
+    border: 2px solid #ff00ff;
+    border-radius: 0;
+    font-weight: 900;
+    text-shadow: 0 0 5px #ff00ff;
+    box-shadow: 0 0 5px #ff00ff, inset 0 0 5px #ff00ff;
+    transition: all 0.2s;
+}
+
+#new-note-btn:hover {
+    background-color: #ff00ff;
+    color: #2b213a;
+    box-shadow: 0 0 20px #ff00ff;
+}
+
+/* 5. Плитки Заметок */
+.note-tile {
+    background-color: rgba(30, 25, 45, 0.8);
+    border: 1px solid #00ffff;
+    border-radius: 0;
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
+}
+
+.note-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px #00ffff, inset 0 0 10px rgba(0, 255, 255, 0.3);
+    border-color: #fff;
+    z-index: 10;
+}
+
+.note-title {
+    color: #ff00ff;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-bottom: 1px dashed #00ffff;
+    text-shadow: 0 0 2px #ff00ff;
+}
+
+.note-text {
+    color: #e0e0e0;
+    font-family: 'Consolas', monospace;
+}
+
+/* 6. Выделение */
+.note-tile.is-selected {
+    border: 2px solid #ffff00; /* Неоново-желтый для выделения */
+    box-shadow: 0 0 20px #ffff00;
+}
+
+/* 7. Модальные Окна */
+.modal-content {
+    background-color: #2b213a;
+    border: 2px solid #00ffff;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+    border-radius: 0;
+}
+
+.modal-content input, .modal-content textarea {
+    background-color: #1a1a2e;
+    color: #00ffff;
+    border: 1px solid #ff00ff;
+}
+
+/* 8. Панель Выделения */
+#selection-toolbar {
+    background-color: #2b213a;
+    border: 2px solid #ffff00;
+    border-radius: 0;
+    box-shadow: 0 0 20px #ffff00;
+}
+
+/* Анимированный Сканлайн */
+.modal {
+    background-color: rgba(43, 33, 58, 0.7) !important;
+    
+    background-image: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(0, 0, 0, 0.3) 50%
+    );
+    background-size: 100% 4px;
+    
+    backdrop-filter: blur(8px);
+    
+    /* Запускаем бесконечную анимацию */
+    animation: scanline-move 60s linear infinite; 
+}
+
+/* Двигаем фон вниз */
+@keyframes scanline-move {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 0 100%;
+    }
+}

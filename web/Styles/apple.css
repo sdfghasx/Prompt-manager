@@ -1,0 +1,178 @@
+/* ================================================================= */
+/* ✨ ЭКСПЕРИМЕНТАЛЬНЫЙ ПАКЕТ ВИЗУАЛЬНОГО АПГРЕЙДА (APPLE STYLE) ✨ */
+/* ================================================================= */
+
+/* 1. Общее */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: -0.01em;
+}
+
+/* 2. Боковая Панель */
+.left-sidebar {
+    background-color: var(--sidebar-bg); /* Используем системный цвет */
+    border-right: 1px solid rgba(0, 0, 0, 0.1); /* Очень тонкая граница */
+}
+
+/* В темной теме граница светлее */
+body[data-theme-base="dark"] .left-sidebar {
+    border-right-color: rgba(255, 255, 255, 0.1);
+}
+
+.collection-item {
+    border-radius: 6px; /* Небольшие скругления */
+    margin: 2px 8px;
+    padding: 8px 12px;
+    font-size: 0.9em;
+}
+
+.collection-item:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* Легкий серый фон */
+}
+
+body[data-theme-base="dark"] .collection-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.collection-item.selected {
+    background-color: rgba(var(--accent-color-rgb), 0.15); /* Полупрозрачный акцент */
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* 3. Верхняя Панель */
+.top-bar {
+    background-color: rgba(255, 255, 255, 0.8); /* Полупрозрачность */
+    backdrop-filter: saturate(180%) blur(20px); /* Эффект матового стекла */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    z-index: 100; /* Поверх контента */
+}
+
+body[data-theme-base="dark"] .top-bar {
+    background-color: rgba(40, 40, 40, 0.8);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+#search-input {
+    background-color: rgba(0, 0, 0, 0.05);
+    border: none;
+    border-radius: 8px;
+    padding-left: 36px; /* Место для иконки */
+    transition: background-color 0.2s;
+}
+
+body[data-theme-base="dark"] #search-input {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#search-input:focus {
+    background-color: white;
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+body[data-theme-base="dark"] #search-input:focus {
+    background-color: #333;
+}
+
+/* 4. Кнопка NEW */
+#new-note-btn {
+    /* Градиент в стиле iOS */
+    background: linear-gradient(180deg, var(--accent-color), color-mix(in srgb, var(--accent-color) 90%, black));
+    border: 1px solid rgba(0,0,0,0.1);
+    color: white;
+    font-weight: 500;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transform: translateY(0);
+}
+
+#new-note-btn:hover {
+    filter: brightness(1.05);
+}
+
+#new-note-btn:active {
+    filter: brightness(0.95);
+    transform: translateY(1px);
+}
+
+/* 5. Плитки Заметок */
+.note-tile {
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+body[data-theme-base="dark"] .note-tile {
+    border-color: rgba(255,255,255,0.1);
+    background-color: #2c2c2e; /* Стандартный темно-серый Apple */
+}
+
+.note-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.note-title {
+    font-weight: 600;
+    margin-bottom: 1px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+body[data-theme-base="dark"] .note-title {
+    border-bottom-color: rgba(255,255,255,0.1);
+}
+
+/* 6. Выделение */
+.note-tile.is-selected {
+    box-shadow: 0 0 0 3px var(--accent-color);
+    border-color: transparent;
+    transform: none;
+}
+
+/* 7. Модальные Окна */
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+body[data-theme-base="dark"] .modal-content {
+    border-color: rgba(255,255,255,0.1);
+    background-color: #1c1c1e;
+}
+
+/* 8. Панель Выделения */
+#selection-toolbar {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+body[data-theme-base="dark"] #selection-toolbar {
+    background-color: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255,255,255,0.1);
+}
+
+/* Добавляем размытие для модальных окон */
+.modal {
+    background-color: rgba(0, 0, 0, 0.2); /* Легкое затемнение */
+    backdrop-filter: blur(20px); /* Сильное, "яблочное" размытие */
+    transition: backdrop-filter 0.3s ease;
+}
+
+/* Добавляем размытие для выпадающих меню */
+.dropdown-menu {
+    background-color: rgba(255, 255, 255, 0.75); /* Сильная прозрачность */
+    backdrop-filter: blur(20px) saturate(180%); /* Фирменный эффект Apple: размытие + насыщенность */
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Темная тема для меню */
+body[data-theme-base="dark"] .dropdown-menu {
+    background-color: rgba(30, 30, 30, 0.75);
+    border-color: rgba(255,255,255,0.1);
+}

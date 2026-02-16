@@ -561,13 +561,13 @@ body.no-notes-present #new-note-btn {
 }
 
 .note-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 40%;
-    height: 1px;
-    background-color: var(--border-color);
+    /* Жестко задаем высоту */
+    height: 1px; 
+    min-height: 1px; 
+    /* Градиент */
+    background: linear-gradient(90deg, var(--accent-color), transparent);
+    /* Убираем любые transform, если были */
+    transform: none;
 }
 
 .note-text {
@@ -1682,4 +1682,37 @@ body.is-dragging-collection #drag-delete-zone {
     cursor: pointer;
 }
 /* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 НОВЫЙ БЛОК: КНОПКА ВЫХОДА ИЗ ОБУЧЕНИЯ --- */
+#tutorial-exit-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000; /* Выше всех слоев обучения */
+    
+    background-color: var(--accent-color-danger);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+#tutorial-exit-btn:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+
+
+
+
 

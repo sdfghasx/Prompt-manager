@@ -3,7 +3,7 @@
 ; ===================================================================
 
 #define MyAppName "Prompt Manager"
-#define MyAppVersion "1.4"
+#define MyAppVersion "1.5"
 #define MyAppPublisher "D."
 #define MyAppURL "https://github.com/sdfghasx/Prompt-manager"
 #define MyAppExeName "Prompt Manager.exe"

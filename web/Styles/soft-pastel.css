@@ -1,0 +1,174 @@
+/* ================================================================= */
+/* ✨ ЭКСПЕРИМЕНТАЛЬНЫЙ ПАКЕТ ВИЗУАЛЬНОГО АПГРЕЙДА (SOFT PASTEL) ✨ */
+/* ================================================================= */
+
+/* 1. Общее - Мягкость */
+body {
+    font-family: 'Nunito', 'Quicksand', sans-serif; /* Округлые шрифты */
+}
+
+/* 2. Боковая Панель */
+.left-sidebar {
+    background-color: var(--sidebar-bg); /* Используем стандартный цвет */
+    border-right: none;
+}
+
+.collection-item {
+    border-radius: 20px; /* Сильные скругления */
+    margin: 4px 10px;
+    padding: 10px 15px;
+}
+
+.collection-item:hover {
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+    color: var(--accent-color);
+}
+
+.collection-item.selected {
+    background-color: var(--accent-color);
+    color: white; /* Белый текст на активном элементе */
+    box-shadow: 0 4px 10px rgba(var(--accent-color-rgb), 0.3);
+}
+
+/* 3. Верхняя Панель */
+.top-bar {
+    background-color: var(--sidebar-bg);
+    border-bottom: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Очень легкая тень вместо линии */
+}
+
+#search-input {
+    border-radius: 20px;
+    background-color: rgba(var(--accent-color-rgb), 0.05);
+    border: 1px solid transparent;
+}
+
+#search-input:focus {
+    background-color: white;
+    border-color: var(--accent-color);
+    box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.15);
+}
+
+/* 4. Кнопка NEW */
+#new-note-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 20px;
+    border: none;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(var(--accent-color-rgb), 0.3);
+    transform: translateY(0);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* "Пружинящая" анимация */
+}
+
+#new-note-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(var(--accent-color-rgb), 0.4);
+}
+
+/* 5. Плитки Заметок */
+.note-tile {
+    border-radius: 24px; /* Очень большие скругления */
+    border: none;
+    background-color: var(--main-bg);
+    box-shadow: 
+        0 10px 20px rgba(0,0,0,0.05),
+        0 2px 6px rgba(0,0,0,0.05);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.note-tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        0 15px 30px rgba(var(--accent-color-rgb), 0.15),
+        0 5px 10px rgba(0,0,0,0.05);
+}
+
+.note-title { 
+    font-weight: 550; 
+    font-size: 1.1em; 
+    margin-bottom: 0px;
+    padding-bottom: 8px; /* Даем место для линии */
+    position: relative; /* <--- ВАЖНО для абсолютного позиционирования */
+}
+
+.note-title::after {
+    content: '';
+    position: absolute; /* <--- ВАЖНО */
+    bottom: 0;
+    left: 0;
+    width: 100%; /* На всю ширину */
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent-color), transparent);
+    opacity: 0.6;
+    display: block;
+    z-index: 1; /* Поднимаем слой */
+}
+
+/* 6. Выделение */
+.note-tile.is-selected {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 3px var(--accent-color);
+}
+
+/* 7. Модальные Окна */
+.modal-content {
+    border-radius: 30px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal-btn {
+    border-radius: 20px;
+}
+
+/* 8. Панель Выделения */
+#selection-toolbar {
+    border-radius: 20px;
+    background-color: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    border: none;
+}
+
+/* Адаптация для темной темы */
+body[data-theme-base="dark"] #selection-toolbar,
+body[data-theme-base="dark"] #search-input:focus {
+    background-color: #333;
+}
+
+/* "Акцентный Туман" с Шумом */
+.modal {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: blur(5px);
+    
+    background-image: 
+        /* Слой Шума */
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E"),
+        /* Слой Градиента */
+        radial-gradient(
+            circle at center, 
+            rgba(var(--accent-color-rgb), 0.4) 0%, /* <-- Ярче (было 0.15) */
+            transparent 80%
+        );
+        
+    background-size: 200px 200px, 150% 150%;
+    
+    animation: breeze 6s ease-in-out infinite alternate;
+}
+
+@keyframes breeze {
+    0% { background-position: 0 0, 0% 50%; }
+    100% { background-position: 0 0, 100% 50%; }
+}
+
+
+/* Добавляем размытие для выпадающих меню */
+.dropdown-menu {
+    background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный белый */
+    backdrop-filter: blur(10px); /* Сильное размытие */
+}
+
+/* Адаптация для темной темы */
+body[data-theme-base="dark"] .dropdown-menu {
+    background-color: rgba(50, 50, 50, 0.9);
+}

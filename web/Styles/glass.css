@@ -1,0 +1,229 @@
+/* ✨ TRUE GLASS (REALISTIC) ✨ */
+
+/* 1. Фон - Глубокий и Абстрактный (нужен для эффекта стекла) */
+body {
+    /* Используем качественный абстрактный фон */
+    background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+}
+
+/* Затемняющий слой поверх картинки, чтобы текст читался */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+}
+
+/* Убираем дефолтные фоны */
+.app-container, .main-panel, .content-area, #notes-grid {
+    background-color: transparent !important;
+}
+
+/* --- МАГИЯ ТОЛСТОГО СТЕКЛА (МИКСИН) --- */
+/* Используем эти свойства для создания эффекта */
+.glass-effect {
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.05)
+    );
+    backdrop-filter: blur(20px); /* Размытие фона */
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.18); /* Общая граница */
+    
+    /* Самое важное: Блики и Тени для объема */
+    box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37), /* Глубокая тень */
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1), /* Тонкий внутренний контур */
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.5); /* Яркий блик сверху (свет падает сверху) */
+}
+
+/* 2. Боковая Панель */
+.left-sidebar {
+    /* Применяем эффект стекла */
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+    /* Отступ, чтобы панель "парила" */
+    margin: 10px; 
+    border-radius: 20px;
+    height: calc(100% - 20px);
+}
+
+.collection-item {
+    border-radius: 12px;
+    margin: 5px 10px;
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.collection-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2); /* Внутренний блик */
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.collection-item.selected {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 4px 15px rgba(0,0,0,0.1),
+        inset 0 1px 0 rgba(255,255,255,0.4);
+    font-weight: 600;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* 3. Верхняя Панель */
+.top-bar {
+    background: transparent;
+    border-bottom: none;
+    padding: 20px;
+}
+
+#search-input {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.3); /* Вдавленный эффект */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 20px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#search-input:focus {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* 4. Плитки Заметок - Кристаллы */
+.note-tile {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    color: white;
+    
+    /* Эффект толстого стекла */
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-top: 1px solid rgba(255, 255, 255, 0.4); /* Яркий верхний край */
+    border-left: 1px solid rgba(255, 255, 255, 0.3); /* Светлый левый край */
+    
+    box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Глубокая тень */
+        
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.note-tile:hover {
+    transform: translateY(-5px) scale(1.02);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    box-shadow: 
+        0 15px 40px 0 rgba(0, 0, 0, 0.4), /* Тень становится глубже */
+        inset 0 0 20px rgba(255, 255, 255, 0.1); /* Внутреннее свечение */
+    z-index: 10;
+}
+
+.note-title {
+    color: white !important;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.note-text {
+    color: rgba(255, 255, 255, 0.85) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* 5. Кнопка NEW - Ледяная Кнопка */
+#new-note-btn {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    color: white;
+    font-weight: 700;
+    border-radius: 20px;
+    
+    /* Стеклянные границы */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+#new-note-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255,255,255,0.2);
+}
+
+/* 6. Модальные Окна - Призма */
+
+.modal-content {
+    /* Эффект призмы */
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+    backdrop-filter: blur(40px);
+    border-radius: 30px;
+    
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+}
+
+.modal-content input, .modal-content textarea {
+    background: rgba(0, 0, 0, 0.2);
+    border: none;
+    border-radius: 15px;
+    color: white;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* 7. Меню */
+.dropdown-menu, 
+.dropdown-menu .submenu {
+    /* Почти полная непрозрачность */
+    background-color: rgba(20, 20, 30, 0.95) !important;
+    
+    /* Сохраняем размытие для краев и легкой прозрачности */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+/* Эффект "Призматический Свет" */
+.modal {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px);
+    
+    /* Добавляем "радужные" блики */
+    background-image: 
+        radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
+        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
+        linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.05) 45%, rgba(255, 255, 255, 0) 50%);
+        
+    background-size: 100% 100%, 100% 100%, 200% 200%;
+    
+    animation: prism-shift 10s ease-in-out infinite alternate;
+}
+
+@keyframes prism-shift {
+    0% { background-position: 0 0, 0 0, 0% 0%; }
+    100% { background-position: 20px 20px, -20px -20px, 100% 100%; }
+}

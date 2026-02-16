@@ -24,12 +24,18 @@ function blockEscape(e) {
 
 function initializeTutorialElements() {
     if (tutorialDriver.elements.overlay) return;
-
     tutorialDriver.elements.overlay = document.getElementById('tutorial-overlay');
     tutorialDriver.elements.popover = document.getElementById('tutorial-popover');
     tutorialDriver.elements.text = document.getElementById('tutorial-text');
     tutorialDriver.elements.counter = document.getElementById('tutorial-step-counter');
     tutorialDriver.elements.nextBtn = document.getElementById('tutorial-next-btn');
+    
+    // --- НОВЫЙ КОД ---
+    tutorialDriver.elements.exitBtn = document.getElementById('tutorial-exit-btn');
+    tutorialDriver.elements.exitBtn.addEventListener('click', () => {
+        location.reload();
+    });
+    // --- КОНЕЦ НОВОГО КОДА ---
 
     tutorialDriver.elements.nextBtn.addEventListener('click', () => {
         if (tutorialDriver.currentStepIndex === tutorialDriver.steps.length - 1) {
@@ -40,28 +46,30 @@ function initializeTutorialElements() {
     });
 }
 
-function startTutorial(steps) {
+function startTutorial(steps, currentLanguage) {
     if (tutorialDriver.isActive) return;
-
     initializeTutorialElements();
-    
     tutorialDriver.steps = steps;
     tutorialDriver.currentStepIndex = 0;
     tutorialDriver.isActive = true;
-
+    tutorialDriver.language = currentLanguage || 'en';
     document.addEventListener('keydown', blockEscape, true);
-
     document.body.classList.add('tutorial-active');
     tutorialDriver.elements.overlay.classList.remove('hidden');
     tutorialDriver.elements.popover.classList.remove('hidden');
     
+    // --- НОВОЕ: Показываем кнопку выхода ---
+    tutorialDriver.elements.exitBtn.classList.remove('hidden');
+
     showTutorialStep(tutorialDriver.currentStepIndex);
 }
 
 function endTutorial() {
     if (!tutorialDriver.isActive) return;
-    
     document.removeEventListener('keydown', blockEscape, true);
+    
+    // --- НОВОЕ: Прячем кнопку выхода ---
+    tutorialDriver.elements.exitBtn.classList.add('hidden');
 
     const lastStep = tutorialDriver.steps[tutorialDriver.currentStepIndex];
     if (lastStep && lastStep.element) {
@@ -71,26 +79,22 @@ function endTutorial() {
             lastTargetElement.style.zIndex = '';
         }
     }
-
     if (tutorialDriver.eventListener) {
         tutorialDriver.eventListener.element.removeEventListener(tutorialDriver.eventListener.event, tutorialDriver.eventListener.handler);
         tutorialDriver.eventListener = null;
     }
-
     tutorialDriver.isActive = false;
     document.body.classList.remove('tutorial-active');
-    
     tutorialDriver.elements.overlay.classList.remove('visible');
     tutorialDriver.elements.popover.classList.remove('visible');
     tutorialDriver.elements.overlay.style.boxShadow = '';
-
     setTimeout(() => {
         tutorialDriver.elements.overlay.classList.add('hidden');
         tutorialDriver.elements.popover.classList.add('hidden');
     }, 300);
 
+    // Перезагрузка после завершения
     setTimeout(() => location.reload(), 400); 
-
 }
 
 function advanceTutorial() {

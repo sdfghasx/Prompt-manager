@@ -1,0 +1,165 @@
+/* ================================================================= */
+/* ✨ ЭКСПЕРИМЕНТАЛЬНЫЙ ПАКЕТ ВИЗУАЛЬНОГО АПГРЕЙДА (ARC ARC) ✨ */
+/* ================================================================= */
+
+/* 1. Общее */
+body {
+    font-family: 'Figtree', 'Inter', sans-serif; /* Более геометричный шрифт */
+    letter-spacing: 0;
+}
+
+/* 2. Боковая Панель */
+.left-sidebar {
+    background-color: var(--sidebar-bg);
+    border-right: none;
+    /* Мягкий градиент на фоне */
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+}
+
+.collection-item {
+    border-radius: 8px;
+    margin: 4px 12px;
+    padding: 10px 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.collection-item:hover {
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+    transform: scale(1.02);
+}
+
+.collection-item.selected {
+    background-color: var(--accent-color);
+    color: white; /* Всегда белый текст */
+    box-shadow: 0 4px 12px rgba(var(--accent-color-rgb), 0.3);
+}
+
+/* 3. Верхняя Панель */
+.top-bar {
+    background-color: transparent;
+    border-bottom: none;
+    padding: 20px 30px;
+}
+
+#search-input {
+    background-color: rgba(var(--accent-color-rgb), 0.05);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 10px 15px 10px 40px;
+    transition: all 0.2s;
+}
+
+#search-input:focus {
+    background-color: white;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 4px rgba(var(--accent-color-rgb), 0.1);
+}
+
+body[data-theme-base="dark"] #search-input:focus {
+    background-color: #2a2a2a;
+}
+
+/* 4. Кнопка NEW */
+#new-note-btn {
+    background-color: white;
+    color: var(--accent-color);
+    font-weight: 800;
+    border: 2px solid var(--accent-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 0 var(--accent-color); /* "Толстая" тень */
+    transform: translateY(0);
+    transition: all 0.1s;
+}
+
+body[data-theme-base="dark"] #new-note-btn {
+    background-color: #2a2a2a;
+}
+
+#new-note-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 var(--accent-color);
+}
+
+#new-note-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 var(--accent-color);
+}
+
+/* 5. Плитки Заметок */
+.note-tile {
+    background-color: var(--main-bg);
+    border: none;
+    border-radius: 16px;
+    /* Цветная тень в тон акцента */
+    box-shadow: 0 10px 20px -5px rgba(var(--accent-color-rgb), 0.15), 
+                0 0 0 1px rgba(var(--accent-color-rgb), 0.05);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Пружина */
+}
+
+.note-tile:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 20px 40px -5px rgba(var(--accent-color-rgb), 0.25);
+    z-index: 10;
+}
+
+.note-title {
+    font-weight: 550;
+    font-size: 1.1em;
+    margin-bottom: 1px;
+    border-bottom: 2px dashed rgba(var(--accent-color-rgb), 0.2);
+    padding-bottom: 8px;
+}
+
+.note-text {
+    line-height: 1.4;
+    opacity: 0.8;
+}
+
+/* 6. Выделение */
+.note-tile.is-selected {
+    box-shadow: 0 0 0 4px var(--accent-color);
+    transform: scale(0.95);
+}
+
+/* 7. Модальные Окна */
+.modal-content {
+    border-radius: 24px;
+    /* Убираем border, который может давать бэндинг */
+    border: none;
+    /* Используем более мягкую тень */
+    box-shadow: 
+        0 20px 50px -12px rgba(var(--accent-color-rgb), 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1); /* Имитация тонкой границы через тень */
+}
+
+.modal-btn {
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+/* 8. Панель Выделения */
+#selection-toolbar {
+    border-radius: 16px;
+    background-color: var(--sidebar-bg);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    border: 2px solid rgba(var(--accent-color-rgb), 0.1);
+}
+
+/* Плавное Дыхание (Только цвет) */
+.modal {
+    background-color: rgba(var(--accent-color-rgb), 0.15) !important;
+    backdrop-filter: blur(15px); /* Фиксированное размытие */
+    
+    animation: breathe-color 4s ease-in-out infinite alternate;
+}
+
+@keyframes breathe-color {
+    0% {
+        background-color: rgba(var(--accent-color-rgb), 0.02);
+    }
+    100% {
+        background-color: rgba(var(--accent-color-rgb), 0.05);
+    }
+}
+

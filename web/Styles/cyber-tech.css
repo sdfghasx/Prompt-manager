@@ -1,0 +1,179 @@
+
+/* ================================================================= */
+/* ✨ ЭКСПЕРИМЕНТАЛЬНЫЙ ПАКЕТ ВИЗУАЛЬНОГО АПГРЕЙДА (CYBER HIGH-TECH) ✨ */
+/* ================================================================= */
+
+/* 1. Шрифт - Технологичный */
+body {
+    font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; /* Моноширинный вайб */
+    letter-spacing: -0.03em;
+}
+
+/* 2. Боковая Панель */
+.left-sidebar {
+    background-color: #1a1a1a; /* Глубокий черный */
+    border-right: 1px solid var(--border-color);
+}
+
+.workspace-header h2 {
+    text-transform: uppercase;
+    font-size: 1.1em;
+    letter-spacing: 0.1em;
+    color: var(--accent-color); /* Заголовок цветом акцента */
+}
+
+.collection-item {
+    border-radius: 0; /* Острые углы */
+    border-left: 2px solid transparent;
+    margin-bottom: 2px;
+}
+
+.collection-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-left-color: rgba(255, 255, 255, 0.3);
+}
+
+.collection-item.selected {
+    background-color: rgba(var(--accent-color-rgb), 0.1);
+    border-left-color: var(--accent-color);
+    color: var(--accent-color);
+    font-weight: 700;
+}
+
+/* 3. Верхняя Панель */
+.top-bar {
+    background-color: #1a1a1a;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#search-input {
+    background-color: #000;
+    border: 1px solid var(--border-color);
+    border-radius: 0; /* Острые углы */
+    font-family: inherit;
+}
+
+#search-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 10px rgba(var(--accent-color-rgb), 0.3); /* Неоновое свечение */
+}
+
+/* 4. Кнопка NEW */
+#new-note-btn {
+    background-color: transparent;
+    border: 2px solid var(--accent-color); /* Только рамка */
+    color: var(--accent-color);
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 0;
+    box-shadow: 0 0 5px rgba(var(--accent-color-rgb), 0.2);
+    transition: all 0.2s;
+}
+
+#new-note-btn:hover {
+    background-color: var(--accent-color);
+    color: black; /* Инверсия при наведении */
+    box-shadow: 0 0 15px rgba(var(--accent-color-rgb), 0.6); /* Сильное свечение */
+    transform: translateY(-1px);
+}
+
+/* 5. Плитки Заметок */
+.note-tile {
+    background-color: #222;
+    border: 1px solid #333;
+    border-radius: 4px; /* Минимальное скругление */
+    box-shadow: none;
+    transition: all 0.2s;
+}
+
+.note-tile:hover {
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.note-title {
+    font-weight: 700;
+    font-size: 1em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: none;
+}
+
+.note-title::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background-color: var(--accent-color); /* Цвет линии = акцент */
+    margin-top: 5px;
+    /* Неоновое свечение для линии */
+    box-shadow: 0 0 5px var(--accent-color), 0 0 10px var(--accent-color);
+    opacity: 0.8;
+}
+
+.note-text {
+    font-size: 0.8em;
+    line-height: 1.4;
+    opacity: 0.7;
+}
+
+/* 6. Выделение */
+.note-tile.is-selected {
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 0 15px rgba(var(--accent-color-rgb), 0.3);
+    background-color: rgba(var(--accent-color-rgb), 0.05);
+}
+
+/* 7. Модальные Окна */
+.modal-content {
+    background-color: #1a1a1a;
+    border: 2px solid var(--accent-color);
+    border-radius: 0;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+
+.modal-content input, .modal-content textarea {
+    background-color: #000;
+    border: 1px solid #333;
+    border-radius: 0;
+    color: var(--text-color);
+    font-family: inherit;
+}
+
+.modal-content input:focus, .modal-content textarea:focus {
+    border-color: var(--accent-color);
+    outline: none;
+}
+
+/* 8. Панель Выделения */
+#selection-toolbar {
+    background-color: #000;
+    border: 1px solid var(--accent-color);
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.3);
+}
+
+/* Анимированная Кибер-Сетка */
+.modal {
+    background-color: rgba(0, 0, 0, 0.85) !important;
+    
+    background-image: 
+        linear-gradient(rgba(var(--accent-color-rgb), 0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--accent-color-rgb), 0.2) 1px, transparent 1px);
+    
+    background-size: 40px 40px;
+    
+    backdrop-filter: blur(3px);
+    
+    /* Анимация движения фона */
+    animation: grid-move 20s linear infinite;
+}
+
+@keyframes grid-move {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 40px 40px; /* Сдвиг на размер одной ячейки для бесшовности */
+    }
+}

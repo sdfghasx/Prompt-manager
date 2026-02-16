@@ -19,6 +19,7 @@ APP_SETTINGS = {}
 
 # --- Вспомогательные функции ---
 
+# --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 def get_app_settings():
     """Читает глобальные настройки приложения из app_state.json с отказоустойчивостью."""
     global APP_SETTINGS
@@ -28,8 +29,9 @@ def get_app_settings():
         'language': 'ru',
         'theme_base': 'dark',
         'theme_accent': 'blue',
-        'notes_root_path': None, # Для кастомного пути
-        'theme_text': 'default'  # <-- НОВАЯ НАСТРОЙКА
+        'notes_root_path': None,
+        'theme_text': 'default',
+        'current_style': 'default' # <-- НОВАЯ НАСТРОЙКА
     }
 
     if not os.path.exists(STATE_FILE):
@@ -61,6 +63,7 @@ def get_app_settings():
         APP_SETTINGS.setdefault(key, value)
         
     return APP_SETTINGS
+# --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 def save_app_settings(new_settings):
     """Выполняет атомарную и безопасную запись глобальных настроек."""
