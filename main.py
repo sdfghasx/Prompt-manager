@@ -9,7 +9,7 @@ from tkinter import filedialog, Tk
 
 # --- Конфигурация ---
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-NOTES_APP_DIR = os.path.join(ROOT_DIR, 'Записки')
+NOTES_APP_DIR = os.path.join(ROOT_DIR, 'Notes')
 DEFAULT_VAULT_NAME = 'Default Vault'
 STATE_FILE = os.path.join(ROOT_DIR, 'app_state.json')
 
@@ -29,9 +29,9 @@ def get_app_settings():
         'language': 'ru',
         'theme_base': 'dark',
         'theme_accent': 'blue',
-        'notes_root_path': None,
+        'notes_root_path': None, 
         'theme_text': 'default',
-        'current_style': 'default' # <-- НОВАЯ НАСТРОЙКА
+        'sound_enabled': True  # <-- НОВАЯ НАСТРОЙКА
     }
 
     if not os.path.exists(STATE_FILE):
@@ -104,7 +104,7 @@ def get_current_vault_path():
         NOTES_APP_DIR = custom_root
     else:
         # Иначе, используем путь по умолчанию
-        NOTES_APP_DIR = os.path.join(ROOT_DIR, 'Записки')
+        NOTES_APP_DIR = os.path.join(ROOT_DIR, 'Notes')
     # --- КОНЕЦ НОВОЙ ЛОГИКИ ---
 
     vault_name = settings.get('current_vault', DEFAULT_VAULT_NAME)
@@ -285,13 +285,21 @@ def delete_notes_batch(note_ids):
     return {'success': True, 'deleted_ids': deleted_ids}
 # --- 👆 КОНЕЦ НОВОГО БЛОКА ---
 
+# --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 @eel.expose
-def create_collection(name):
-    """Создает новую коллекцию."""
+def create_collection(name, parent_id=None):
+    """Создает новую коллекцию или подколлекцию."""
     coll_id = 'coll_' + str(uuid.uuid4())
     metadata = read_metadata()
-    metadata.setdefault('collections', {})[coll_id] = {'name': name, 'icon': 'folder.svg'}
+    
+    # Добавляем parentId в структуру
+    metadata.setdefault('collections', {})[coll_id] = {
+        'name': name, 
+        'icon': 'folder.svg',
+        'parentId': parent_id
+    }
     metadata.setdefault('collection_notes', {})[coll_id] = []
+    
     write_metadata(metadata)
     return {'id': coll_id, 'data': metadata['collections'][coll_id]}
 
@@ -306,14 +314,29 @@ def rename_collection(coll_id, new_name):
 
 @eel.expose
 def delete_collection(coll_id):
+    """Удаляет коллекцию и ВСЕ ее подколлекции."""
     metadata = read_metadata()
+    deleted_ids = []
+
     if coll_id in metadata.get('collections', {}):
-        del metadata['collections'][coll_id]
-        if coll_id in metadata.get('collection_notes', {}):
-            del metadata['collection_notes'][coll_id]
+        # Ищем все подколлекции этого родителя
+        children = [k for k, v in metadata['collections'].items() if v.get('parentId') == coll_id]
+        
+        # Удаляем родителя и всех детей
+        ids_to_delete = [coll_id] + children
+        
+        for id_to_del in ids_to_delete:
+            if id_to_del in metadata['collections']:
+                del metadata['collections'][id_to_del]
+                deleted_ids.append(id_to_del)
+            if id_to_del in metadata.get('collection_notes', {}):
+                del metadata['collection_notes'][id_to_del]
+                
         write_metadata(metadata)
-        return {'success': True, 'deleted_id': coll_id}
+        return {'success': True, 'deleted_ids': deleted_ids}
+        
     return {'success': False}
+# --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 # --- 👇 Добавьте новую функцию после delete_collection ---
 @eel.expose

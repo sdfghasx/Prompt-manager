@@ -1,108 +1,122 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+/* ========================================================================== */
+/* 🔮 EXPERIMENTAL VISION-OS EDITION: APPLE GLASS & SPATIAL COMPUTING 🔮     */
+/* ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* --- Глобальные переменные и переменные тем --- */
 :root {
-    --bg-color: #2B2B2B;
-    --sidebar-bg: #313335;
-    --main-bg: #3C3F41;
-    --text-color: #E0E0E0;
-    --text-color-dark: #A9B7C6;
-    --border-color: #45494A;
-    --hover-bg: #45494A;
-    --accent-color: #f658a7;
-    --accent-color-danger: #E57373;
+    /* Новая палитра: Истинное стекло */
+    --bg-color: #000000;
+    --sidebar-bg: rgba(30, 30, 35, 0.35);
+    /* Ультра-прозрачность для блюра */
+    --main-bg: rgba(20, 20, 25, 0.4);
+    --text-color: rgba(255, 255, 255, 0.95);
+    --text-color-dark: rgba(255, 255, 255, 0.55);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --border-highlight: rgba(255, 255, 255, 0.25);
+    --hover-bg: rgba(255, 255, 255, 0.08);
+
+    --accent-color: #0A84FF;
+    /* Apple Blue */
+    --accent-color-rgb: 10, 132, 255;
+    --accent-color-danger: #FF453A;
     --text-on-accent: #FFFFFF;
+
     --icon-size: 18px;
-    --theme-transition-duration: 0.3s;
+    --theme-transition-duration: 0.5s;
     --note-preview-font-size: 0.85em;
     --note-title-color: var(--text-color);
     --note-text-color: var(--text-color-dark);
+
+    /* Специфичные переменные VisionOS */
+    --glass-blur: blur(40px) saturate(180%);
+    --glass-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+    --spring: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+    --smooth: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-
-
 body[data-theme-base="dark"] {
-    --bg-color: #2B2B2B;
-    --sidebar-bg: #313335;
-    --main-bg: #3C3F41;
-    --text-color: #E0E0E0;
-    --text-color-dark: #A9B7C6;
-    --border-color: #45494A;
-    --hover-bg: #45494A;
+    /* Темная тема - база для VisionOS */
 }
 
 body[data-theme-base="light"] {
-    --bg-color: #F9F9F9;
-    --sidebar-bg: #F1F3F4;
-    --main-bg: #FFFFFF;
-    --text-color: #202124;
-    --text-color-dark: #5F6368;
-    --border-color: #DCDCDC;
-    --hover-bg: #EAEAEA;
+    /* Светлая тема адаптация */
+    --sidebar-bg: rgba(255, 255, 255, 0.4);
+    --main-bg: rgba(255, 255, 255, 0.5);
+    --text-color: rgba(0, 0, 0, 0.9);
+    --text-color-dark: rgba(0, 0, 0, 0.5);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --border-highlight: rgba(0, 0, 0, 0.2);
+    --hover-bg: rgba(0, 0, 0, 0.05);
+    --glass-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
 }
 
 body[data-theme-accent="blue"] {
-    --accent-color: #589DF6;
-    --accent-color-rgb: 88, 157, 246;
+    --accent-color: #0A84FF;
+    --accent-color-rgb: 10, 132, 255;
 }
 
 body[data-theme-accent="green"] {
-    --accent-color: #6DC274;
-    --accent-color-rgb: 109, 194, 116;
+    --accent-color: #30D158;
+    --accent-color-rgb: 48, 209, 88;
 }
 
 body[data-theme-accent="purple"] {
-    --accent-color: #B388FF;
-    --accent-color-rgb: 179, 136, 255;
+    --accent-color: #BF5AF2;
+    --accent-color-rgb: 191, 90, 242;
 }
 
 body[data-theme-accent="orange"] {
-    --accent-color: #FFAB70;
-    --accent-color-rgb: 255, 171, 112;
+    --accent-color: #FF9F0A;
+    --accent-color-rgb: 255, 159, 10;
 }
 
 body[data-theme-accent="red"] {
-    --accent-color: #F06292;
-    --accent-color-rgb: 240, 98, 146;
+    --accent-color: #FF375F;
+    --accent-color-rgb: 255, 55, 95;
 }
 
 body[data-theme-accent="cyan"] {
-    --accent-color: #4DD0E1;
-    --accent-color-rgb: 77, 208, 225;
+    --accent-color: #64D2FF;
+    --accent-color-rgb: 100, 210, 255;
 }
 
-/* --- 👇 НОВЫЙ БЛОК --- */
 body[data-theme-text="default"] {
     --note-title-color: var(--text-color);
     --note-text-color: var(--text-color-dark);
 }
+
 body[data-theme-text="sky"] {
     --note-title-color: #b9e0f7;
     --note-text-color: #86a3b4;
 }
+
 body[data-theme-text="mint"] {
     --note-title-color: #c4f1d4;
     --note-text-color: #8fb19a;
 }
+
 body[data-theme-text="sand"] {
     --note-title-color: #f3eac2;
     --note-text-color: #b1aa8d;
 }
+
 body[data-theme-text="blush"] {
     --note-title-color: #f3baca;
     --note-text-color: #b18999;
 }
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
 /* --- Базовые стили --- */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
 }
 
 html, body {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     overflow: hidden;
@@ -110,11 +124,20 @@ html, body {
     width: 100vw;
     -webkit-user-select: none;
     user-select: none;
+    letter-spacing: -0.015em;
+
+    /* Живой фон Авроры для преломления стекла */
+    background-image:
+        radial-gradient(ellipse at 10% 20%, rgba(10, 132, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(ellipse at 90% 80%, rgba(191, 90, 242, 0.15) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(48, 209, 88, 0.05) 0%, transparent 50%);
+    background-attachment: fixed;
 }
 
 input, textarea {
     -webkit-user-select: text;
     user-select: text;
+    font-family: inherit;
 }
 
 .icon {
@@ -128,42 +151,59 @@ input, textarea {
 .app-container {
     display: flex;
     height: 100%;
+    /* Эффект парящей ОС: отступы от краев монитора */
+    padding: 12px;
+    gap: 12px;
 }
 
 .left-sidebar {
-    width: 240px;
+    width: 280px;
     background-color: var(--sidebar-bg);
-    border-right: 1px solid var(--border-color);
+    /* Магия стекла */
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-highlight);
+    /* Верхний блик */
+    border-radius: 24px;
+    /* Круглые углы Vision */
     display: flex;
     flex-direction: column;
-    padding: 15px;
+    padding: 24px 16px;
     flex-shrink: 0;
+    box-shadow: var(--glass-shadow);
 }
 
 .main-panel {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    background-color: var(--bg-color);
+    background-color: var(--main-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-highlight);
+    border-radius: 24px;
+    box-shadow: var(--glass-shadow);
+    overflow: hidden;
 }
 
-/* --- 👇 ЗАМЕНИТЕ ВЕСЬ ЭТОТ БЛОК --- */
 .top-bar {
     display: grid;
     grid-template-columns: auto 1fr auto;
     align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 16px 24px;
     gap: 20px;
     flex-shrink: 0;
-    background-color: var(--sidebar-bg); /* <-- ВОТ ИЗМЕНЕНИЕ */
+    background-color: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-/* --- 👆 КОНЕЦ ЗАМЕНЫ --- */
 
 .content-area {
     display: flex;
     flex-grow: 1;
     overflow-y: hidden;
+    position: relative;
 }
 
 /* --- Левая панель --- */
@@ -175,22 +215,44 @@ input, textarea {
 .workspace-header h2 {
     font-size: 1.4em;
     font-weight: 700;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.5) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body[data-theme-base="light"] .workspace-header h2 {
+    background: linear-gradient(135deg, #000 0%, #666 100%);
+    -webkit-background-clip: text;
+}
+
+.workspace-header .note-count-total {
+    font-size: 0.6em;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    margin-left: 10px;
+    vertical-align: middle;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 8px;
+    border-radius: 20px;
+    -webkit-text-fill-color: initial;
 }
 
 .collections-header {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 5px;
-    font-size: 0.9em;
+    padding: 10px 8px;
+    font-size: 0.8em;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     color: var(--text-color-dark);
+    font-weight: 600;
 }
 
 .collections-header .icon {
-    width: 25px;
-    height: 25px;
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
 }
 
 .collections-section {
@@ -201,93 +263,178 @@ input, textarea {
 }
 
 #collections-list {
-    margin-top: 10px;
+    margin-top: 5px;
     display: flex;
     flex-direction: column;
     gap: 4px;
     flex-grow: 1;
     overflow-y: auto;
+    padding-right: 5px;
 }
 
 .collection-item {
     display: flex;
     align-items: center;
-    padding: 10px;
-    border-radius: 6px;
+    padding: 10px 14px;
+    border-radius: 12px;
     cursor: pointer;
     gap: 12px;
-    transition: background-color var(--theme-transition-duration) ease, color var(--theme-transition-duration) ease, opacity 0.2s ease;
+    transition: all 0.3s var(--smooth);
+    color: var(--text-color-dark);
+    font-weight: 500;
+    font-size: 0.95em;
+    position: relative;
+    overflow: hidden;
 }
 
 .collection-item:hover {
     background-color: var(--hover-bg);
+    color: var(--text-color);
 }
 
 .collection-item.selected {
-    background-color: var(--main-bg);
+    background-color: rgba(var(--accent-color-rgb), 0.15);
+    color: var(--accent-color);
+    font-weight: 600;
 }
 
-.collection-item span {
-    font-size: 0.95em;
+.collection-item .icon {
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.collection-item span[data-name] {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.collection-item .note-count {
+    font-size: 0.75em;
+    font-weight: 600;
+    color: var(--text-color-dark);
+    background-color: rgba(255, 255, 255, 0.1);
+    min-width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s var(--spring);
+    transform: scale(0.8);
+}
+
+.collection-item:hover .note-count {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.collection-item.selected .note-count {
+    color: var(--text-on-accent);
+    background-color: var(--accent-color);
+    opacity: 1;
+    transform: scale(1);
 }
 
 .divider {
     height: 1px;
-    background-color: var(--border-color);
-    margin: 10px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    margin: 16px 0;
+    border: none;
 }
 
 #add-collection-btn {
     color: var(--text-color-dark);
+    margin-top: auto;
 }
 
-
-/* --- 👇 ИЗМЕНЕННЫЙ БЛОК --- */
-/* --- Стили для счетчиков --- */
-.workspace-header .note-count-total {
-    font-size: 0.6em;
-    font-weight: 500;
-    color: var(--text-color-dark);
-    margin-left: 10px;
-    vertical-align: middle;
+/* Стили для подколлекций */
+.collection-group {
+    display: flex;
+    flex-direction: column;
 }
 
-.collection-item .note-count {
-    margin-left: auto;
-    font-size: 0.8em;
-    font-weight: 500;
+.expander-icon {
+    font-size: 10px;
+    transform: scale(0.6);
+    transform-origin: center;
     color: var(--text-color-dark);
-    background-color: var(--main-bg);
-    min-width: 20px;
-    height: 20px;
-    border-radius: 10px;
+    width: 12px;
+    height: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 5px;
-
-    /* Делаем счетчик невидимым по умолчанию */
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
+    transition: transform 0.4s var(--spring), opacity 0.3s ease, color 0.3s ease;
+    visibility: hidden;
+    opacity: 0.5;
 }
 
-/* Показываем счетчик только при наведении на коллекцию */
-.collection-item:hover .note-count {
+.collection-group.has-children>.collection-item .expander-icon {
+    visibility: visible;
+}
+
+.collection-group.expanded>.collection-item .expander-icon {
+    transform: scale(0.6) rotate(90deg);
     opacity: 1;
+    color: var(--accent-color);
 }
 
-/* --- 👆 КОНЕЦ ИЗМЕНЕНИЙ --- */
+.collection-group.drag-expanded>.collection-item .expander-icon {
+    transform: scale(0.6) rotate(90deg);
+    opacity: 1;
+    color: var(--accent-color);
+}
 
+.subcollections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin: 0;
+    pointer-events: none;
+    transition: max-height 0.3s ease-out, opacity 0.2s ease-out, margin 0.3s ease-out;
+}
 
+.collection-group.expanded>.subcollections-list {
+    max-height: 400px;
+    opacity: 1;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    pointer-events: auto;
+    transition: max-height 0.5s var(--spring), opacity 0.4s ease-in 0.1s, margin 0.5s var(--spring);
+}
+
+.collection-group.drag-expanded>.subcollections-list {
+    max-height: 400px !important;
+    opacity: 1 !important;
+    margin-top: 4px !important;
+    margin-bottom: 12px !important;
+    pointer-events: auto !important;
+}
+
+.subcollections-list>* {
+    flex-shrink: 0;
+}
+
+.collection-item.subcollection {
+    padding-left: 38px;
+}
+
+.collection-item.subcollection .expander-icon {
+    display: none;
+}
 
 /* --- Верхняя панель --- */
 .top-bar-left, .top-bar-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
 #vault-display-container {
@@ -295,159 +442,185 @@ input, textarea {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
     color: var(--text-color-dark);
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    padding: 0 20px;
+    font-weight: 600;
+    font-size: 0.85em;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
 #vault-display-container::after {
     content: '';
     display: block;
-    width: 60%;
-    height: 1px;
-    background-color: var(--border-color);
-    border-radius: 1px;
-    transition: background-color var(--theme-transition-duration) ease-in-out;
+    width: 6px;
+    height: 6px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    margin-top: 6px;
+    box-shadow: 0 0 10px var(--accent-color);
+    /* Неоновое свечение точки */
+    transition: background-color var(--theme-transition-duration);
 }
 
 #new-note-btn {
-    padding: 8px 20px;
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
+    padding: 8px 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
     color: var(--text-color);
-    border-radius: 6px;
+    border-radius: 100px;
     cursor: pointer;
     font-size: 0.9em;
-    transition: background-color 0.2s;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s var(--spring);
+    backdrop-filter: blur(10px);
 }
 
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимация пульсации для кнопки "New" на пустом экране */
 body.no-notes-present #new-note-btn {
     animation: pulse-accent-glow 2s infinite ease-in-out;
 }
 
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
 #new-note-btn:hover {
-    background-color: var(--hover-bg);
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
 .icon-btn {
-    background: none;
-    border: none;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     cursor: pointer;
-    padding: 4px;
+    padding: 8px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s var(--spring);
 }
 
 .icon-btn:hover {
-    background-color: var(--hover-bg);
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .icon-btn img {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
+    filter: invert(var(--icon-invert, 1));
 }
 
-/* --- Поиск --- */
+body[data-theme-base="light"] .icon-btn img {
+    filter: invert(0);
+}
+
+/* Поиск */
+.search-icon {
+    position: absolute;
+    left: 16px;
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+    opacity: 0.5;
+    filter: invert(var(--icon-invert, 1));
+}
+
+/* --- 👇 ЗАМЕНА ДЛЯ ПУНКТА 2 --- */
 .search-container {
     position: relative;
     display: flex;
     align-items: center;
-    max-width: 280px;
-    width: 100%;
+    width: 260px;
+    /* Фиксированная база */
+    transition: width 0.3s var(--smooth);
 }
 
-.search-icon {
-    position: absolute;
-    left: 12px;
-    width: 16px;
-    height: 16px;
-    pointer-events: none;
+.search-container:focus-within {
+    width: 320px;
+    /* Плавно расширяем весь контейнер при фокусе */
 }
 
 #search-input {
     width: 100%;
-    padding: 8px 12px 8px 38px;
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    border-radius: 6px;
+    padding: 10px 16px 10px 42px;
     font-size: 0.9em;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    border-radius: 100px;
+    transition: all 0.3s var(--smooth);
 }
 
+#search-input:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 4px rgba(var(--accent-color-rgb), 0.15);
+    outline: none;
+}
 
+/* --- 👆 КОНЕЦ ЗАМЕНЫ --- */
 
-
-/* --- 👇 ЗАМЕНИТЕ ВЕСЬ БЛОК --- */
-/* --- Фильтр нераспределенных --- */
+/* Фильтр нераспределенных */
 #uncollected-filter-container {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-start;
+    gap: 12px;
 }
 
 #uncollected-filter-container>label {
-    /* Метка "Uncollected" */
-    font-size: 0.9em;
+    font-size: 0.85em;
+    font-weight: 500;
     color: var(--text-color-dark);
     cursor: pointer;
+    margin: 0;
 }
 
-/* Обертка для самого переключателя, делает его кликабельным */
 .switch {
     position: relative;
     display: inline-block;
-    width: 36px;
-    height: 20px;
+    width: 40px;
+    height: 24px;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
-#uncollected-filter-toggle {
+#uncollected-filter-toggle, .switch input[type="checkbox"] {
     display: none;
-    /* Прячем стандартный чекбокс */
 }
 
 .slider-track {
     width: 100%;
     height: 100%;
-    background-color: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 100px;
     position: relative;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .slider-nub {
-    width: 14px;
-    height: 14px;
-    background-color: var(--text-color-dark);
+    width: 20px;
+    height: 20px;
+    background-color: #FFF;
     border-radius: 50%;
     position: absolute;
     top: 2px;
     left: 2px;
-    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s var(--spring);
 }
 
-#uncollected-filter-toggle:checked~.slider-track {
+.switch input:checked~.slider-track {
     background-color: var(--accent-color);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#uncollected-filter-toggle:checked~.slider-track .slider-nub {
-    transform: translateX(15px);
-    /* ИСПРАВЛЕНО: было 16px */
-    background-color: var(--text-on-accent);
+.switch input:checked~.slider-track .slider-nub {
+    transform: translateX(16px);
 }
-
-/* --- 👆 КОНЕЦ ЗАМЕНЫ --- */
 
 /* --- Основная область контента --- */
 #collection-view-panel {
@@ -456,40 +629,67 @@ body.no-notes-present #new-note-btn {
     flex-direction: column;
     width: 0;
     padding: 20px 0;
-    background-color: var(--sidebar-bg);
-    border-right: 1px solid var(--border-color);
+    background-color: rgba(0, 0, 0, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     overflow: hidden;
     flex-shrink: 0;
     opacity: 0;
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.3s var(--smooth), padding 0.3s var(--smooth), opacity 0.3s var(--smooth);
+}
+
+#collection-view-panel.visible {
+    width: 360px;
+    padding: 24px;
+    opacity: 1;
+}
+
+#collection-view-panel.drag-over-panel {
+    background-color: rgba(var(--accent-color-rgb), 0.05);
+    box-shadow: inset 0 0 0 2px var(--accent-color);
 }
 
 #collection-view-title {
     font-size: 1.2em;
-    font-weight: 500;
+    font-weight: 600;
     padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
     margin-bottom: 20px;
     color: var(--text-color);
+    border-bottom: none;
+    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    background-size: 100% 1px;
+    background-position: bottom;
+    background-repeat: no-repeat;
 }
 
 #collection-view-panel .empty-message {
     text-align: center;
     color: var(--text-color-dark);
     margin-top: 30px;
+    font-weight: 500;
 }
 
 #notes-grid {
     position: relative;
     flex-grow: 1;
-    padding: 20px;
-    transition: margin-left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 32px;
+    transition: margin-left 0.3s var(--smooth);
     margin-left: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
     align-content: flex-start;
     overflow-y: auto;
+}
+
+#notes-grid.shifted {
+    margin-left: 360px;
+}
+
+#notes-grid.drag-over {
+    background-color: rgba(var(--accent-color-rgb), 0.02);
+    border-radius: 24px;
+    box-shadow: inset 0 0 0 2px var(--accent-color), inset 0 0 40px rgba(var(--accent-color-rgb), 0.1);
+    animation: none;
 }
 
 #collection-notes-grid {
@@ -497,245 +697,183 @@ body.no-notes-present #new-note-btn {
     padding: 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 16px;
     align-content: flex-start;
     overflow-y: auto;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: transform 0.4s var(--spring) 0.05s, opacity 0.3s ease 0.05s;
 }
 
-/* Анимация "разворачивания" записок в коллекции */
-#collection-notes-grid {
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
+#collection-notes-grid.is-shown {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 #collection-notes-grid.no-transition {
     transition: none;
 }
 
-#collection-notes-grid.is-shown {
-    /* <--- Селектор изменен */
-    opacity: 1;
-    transform: translateY(0);
-}
-
-
-/* --- Плитка заметки --- */
+/* --- Плитка заметки (Стеклянная карточка) --- */
 .note-tile {
-    background-color: var(--main-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 10px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 24px;
     cursor: pointer;
-    height: 120px;
+    height: 150px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 12px;
     overflow: hidden;
-    transition: transform 0.3s ease-in-out, box-shadow 0.2s ease, opacity 0.3s ease-in-out, background-color var(--theme-transition-duration) ease-in-out;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    transition: transform 0.4s var(--spring), box-shadow 0.4s ease, border-color 0.4s ease;
+    position: relative;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.note-tile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    opacity: 0.5;
 }
 
 .note-tile:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* --- 👇 НОВЫЙ БЛОК --- */
 .note-tile.is-selected {
-    transform: scale(0.95);
+    transform: scale(0.96);
     border-color: var(--accent-color);
-    box-shadow: 0 0 10px 2px rgba(var(--accent-color-rgb), 0.5);
+    box-shadow: 0 0 0 2px var(--accent-color), 0 10px 30px rgba(var(--accent-color-rgb), 0.3);
 }
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
 .note-title {
-    position: relative;
     font-weight: 600;
-    font-size: 0.9em;
+    font-size: 1.1em;
+    letter-spacing: -0.01em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--note-title-color); /* <-- ИЗМЕНИТЬ */
+    color: var(--note-title-color);
     padding-bottom: 8px;
-    transition: opacity 0.2s ease-in-out;
 }
 
 .note-title::after {
-    /* Жестко задаем высоту */
-    height: 1px; 
-    min-height: 1px; 
-    /* Градиент */
+    content: '';
+    display: block;
+    height: 1px;
+    min-height: 1px;
     background: linear-gradient(90deg, var(--accent-color), transparent);
-    /* Убираем любые transform, если были */
     transform: none;
+    margin-top: 8px;
+    opacity: 0.7;
 }
 
 .note-text {
     font-size: var(--note-preview-font-size);
-    color: var(--note-text-color); /* <-- ИЗМЕНИТЬ */
-    line-height: 1.45;
+    color: var(--note-text-color);
+    line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 5;
+    -webkit-line-clamp: 4;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     flex-grow: 1;
     margin-top: 0px;
-    transition: opacity 0.2s ease-in-out;
+    opacity: 0.9;
 }
 
 #collection-notes-grid .note-tile {
-    height: 90px;
-    flex-direction: column;
-    align-items: stretch;
-    padding: 8px;
-    gap: 4px;
+    height: 110px;
+    padding: 16px;
+    border-radius: 16px;
+    gap: 8px;
 }
 
 #collection-notes-grid .note-title {
-    font-size: 0.8em;
+    font-size: 0.95em;
     padding-bottom: 4px;
 }
 
 #collection-notes-grid .note-title::after {
-    display: block;
+    margin-top: 4px;
 }
 
 #collection-notes-grid .note-text {
-    display: -webkit-box;
-    font-size: 0.75em;
-    line-height: 1.4;
-    -webkit-line-clamp: 3;
+    font-size: 0.8em;
+    -webkit-line-clamp: 2;
 }
 
-/* --- 👇 ЗАМЕНИТЕ СУЩЕСТВУЮЩИЕ ПРАВИЛА НА ЭТОТ БЛОК --- */
-/* --- Модальные окна --- */
+/* --- Модальные окна (VisionOS Blur) --- */
 .modal {
     display: none;
-    /* По умолчанию скрыто */
     position: fixed;
     z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
     justify-content: center;
     align-items: center;
-}
-
-.modal.visible {
-    display: flex;
-    /* Показываем */
-}
-
-.modal-content {
-    background-color: var(--bg-color);
-    padding: 25px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-
-    /* Анимация появления */
-    animation: modal-fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.modal.visible {
-    background-color: rgba(0, 0, 0, 0.6);
-    opacity: 1;
-    pointer-events: auto;
-    /* Становится кликабельным только когда видимо */
-}
-
-/* Когда начинается закрытие, СРАЗУ отключаем клики */
-.modal.is-closing {
     pointer-events: none;
 }
 
-.modal-content {
-    background-color: var(--bg-color);
-    padding: 25px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-
-    transform: scale(1.05);
-    opacity: 0;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-out;
-}
-
-.modal.visible .modal-content {
-    transform: scale(1);
-    opacity: 1;
-}
-
-.modal.is-closing .modal-content {
-    transform: scale(0.95);
-    opacity: 0;
-    transition-duration: 0.2s;
-    /* Ускоряем закрытие */
-}
-
 .modal.visible {
-    background-color: rgba(0, 0, 0, 0.6);
-    /* Финальный фон */
-    opacity: 1;
+    display: flex;
+    animation: modal-bg-in 0.4s ease-out forwards;
     pointer-events: auto;
 }
 
-.modal-content {
-    /* ... (остальные стили .modal-content остаются) */
-
-    /* Анимация появления контента */
-    transform: scale(1.05);
-    opacity: 0;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease-out;
+.modal.visible:not(.is-closing) .modal-content {
+    animation: modal-spring-in 0.5s var(--spring) forwards;
 }
 
-.modal.visible .modal-content {
-    transform: scale(1);
-    opacity: 1;
+.modal.is-closing {
+    animation: modal-bg-out 0.3s ease-out forwards;
+    pointer-events: none;
 }
 
-/* Анимация закрытия контента */
 .modal.is-closing .modal-content {
-    transform: scale(0.95);
-    opacity: 0;
-}
-
-/* --- 👆 КОНЕЦ ЗАМЕНЫ --- */
-
-.modal.visible {
-    display: flex;
+    animation: modal-spring-out 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
 }
 
 .modal-content {
-    background-color: var(--bg-color);
-    padding: 25px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    background-color: rgba(30, 30, 35, 0.65);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    padding: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 32px;
     width: 90%;
     max-width: 500px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    transform: scale(0.8);
 }
 
 .modal-content h3 {
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 1.3em;
+    letter-spacing: -0.02em;
     margin-bottom: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .modal-content p {
-    color: var(--text-color-dark);
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.6;
     white-space: pre-wrap;
     margin-top: -5px;
@@ -743,12 +881,20 @@ body.no-notes-present #new-note-btn {
 
 .modal-content input, .modal-content textarea {
     width: 100%;
-    padding: 10px;
-    background-color: var(--main-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    border-radius: 6px;
-    font-size: 1em;
+    padding: 14px 16px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #FFF;
+    border-radius: 12px;
+    font-size: 1.05em;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content input:focus, .modal-content textarea:focus {
+    border-color: var(--accent-color);
+    box-shadow: inset 0 0 0 1px var(--accent-color), 0 0 15px rgba(var(--accent-color-rgb), 0.2);
+    outline: none;
 }
 
 .modal-content textarea {
@@ -759,39 +905,50 @@ body.no-notes-present #new-note-btn {
 .modal-buttons {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 12px;
     margin-top: 10px;
 }
 
 .modal-btn {
-    padding: 8px 20px;
-    border-radius: 6px;
+    padding: 10px 24px;
+    border-radius: 100px;
     cursor: pointer;
-    border: 1px solid var(--border-color);
-    background-color: var(--main-bg);
+    font-weight: 500;
+    font-size: 0.95em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
     color: var(--text-color);
+    transition: all 0.3s var(--spring);
+}
+
+.modal-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
 }
 
 .modal-btn.accent {
     background-color: var(--accent-color);
     color: var(--text-on-accent);
-    border-color: var(--accent-color);
+    border-color: transparent;
+    box-shadow: 0 4px 15px rgba(var(--accent-color-rgb), 0.4);
+}
+
+.modal-btn.accent:hover {
+    filter: brightness(1.15);
+    box-shadow: 0 8px 25px rgba(var(--accent-color-rgb), 0.5);
 }
 
 .modal-btn.danger {
     background-color: var(--accent-color-danger);
     color: white;
-    border-color: var(--accent-color-danger);
+    border-color: transparent;
 }
 
 /* --- Выпадающие меню --- */
-
-/* --- 👇 НОВЫЙ БЛОК --- */
 .dropdown-menu-item[data-action="show-metadata"] {
     position: relative;
 }
 
-/* Стрелка-индикатор для подменю */
 .dropdown-menu-item[data-action="show-metadata"]::after {
     content: '►';
     font-size: 0.8em;
@@ -806,25 +963,19 @@ body.no-notes-present #new-note-btn {
     color: var(--text-on-accent);
 }
 
-/* Неполный разделитель */
-.short-divider {
-    height: 1px;
-    background-color: var(--border-color);
-    margin: 5px 12px;
-    /* Отступы по бокам создают эффект "неполноты" */
-}
-
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+/* --- 👆 КОНЕЦ ДОБАВЛЕНИЯ --- */
 
 .dropdown-menu {
     display: none;
     position: absolute;
     z-index: 1001;
-    background-color: var(--sidebar-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    padding: 5px;
+    background-color: rgba(40, 40, 45, 0.75);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    padding: 8px;
     min-width: 220px;
 }
 
@@ -832,45 +983,34 @@ body.no-notes-present #new-note-btn {
     display: block;
 }
 
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Применяем анимацию появления только для гамбургер-меню */
-#hamburger-menu.visible {
+#hamburger-menu.visible, #options-menu.visible {
+    transform-origin: top;
+    animation: fade-in-down 0.3s var(--spring) forwards;
+}
+
+#hamburger-menu.is-closing, #options-menu.is-closing {
+    animation: fade-out-up 0.2s ease-out forwards;
+}
+
+#context-menu.visible {
     transform-origin: top left;
-    /* Анимация будет идти из верхнего левого угла */
-    animation: fade-in-down 0.2s ease-out forwards;
+    animation: context-menu-fade-in 0.25s var(--spring) forwards;
 }
 
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимация закрытия */
-#hamburger-menu.is-closing {
-    animation: fade-out-up 0.2s ease-out forwards;
+#context-menu.is-closing {
+    animation: context-menu-fade-out 0.15s ease-out forwards;
 }
-
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимации для меню опций (троеточие) */
-#options-menu.visible {
-    transform-origin: top right;
-    animation: fade-in-down 0.2s ease-out forwards;
-}
-
-#options-menu.is-closing {
-    animation: fade-out-up 0.2s ease-out forwards;
-}
-
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
 .dropdown-menu-item {
-    padding: 8px 12px;
+    padding: 10px 14px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 0.9em;
+    font-weight: 500;
     display: flex;
     align-items: center;
     gap: 12px;
+    transition: all 0.2s;
 }
 
 .dropdown-menu-item.selected, .dropdown-menu-item:hover {
@@ -880,24 +1020,29 @@ body.no-notes-present #new-note-btn {
 
 .dropdown-divider {
     height: 1px;
-    background-color: var(--border-color);
-    margin: 5px 0;
+    background: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 6px 0;
+    transform: scaleY(0.5);
+    transform-origin: center;
 }
 
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Неполный разделитель */
 .short-divider {
     height: 1px;
-    background-color: var(--border-color);
-    margin: 5px 12px; /* Отступы по бокам создают эффект "неполноты" */
+    background: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 6px 12px;
+    transform: scaleY(0.5);
+    transform-origin: center;
 }
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
 .dropdown-header {
     padding: 8px 12px;
-    font-size: 0.8em;
-    color: var(--text-color-dark);
+    font-size: 0.75em;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .dropdown-submenu-container {
@@ -907,44 +1052,41 @@ body.no-notes-present #new-note-btn {
 .dropdown-submenu-container .submenu {
     display: none;
     position: absolute;
-    top: -5px;
+    top: -8px;
     right: 100%;
-    margin-right: 5px;
+    margin-right: 8px;
 }
 
 .dropdown-submenu-container .submenu.visible {
     display: block;
-    /* Сначала делаем его блочным */
-    animation: submenu-fade-in 0.2s ease-out forwards;
+    animation: submenu-fade-in 0.3s var(--spring) forwards;
 }
 
 .dropdown-submenu-container .submenu.is-closing {
-    animation: submenu-fade-out 0.2s ease-out forwards;
+    animation: submenu-fade-out 0.15s ease-out forwards;
 }
 
-/* --- Темизация --- */
-#accent-colors-container {
+/* Темизация точки */
+#accent-colors-container, #text-colors-container {
     display: flex;
     justify-content: space-around;
-    padding: 5px;
+    padding: 8px;
 }
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-#text-colors-container {
-    display: flex;
-    justify-content: space-around;
-    padding: 5px;
-}
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
 .theme-dot {
     position: relative;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     cursor: pointer;
-    border: 2px solid transparent;
-    transition: transform 0.2s ease;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s var(--spring);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.theme-dot:hover {
+    transform: scale(1.2);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .theme-dot.selected::after {
@@ -957,90 +1099,175 @@ body.no-notes-present #new-note-btn {
     height: 8px;
     background-color: white;
     border-radius: 50%;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-/* --- Уведомления --- */
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 #clipboard-notification {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    /* Центрируем по горизонтали: ставим left: 50% и сдвигаем назад на половину своей ширины */
+    left: 50%;
+    transform: translateX(-50%) translateY(100px); /* Изначально спрятано внизу */
+    bottom: 30px; /* Отступ от нижнего края */
+    
     background-color: var(--sidebar-bg);
     color: var(--text-color);
     padding: 12px 24px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    /* --- ИЗМЕНЕНИЯ --- */
-    /* Свечение стало более рассеянным (30px), ярким (0.4) и использует цвет темы */
     box-shadow: 0 5px 30px rgba(var(--accent-color-rgb), 0.4);
     z-index: 2000;
 
-    /* Начальное состояние для анимации (скрыто за экраном) */
     opacity: 0;
-    transform: translateX(-120%);
     pointer-events: none;
-
-    /* --- ДОБАВЛЕНО --- */
-    /* Плавный переход для тени при смене темы */
-    transition: box-shadow var(--theme-transition-duration) ease-in-out;
 }
 
+/* Анимация ПОЯВЛЕНИЯ (снизу вверх) */
 #clipboard-notification.show {
     pointer-events: auto;
-    animation: slide-in-out 1.1s ease-in-out forwards;
+    animation: slide-up-center 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
 }
 
-#clipboard-notification.show {
+/* Анимация СКРЫТИЯ (вниз) */
+#clipboard-notification.hide {
+    animation: slide-down-center 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+@keyframes slide-up-center {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes slide-down-center {
+    from {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(50px);
+    }
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+/* Тултипы */
+#note-tooltip {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    pointer-events: none;
+    background-color: rgba(20, 20, 25, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    padding: 14px 18px;
+    font-size: 0.85em;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.70);
+    opacity: 0;
+    transition: opacity 0.2s;
+    backdrop-filter: blur(20px);
+    max-width: 350px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+#note-tooltip.visible {
+    display: block;
     opacity: 1;
-    transform: translateY(0);
 }
 
-/* --- 👇 НОВЫЙ БЛОК: СТИЛИ ДЛЯ КНОПОК С ТЕКСТОМ И ИКОНКОЙ --- */
-.text-icon-btn {
+#note-tooltip.metadata-tooltip {
+    padding: 10px 16px;
+    white-space: nowrap;
+    transition: none !important;
+}
+
+#note-tooltip.title-tooltip {
+    padding: 10px 16px;
+    max-width: 300px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    transition: none !important;
+}
+
+#note-tooltip.title-tooltip.visible, #note-tooltip.metadata-tooltip.visible {
+    animation: context-menu-fade-in 0.25s var(--spring) forwards;
+}
+
+#note-tooltip.metadata-tooltip.is-closing {
+    animation: context-menu-fade-out 0.15s ease-out forwards;
+}
+
+/* --- Drag & Drop --- */
+#drag-delete-zone {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 5px;
-    background: none;
-    border: none;
-    color: var(--text-color-dark);
-    padding: 4px 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.text-icon-btn:hover {
-    background-color: var(--hover-bg);
-    color: var(--text-color);
-}
-
-.text-icon-btn img {
-    width: 20px;
-    height: 20px;
-    stroke: currentColor; /* Иконка будет наследовать цвет от родителя */
-}
-
-.text-icon-btn span {
-    font-size: 0.8em;
-}
-
-.text-icon-btn.danger {
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 69, 58, 0.4);
+    border-radius: 100px;
     color: var(--accent-color-danger);
+    background: rgba(255, 69, 58, 0.15);
+    font-weight: 600;
+    font-size: 0.85em;
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.4s var(--spring);
+    backdrop-filter: blur(10px);
 }
-.text-icon-btn.danger:hover {
-    background-color: rgba(229, 115, 115, 0.1);
-    color: var(--accent-color-danger);
-}
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
-/* --- 👇 НОВЫЙ БЛОК: СТИЛИ ДЛЯ КАСТОМНОГО "ПРИЗРАКА" --- */
+body.is-dragging-note #drag-delete-zone, body.is-dragging-collection #drag-delete-zone {
+    visibility: visible;
+    opacity: 1;
+    transform: scale(1);
+    animation: pulse-danger-glow 2s infinite;
+}
+
+#drag-delete-zone.drag-over {
+    background: rgba(255, 69, 58, 0.9);
+    color: white;
+    transform: scale(1.05);
+    animation: none;
+    box-shadow: 0 10px 20px rgba(255, 69, 58, 0.4);
+}
+
+.collection-item.drag-over {
+    color: var(--text-on-accent);
+    background: var(--accent-color);
+    box-shadow: 0 4px 15px rgba(var(--accent-color-rgb), 0.4);
+    border-radius: 12px;
+}
+
+.collection-item.drag-over .icon {
+    filter: brightness(200%);
+}
+
+.collection-item.drag-hovered {
+    background: transparent !important;
+    color: var(--text-color-dark) !important;
+    transform: scale(1.05);
+    box-shadow: none !important;
+}
+
+.collection-item.drag-hovered .icon {
+    filter: none !important;
+}
+
 #drag-ghost {
     position: fixed;
-    pointer-events: none; /* Обязательно, чтобы не мешать drop-событиям */
+    pointer-events: none;
     z-index: 9999;
-    opacity: 0; /* Прячем до начала перетаскивания */
-    transition: opacity 0.1s;
+    opacity: 0;
+    transition: opacity 0.15s;
 }
 
 #drag-ghost.visible {
@@ -1049,20 +1276,25 @@ body.no-notes-present #new-note-btn {
 
 .ghost-tile {
     position: absolute;
-    width: 200px; /* Уменьшенный размер */
-    height: 108px;
-    background-color: var(--main-bg);
-    border: 1px solid var(--accent-color);
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width: 200px;
+    height: 110px;
+    background-color: rgba(30, 30, 35, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    backdrop-filter: var(--glass-blur);
+    opacity: 0.85;
 }
 
 .ghost-tile:nth-child(2) {
-    transform: translate(5px, 5px) rotate(2deg);
+    transform: translate(8px, 8px) rotate(4deg);
+    opacity: 0.6;
 }
 
 .ghost-tile:nth-child(3) {
-    transform: translate(10px, 10px) rotate(4deg);
+    transform: translate(16px, 16px) rotate(8deg);
+    opacity: 0.4;
 }
 
 .ghost-counter {
@@ -1070,275 +1302,345 @@ body.no-notes-present #new-note-btn {
     top: -10px;
     right: -10px;
     background-color: var(--accent-color);
-    color: var(--text-on-accent);
+    color: white;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8em;
+    font-size: 0.9em;
+    font-weight: 700;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    opacity: 1 !important;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- Selection Toolbar --- */
+#selection-toolbar {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translate(-50%, 150%);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    z-index: 1001;
+    background-color: rgba(30, 30, 35, 0.65);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    padding: 12px 24px;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    transition: transform 0.6s var(--spring);
+}
+
+#selection-toolbar:not(.hidden) {
+    transform: translate(-50%, 0);
+}
+
+#selection-counter {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #FFF;
+    min-width: 80px;
+    text-align: center;
+}
+
+.selection-actions {
+    display: flex;
+    gap: 16px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0 24px;
+}
+
+.text-icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 6px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s var(--spring);
+}
+
+.text-icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #FFF;
+    transform: translateY(-2px);
+}
+
+.text-icon-btn img {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    filter: invert(1);
+}
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+.note-tile.dragging, .collection-item.dragging { 
+    opacity: 0.4; 
+    transform: scale(0.95); 
+    transition: none !important; /* Отключаем плавность, элемент должен браться мгновенно */
+}
+
+.collection-item.drag-over-indicator { 
+    /* Используем внутреннюю тень (inset) вместо border, чтобы не ломать физические размеры сетки */
+    box-shadow: inset 0 3px 0 0 var(--accent-color) !important; 
+    border-top: none !important;
+    transition: none !important; /* Отключаем анимацию при сортировке */
+}
+
+#collection-notes-grid .note-tile.drag-over-indicator { 
+    box-shadow: inset 0 4px 0 0 var(--accent-color) !important; 
+    border-top: none !important;
+    transform: none !important; /* Отключаем увеличение, чтобы карточка не "убегала" от курсора */
+    transition: none !important; 
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+.text-icon-btn span {
+    font-size: 0.75em;
     font-weight: 600;
 }
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
-
-/* --- Анимации и состояния --- */
-/* --- Перед keyFrames ---*/
-
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.text-icon-btn.danger {
+    color: var(--accent-color-danger);
 }
 
-.newly-added {
-    animation: fade-in 0.3s ease-out;
+.text-icon-btn.danger img {
+    filter: none;
 }
 
-.fading-out {
-    opacity: 0 !important;
-    transform: scale(0.9) !important;
+.text-icon-btn.danger:hover {
+    background-color: rgba(255, 69, 58, 0.15);
 }
 
-
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-.note-tile.is-highlighted {
-    animation: pulse-highlight 1.5s ease-in-out;
+#selection-done-btn {
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: none;
+    background-color: var(--accent-color);
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9em;
+    transition: all 0.3s var(--spring);
 }
 
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-#collection-view-panel.visible {
-    width: 320px;
-    padding: 20px;
-    opacity: 1;
+#selection-done-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(var(--accent-color-rgb), 0.4);
 }
 
-#notes-grid.shifted {
-    margin-left: 320px;
+/* --- Tutorial --- */
+#tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 990;
+    background: transparent;
+    transition: box-shadow 0.5s ease;
+    pointer-events: none;
 }
 
-.notes-grid.reflowing .note-title, .notes-grid.reflowing .note-text {
+#tutorial-overlay.visible {
+    box-shadow: 0 0 0 5000px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
+
+#tutorial-pointer {
+    position: fixed;
+    z-index: 9990;
+    border-radius: 50%;
+    pointer-events: none;
     opacity: 0;
-    transition: none;
-}
-
-/* --- Drag & Drop --- */
-.note-tile.dragging, .collection-item.dragging {
-    opacity: 0.4;
-}
-
-.collection-item.drag-over {
-    color: var(--text-on-accent);
-    animation: pulse-accent 1.5s infinite ease-in-out;
-}
-
-.collection-item.drag-over .icon {
-    stroke: var(--text-on-accent);
-}
-
-.collection-item.drag-over-indicator {
-    border-top: 2px solid var(--accent-color);
-}
-
-#collection-notes-grid .note-tile.drag-over-indicator {
-    border-top: 3px solid var(--accent-color);
-    transform: scale(1.03);
-}
-
-#notes-grid.drag-over {
-    background-color: rgba(0, 0, 0, 0.1);
-    animation: pulse-glow 2s infinite ease-in-out;
-}
-
-/* --- Индикатор загрузки --- */
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-.spinner {
+    transform: scale(2);
     width: 40px;
     height: 40px;
-    border: 4px solid var(--border-color);
-    border-top-color: var(--accent-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
 }
 
-#loading-overlay {
-    background-color: rgba(0, 0, 0, 0.4);
+#tutorial-pointer.visible {
+    opacity: 1;
+    transform: scale(1);
+    animation: pulse-pointer 2s 3;
 }
 
-body, .left-sidebar, .main-panel, .collection-item, .collection-item:hover, .collection-item.selected, .divider, .top-bar, #new-note-btn, #new-note-btn:hover, #search-input, .icon-btn:hover, .note-tile, .note-title, .note-text, .modal-content, .modal-content input, .modal-content textarea, .modal-btn, .dropdown-menu, .dropdown-menu-item:hover, .icon {
-    transition: background-color var(--theme-transition-duration) ease-in-out, color var(--theme-transition-duration) ease-in-out, border-color var(--theme-transition-duration) ease-in-out, stroke var(--theme-transition-duration) ease-in-out;
-}
-
-#note-tooltip {
-    display: none;
+#tutorial-exit-btn {
     position: fixed;
-    z-index: 2000;
-    background-color: var(--sidebar-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    padding: 12px;
-    max-width: 350px;
-    font-size: 0.85em;
-    line-height: 1.5;
-    color: var(--text-color);
-    pointer-events: none;
-    white-space: pre-wrap;
+    bottom: 30px;
+    right: 30px;
+    z-index: 10000;
+    background-color: rgba(255, 69, 58, 0.8);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-weight: 600;
+    cursor: pointer;
     opacity: 0;
-    transition: opacity 0.2s ease-in-out;
+    transform: translateY(20px);
+    transition: all 0.4s var(--spring);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-#note-tooltip.metadata-tooltip {
-    padding: 8px 12px;
-    /* Уменьшаем вертикальные отступы */
-    max-width: 200px;
-    /* Делаем окно компактнее */
-    white-space: nowrap;
-    /* Запрещаем перенос строк */
-}
-
-#note-tooltip.visible {
-    display: block;
+#tutorial-exit-btn:not(.hidden) {
     opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
-@keyframes pulse-accent {
-    0% {
-        background-color: var(--accent-color);
-    }
-
-    50% {
-        background-color: color-mix(in srgb, var(--accent-color) 60%, black);
-    }
-
-    100% {
-        background-color: var(--accent-color);
-    }
+#tutorial-exit-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    background-color: rgba(255, 69, 58, 1);
 }
 
-@keyframes pulse-glow {
-    0% {
-        box-shadow: inset 0 0 15px 5px rgba(var(--accent-color-rgb), 0.4);
-    }
-
-    50% {
-        box-shadow: inset 0 0 30px 10px rgba(var(--accent-color-rgb), 0.6);
-    }
-
-    100% {
-        box-shadow: inset 0 0 15px 5px rgba(var(--accent-color-rgb), 0.4);
-    }
-}
-
-/* --- Кастомный скроллбар --- */
-#notes-grid::-webkit-scrollbar {
-    width: 8px;
-}
-
-#notes-grid::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-#notes-grid::-webkit-scrollbar-thumb {
-    background-color: var(--border-color);
-    border-radius: 4px;
-}
-
-#notes-grid::-webkit-scrollbar-thumb:hover {
-    background-color: var(--accent-color);
-}
-
-#collections-list::-webkit-scrollbar, #collection-notes-grid::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-}
-
-/* --- Занавесы --- */
-#collection-view-curtain {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--sidebar-bg);
+/* --- 👇 НОВЫЙ БЛОК: ТЕКУЧАЯ СЕТКА (FLUID GRID) --- */
+.fluid-adding {
+    /* Начинаем с нулевых размеров */
+    width: 0 !important;
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-width: 0 !important;
     opacity: 0;
+    overflow: hidden;
+    /* Пружиняще расширяем */
+    animation: fluid-expand 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15) forwards;
+}
+
+.fluid-removing {
+    /* Пружиняще сжимаем до нуля, заставляя сетку съехаться */
+    animation: fluid-shrink 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     pointer-events: none;
-    transition: opacity 0.15s ease-in-out;
+    overflow: hidden;
+    white-space: nowrap; /* Чтобы текст не ломал высоту при сжатии */
 }
 
-#collection-view-curtain.active {
-    opacity: 1;
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+.newly-added-note {
+    /* Плавное падение сверху с легким пружинящим эффектом в конце */
+    animation: drop-down-note 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+@keyframes fluid-expand {
+    0% {
+        width: 0; min-width: 0; padding-left: 0; padding-right: 0;
+        opacity: 0; transform: scale(0.8);
+    }
+    100% {
+        width: 100%; min-width: 260px; /* Возвращаем к размеру сетки */
+        opacity: 1; transform: scale(1);
+    }
 }
 
-#notes-grid-curtain {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--bg-color);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 10;
-    transition: opacity 0.2s ease-in-out;
+@keyframes fluid-shrink {
+    0% {
+        width: 100%; min-width: 260px; opacity: 1; transform: scale(1);
+    }
+    100% {
+        width: 0; min-width: 0; padding-left: 0; padding-right: 0;
+        border-width: 0; opacity: 0; transform: scale(0.5);
+    }
 }
 
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* --- Состояние "Пустой экран" --- */
-.empty-state-container {
-    display: none;
-    /* Скрыто по умолчанию */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -60%);
-    /* Сдвигаем чуть выше центра */
-    text-align: center;
-    color: var(--text-color-dark);
+/* Адаптация для карточек внутри открытой коллекции */
+#collection-notes-grid .fluid-expand {
+    animation-name: fluid-expand-vertical;
+}
+#collection-notes-grid .fluid-removing {
+    animation-name: fluid-shrink-vertical;
 }
 
-#notes-grid.is-empty .empty-state-container {
-    display: block;
-    /* Показываем, когда у сетки есть класс .is-empty */
+@keyframes fluid-expand-vertical {
+    0% { height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; opacity: 0; }
+    100% { height: 140px; opacity: 1; }
 }
-
-.empty-state-container p {
-    font-size: 1.1em;
-    max-width: 300px;
+@keyframes fluid-shrink-vertical {
+    0% { height: 140px; opacity: 1; }
+    100% { height: 0; min-height: 0; padding-top: 0; padding-bottom: 0; border-width: 0; opacity: 0; }
 }
-
 /* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
+/* --- Анимации --- */
+@keyframes modal-bg-in {
+    from {
+        background-color: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+    }
 
-#notes-grid-curtain.active {
-    opacity: 1;
+    to {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+    }
 }
 
-/* ... (в самом конце файла) */
-#notes-grid-curtain.active {
-    opacity: 1;
+@keyframes modal-bg-out {
+    from {
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+    }
+
+    to {
+        background-color: rgba(0, 0, 0, 0);
+        backdrop-filter: blur(0px);
+    }
 }
 
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Определение анимации для выпадающих меню */
+@keyframes modal-spring-in {
+    from {
+        opacity: 0;
+        transform: scale(0.85) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes modal-spring-out {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+}
+
+@keyframes notification-pop {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100px) scale(0.9);
+    }
+
+    15%, 85% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(100px) scale(0.9);
+    }
+}
+
 @keyframes fade-in-down {
     from {
         opacity: 0;
@@ -1351,23 +1653,6 @@ body, .left-sidebar, .main-panel, .collection-item, .collection-item:hover, .col
     }
 }
 
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* ... (в самом конце файла) */
-@keyframes fade-in-down {
-    from {
-        opacity: 0;
-        transform: translateY(-10px) scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимация "ухода" наверх */
 @keyframes fade-out-up {
     from {
         opacity: 1;
@@ -1380,39 +1665,31 @@ body, .left-sidebar, .main-panel, .collection-item, .collection-item:hover, .col
     }
 }
 
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимации для боковых подменю */
 @keyframes submenu-fade-in {
     from {
         opacity: 0;
-        transform: translateX(-10px);
+        transform: translateX(-10px) scale(0.95);
     }
 
     to {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
     }
 }
 
 @keyframes submenu-fade-out {
     from {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
     }
 
     to {
         opacity: 0;
-        transform: translateX(-10px);
+        transform: translateX(-10px) scale(0.95);
     }
 }
 
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимация для модальных окон */
-@keyframes modal-fade-in {
+@keyframes context-menu-fade-in {
     from {
         opacity: 0;
         transform: scale(0.9);
@@ -1424,195 +1701,36 @@ body, .left-sidebar, .main-panel, .collection-item, .collection-item:hover, .col
     }
 }
 
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимация для уведомлений */
-@keyframes slide-in-out {
-    0% {
-        opacity: 0;
-        transform: translateX(-120%);
-    }
-
-    15%, 85% {
-        /* Удерживаем на экране */
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    100% {
-        opacity: 0;
-        transform: translateX(20px);
-        /* Слегка уходит вправо при исчезновении */
-    }
-}
-
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* ... (в самом конце файла) */
-@keyframes modal-fade-in {
-    /* ... */
-}
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимация "дыхания" для кнопки */
-@keyframes pulse-accent-glow {
-    0%, 100% {
-        background-color: var(--bg-color);
-        box-shadow: 0 0 0px 0px rgba(var(--accent-color-rgb), 0);
-    }
-
-    50% {
-        background-color: color-mix(in srgb, var(--accent-color) 15%, var(--bg-color));
-        box-shadow: 0 0 8px 3px rgba(var(--accent-color-rgb), 0.4);
-    }
-}
-
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-
-/* --- 👇 НОВЫЙ БЛОК --- */
-/* Анимация одноразовой подсветки для плиток */
-@keyframes pulse-highlight {
-    from {
-        box-shadow: 0 0 10px 4px rgba(var(--accent-color-rgb), 0.6);
-    }
-
-    to {
-        box-shadow: 0 0 0px 0px rgba(var(--accent-color-rgb), 0);
-    }
-}
-
-/* --- 👇 НОВЫЙ БЛОК: Анимации для контекстного меню --- */
-/* Применяем анимацию появления */
-#context-menu.visible {
-    transform-origin: top left; /* Анимация будет "расти" из точки клика */
-    animation: context-menu-fade-in 0.2s ease-out forwards;
-}
-
-/* Применяем анимацию закрытия */
-#context-menu.is-closing {
-    animation: context-menu-fade-out 0.2s ease-out forwards;
-}
-
-/* Ключевые кадры для появления */
-@keyframes context-menu-fade-in {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* Ключевые кадры для исчезновения */
 @keyframes context-menu-fade-out {
     from {
         opacity: 1;
         transform: scale(1);
     }
+
     to {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.9);
     }
 }
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
-/* ... (перед @keyframes) */
+@keyframes pulse-accent-glow {
+    0%, 100% {
+        box-shadow: 0 0 0px 0px rgba(var(--accent-color-rgb), 0);
+    }
 
-/* --- 👇 ЗАМЕНИТЕ ВЕСЬ ЭТОТ БЛОК --- */
-#drag-delete-zone {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 6px 10px;
-    border: 1px dashed var(--accent-color-danger);
-    border-radius: 8px;
-    color: var(--accent-color-danger);
-    
-    /* Начальное состояние: невидима, но НЕ ломает раскладку */
-    visibility: hidden;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.3s ease;
+    50% {
+        box-shadow: 0 0 20px 5px rgba(var(--accent-color-rgb), 0.6);
+    }
 }
 
-/* Показываем, когда тащим И заметку, И коллекцию */
-body.is-dragging-note #drag-delete-zone,
-body.is-dragging-collection #drag-delete-zone {
-    visibility: visible;
-    opacity: 1;
-    transform: scale(1);
-    animation: pulse-danger-glow 1.5s infinite ease-in-out;
-}
-
-#drag-delete-zone .icon {
-    stroke: var(--accent-color-danger);
-}
-
-#drag-delete-zone.drag-over {
-    background-color: rgba(229, 115, 115, 0.1);
-    transform: scale(1.05);
-}
-
-/* Показываем корзину, когда тащим И заметку, И коллекцию */
-body.is-dragging-note #drag-delete-zone,
-body.is-dragging-collection #drag-delete-zone {
-    visibility: visible;
-    opacity: 1;
-    transform: scale(1);
-    animation: pulse-danger-glow 1.5s infinite ease-in-out;
-}
-
-#drag-delete-zone .icon {
-    stroke: var(--accent-color-danger);
-}
-
-#drag-delete-zone.drag-over {
-    background-color: rgba(229, 115, 115, 0.1);
-    transform: scale(1.05);
-}
-/* --- 👆 КОНЕЦ ЗАМЕНЫ --- */
-
-/* ... (после @keyframes pulse-accent-glow) */
-
-/* --- 👇 НОВЫЙ БЛОК: АНИМАЦИЯ МИГАНИЯ КОРЗИНЫ --- */
 @keyframes pulse-danger-glow {
     0%, 100% {
-        box-shadow: 0 0 5px 2px rgba(229, 115, 115, 0);
+        box-shadow: 0 0 5px 2px rgba(255, 69, 58, 0);
     }
+
     50% {
-        box-shadow: 0 0 15px 5px rgba(229, 115, 115, 0.4);
+        box-shadow: 0 0 20px 8px rgba(255, 69, 58, 0.6);
     }
-}
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* ... (в самом конце файла) */
-
-/* --- 👇 НОВЫЙ БЛОК: СТИЛИ ДЛЯ УКАЗАТЕЛЯ ОБУЧЕНИЯ --- */
-#tutorial-pointer {
-    position: fixed;
-    z-index: 9990;
-    border-radius: 50%;
-    pointer-events: none;
-    
-    /* Начальное состояние: невидимый */
-    opacity: 0;
-    transform: scale(2);
-    width: 40px;
-    height: 40px;
-
-    /* Анимация "сияния" */
-    box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0.7);
-}
-
-#tutorial-pointer.visible {
-    opacity: 1;
-    transform: scale(1);
-    animation: pulse-pointer 2s 3; /* 3 раза пульсирует */
 }
 
 @keyframes pulse-pointer {
@@ -1620,99 +1738,144 @@ body.is-dragging-collection #drag-delete-zone {
         transform: scale(0.95);
         box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0.7);
     }
+
     70% {
         transform: scale(1.5);
-        box-shadow: 0 0 0 20px rgba(var(--accent-color-rgb), 0);
+        box-shadow: 0 0 0 25px rgba(var(--accent-color-rgb), 0);
     }
+
     100% {
         transform: scale(0.95);
         box-shadow: 0 0 0 0 rgba(var(--accent-color-rgb), 0);
     }
 }
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
-/* --- 👇 НОВЫЙ БЛОК: СТИЛИ ДЛЯ ПАНЕЛИ ВЫДЕЛЕНИЯ --- */
-#selection-toolbar {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translate(-50%, 150%); /* Начальное положение за экраном */
-    
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    
-    background-color: var(--sidebar-bg);
-    padding: 10px 20px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-    z-index: 1001;
-    
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
-#selection-toolbar:not(.hidden) {
-    transform: translate(-50%, 0); /* Конечное положение на экране */
-}
-
-#selection-counter {
-    font-size: 0.9em;
-    font-weight: 500;
-    color: var(--text-color-dark);
-    min-width: 100px;
-}
-
-/* --- 👇 ЗАМЕНИТЕ ЭТО ПРАВИЛО --- */
-.selection-actions {
-    display: flex;
-    gap: 15px;
-    border-left: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
-    padding: 0 20px;
-}
-/* --- 👆 КОНЕЦ ЗАМЕНЫ --- */
-
-#selection-done-btn {
-    padding: 6px 15px;
-    border-radius: 6px;
-    border: none;
-    background-color: var(--accent-color);
-    color: var(--text-on-accent);
-    cursor: pointer;
-}
-/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
-
-/* --- 👇 НОВЫЙ БЛОК: КНОПКА ВЫХОДА ИЗ ОБУЧЕНИЯ --- */
-#tutorial-exit-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 10000; /* Выше всех слоев обучения */
-    
-    background-color: var(--accent-color-danger);
-    color: white;
-    padding: 8px 15px;
-    border-radius: 8px;
-    font-size: 0.9em;
-    font-weight: 500;
-    cursor: pointer;
-    
+/* Шторки */
+#collection-view-curtain, #notes-grid-curtain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
     opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.3s ease;
     pointer-events: none;
+    z-index: 10;
+    transition: opacity 0.4s ease;
+    backdrop-filter: blur(3px);
 }
 
-#tutorial-exit-btn:not(.hidden) {
+#collection-view-curtain.active, #notes-grid-curtain.active {
     opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
+}
+
+.empty-state-container {
+    display: none;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-color-dark);
+}
+
+#notes-grid.is-empty .empty-state-container {
+    display: block;
+    animation: fade-in-down 0.8s ease-out;
+}
+
+.empty-state-container p {
+    font-size: 1.1em;
+    max-width: 300px;
+    line-height: 1.6;
+}
+
+/* Кастомный тонкий скроллбар */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 24px 0;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+}
+
+#collections-list::-webkit-scrollbar, #collection-notes-grid::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+@keyframes pulse-highlight { 
+    from { 
+        /* Было: 3px рамка и 25px свечение */
+        /* Стало: 1px рамка (или 2px для четкости) и 12px мягкое свечение */
+        box-shadow: 0 0 0 2px var(--accent-color), 
+                    0 0 12px rgba(var(--accent-color-rgb), 0.5); 
+        border-color: var(--accent-color);
+    } 
+    to { 
+        /* Возвращаем стандартные значения из твоего дизайна */
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+        border-color: rgba(255,255,255,0.08); 
+    } 
+}
+
+/* Также слегка ускорим само мигание, чтобы оно было более "хлестким" (по желанию) */
+.note-tile.is-highlighted {
+    animation: pulse-highlight 1s ease-out; /* Было 1.5s ease-in-out */
+    transition: none !important; 
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+@keyframes note-spring-in {
+    from { opacity: 0; transform: scale(0.8) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes note-shrink-out {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.7); }
 }
 /* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
+/* Окно Alert (Ошибки) должно быть всегда выше всех остальных окон */
+#alert-modal {
+    z-index: 2001 !important;
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
-
-
-
-
+/* --- 👇 НОВЫЙ БЛОК: АНИМАЦИЯ ПАДЕНИЯ ЗАМЕТКИ --- */
+@keyframes drop-down-note {
+    0% {
+        opacity: 0;
+        /* Начинает полет сильно выше (на 40 пикселей) */
+        transform: translateY(-40px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        /* Встает точно на свое место */
+        transform: translateY(0) scale(1);
+    }
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */

@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isSelectionModeActive = false;
     let selectedNoteIds = new Set();
     let previousThemeBase = null; 
+   let parentIdForNewSubcollection = null;
 
     // --- 2. Ссылки на DOM-элементы ---
     const dom = {
@@ -118,11 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     const translations = {
         en: {
-            changeStyle: 'Change Style', // <-- НОВОЕ
-            styleUpdated: 'Style updated', // <-- НОВОЕ
+            changeStyle: 'Change Style',
+            styleUpdated: 'Style updated',
             myWorkspace: 'My Workspace', 
             collections: 'Collections', 
-            newCollection: 'New Collection', 
+            newCollection: 'New Collection',
+            createSubcollection: 'Create Subcollection',
+            createSubcollection: 'Create Subcollection', // <-- НОВОЕ
             newNote: 'New', 
             searchPlaceholder: 'Search Prompts...', 
             changeTheme: 'Change Theme', 
@@ -201,15 +204,18 @@ document.addEventListener('DOMContentLoaded', () => {
             collection: 'Collection',
             move: 'Move',
             done: 'Done',
-            selected: 'Selected'
+            selected: 'Selected',
+            sound: 'Sound Effects'
         },
         ru: {
-            changeStyle: 'Сменить стиль', // <-- НОВОЕ
-            styleUpdated: 'Стиль обновлен', // <-- НОВОЕ
+            changeStyle: 'Сменить стиль', 
+            styleUpdated: 'Стиль обновлен', 
             myWorkspace: 'My Workspace', 
             collections: 'Коллекции',
             emptyStateMessage: "Пока нет ни одной записки. Нажмите Создать, чтобы добавить первую!",
             newCollection: 'Новая коллекция', 
+            createSubcollection: 'Создать подколлекцию',
+            createSubcollection: 'Создать подколлекцию', // <-- НОВОЕ
             newNote: 'Создать', 
             searchPlaceholder: 'Поиск записок...', 
             changeTheme: 'Сменить тему', 
@@ -244,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteNoteMessage: 'Вы уверены, что хотите безвозвратно удалить эту записку?',
             deleteNotesMessage: (count) => `Вы уверены, что хотите удалить ${count} выбранных заметок?`,
             deleteCollectionTitle: 'Удалить коллекцию?', 
-            deleteCollectionMessage: (name) => `Вы уверены, что хотите удалить коллекцию "${name}"? Записки в ней не будут удалены.`, 
+            deleteCollectionMessage: (name) => `Вы уверены, что хотите удалить "${name}"? Вместе с ней будут удалены все ее подколлекции.`, // <-- ИЗМЕНЕНО
             deleteVaultTitle: 'Удалить хранилище?', 
             deleteVaultMessage: (name) => `Вы уверены, что хотите удалить хранилище "${name}"?`, 
             finalWarningTitle: 'Последнее предупреждение', 
@@ -288,7 +294,42 @@ document.addEventListener('DOMContentLoaded', () => {
             collection: 'В коллекцию',
             move: 'Переместить',
             done: 'Готово',
-            selected: 'Выделено'
+            selected: 'Выделено',
+            sound: 'Звуковые эффекты'
+        }
+    };
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    const SoundManager = {
+        USE_GLOBAL_SOUNDS: true, 
+        cache: {},
+
+        play(name) {
+            if (!state || state.settings.sound_enabled === false) return;
+
+            const theme = state.settings.theme_accent || 'blue';
+            let path = '';
+            
+            if (this.USE_GLOBAL_SOUNDS) {
+                path = `sounds/${name}.mp3`;
+            } else {
+                path = `sounds/themes/${theme}/${name}.mp3`;
+            }
+
+            if (!this.cache[path]) {
+                this.cache[path] = new Audio(path);
+            }
+
+            const sound = this.cache[path];
+            sound.currentTime = 0; 
+            sound.volume = 0.2; // Делаем звуки наведения ОЧЕНЬ тихими
+            
+            const playPromise = sound.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {});
+            }
         }
     };
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -386,44 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${day}.${month}.${year} ${hours}:${minutes}`;
     }
 
-    function createMetadataHtml(note, noteId) {
-        const createdDate = `Created: ${formatDate(note.created_at)}`;
-        let modifiedDateHtml = '';
-        const createdTime = new Date(note.created_at).getTime();
-        const modifiedTime = new Date(note.modified_at).getTime();
-        
-        if (modifiedTime - createdTime > 5000) {
-            modifiedDateHtml = `<br>Modified: ${formatDate(note.modified_at)}`;
-        }
 
-        let dateHtml = `
-            <div style="font-size: 0.9em; color: var(--text-color);">
-                ${createdDate}
-                <i style="font-size: 0.9em; color: var(--text-color-dark);">${modifiedDateHtml}</i>
-            </div>
-        `;
-
-        const noteCollections = Object.keys(state.collectionNotes).filter(collId => 
-            state.collectionNotes[collId].includes(noteId)
-        );
-        
-        let collectionsHtml = '';
-        if (noteCollections.length > 0) {
-            collectionsHtml = `
-                <div class="short-divider"></div>
-                <div style="font-size: 0.9em; color: var(--text-color);">
-                    In collections:
-                    <div style="margin-top: 4px;">
-                        ${noteCollections.map(collId => 
-                            `<span style="display: block; color: var(--text-color-dark); padding-left: 8px;">- ${state.collections[collId].name}</span>`
-                        ).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        return dateHtml + collectionsHtml;
-    }
 
 // --- 👇 ЗАМЕНИТЕ ВСЮ ЭТУ ФУНКЦИЮ ---
     function createMetadataHtml(note, noteId) {
@@ -437,12 +441,8 @@ document.addEventListener('DOMContentLoaded', () => {
             modifiedDateHtml = `<br>Modified: ${formatDate(note.modified_at)}`;
         }
 
-        let dateHtml = `
-            <div style="font-size: 0.9em; color: var(--text-color);">
-                ${createdDate}
-                <i style="font-size: 0.9em; color: var(--text-color-dark);">${modifiedDateHtml}</i>
-            </div>
-        `;
+        let dateHtml = `<div style="font-size: 0.9em; color: var(--text-color);">${createdDate}<i style="font-size: 0.9em; color: var(--text-color-dark);">${modifiedDateHtml}</i></div>`;
+
 
         // --- Блок 2: Поиск коллекций (НОВЫЙ) ---
         const noteCollections = Object.keys(state.collectionNotes).filter(collId => 
@@ -451,17 +451,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let collectionsHtml = '';
         if (noteCollections.length > 0) {
-            collectionsHtml = `
-                <div class="short-divider"></div>
-                <div style="font-size: 0.9em; color: var(--text-color);">
-                    In collections:
-                    <div style="margin-top: 4px;">
-                        ${noteCollections.map(collId => 
-                            `<span style="display: block; color: var(--text-color-dark); padding-left: 8px;">- ${state.collections[collId].name}</span>`
-                        ).join('')}
-                    </div>
-                </div>
-            `;
+            const listHtml = noteCollections.map(collId => `<span style="display: block; color: var(--text-color-dark); padding-left: 8px;">- ${state.collections[collId].name}</span>`).join('');
+            collectionsHtml = `<div class="dropdown-divider"></div><div style="font-size: 0.9em; color: var(--text-color);">In collections:<div style="margin-top: 4px;">${listHtml}</div></div>`;
         }
 
         // --- Блок 3: Сборка финального HTML ---
@@ -636,70 +627,157 @@ document.addEventListener('DOMContentLoaded', () => {
         tile.dataset.id = noteId;
         tile.setAttribute('draggable', 'true');
         const content = state.notePreviews[noteId] || '';
-        tile.innerHTML = `<div class="note-title" title="${note.title}">${note.title}</div><div class="note-text">${content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+        tile.innerHTML = `<div class="note-title" data-name="${note.title.replace(/"/g, '&quot;')}">${note.title}</div><div class="note-text">${content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
         return tile;
     }
     
-    function createCollectionElement(collId) {
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    function createCollectionGroupElement(collId) {
         const collection = state.collections[collId];
         if (!collection) return null;
+
+        // Создаем контейнер-обертку
+        const group = document.createElement('div');
+        group.className = 'collection-group';
+        group.dataset.groupId = collId;
+
+        // Сама кнопка коллекции
         const item = document.createElement('div');
         item.className = 'collection-item';
+        if (collection.parentId) item.classList.add('subcollection');
         item.dataset.id = collId;
         item.setAttribute('draggable', 'true');
-        item.innerHTML = `<img src="icons/${collection.icon}" class="icon"><span title="${collection.name}">${collection.name}</span><span class="note-count">0</span>`;
-        return item;
-    }
 
+        // УСЛОВИЕ: Дефис теперь имеет уменьшенную ширину и отрицательный отступ справа
+        const iconOrDash = collection.parentId 
+            ? `<span style="color: var(--text-color-dark); font-weight: 400; font-size: 1em; display: flex; align-items: center; justify-content: center; width: 10px; margin-right: -6px;">-</span>` 
+            : `<img src="icons/${collection.icon}" class="icon">`;
+
+        // Внутренности кнопки
+        item.innerHTML = `
+            <span class="expander-icon">▶</span>
+            ${iconOrDash}
+            <span data-name="${collection.name}">${collection.name}</span>
+            <span class="note-count">0</span>
+        `;
+        group.appendChild(item);
+
+        // Контейнер для детей (подколлекций)
+        if (!collection.parentId) {
+            const subsList = document.createElement('div');
+            subsList.className = 'subcollections-list';
+            group.appendChild(subsList);
+        }
+
+        return group;
+    }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function addNoteToDOM(noteId, animate = false) {
         const tile = createNoteTileElement(noteId);
         if (tile) {
-            dom.notesGrid.prepend(tile);
             if (animate) {
-                highlightElement(tile);
+                tile.classList.add('newly-added-note');
+                dom.notesGrid.prepend(tile);
+                
+                tile.addEventListener('animationend', function handler(e) {
+                    // Умная проверка: проверяем, что анимация закончилась именно на самой плитке,
+                    // независимо от того, как эта анимация называется в CSS!
+                    if (e.target === tile) {
+                        tile.classList.remove('newly-added-note');
+                        highlightElement(tile);
+                        tile.removeEventListener('animationend', handler);
+                    }
+                });
+            } else {
+                dom.notesGrid.prepend(tile);
             }
         }
     }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
-// --- 👇 ЗАМЕНИТЕ ВСЮ ФУНКЦИЮ НА ЭТОТ БЛОК ---
     function removeNoteFromDOM(noteId) {
         const tile = dom.notesGrid.querySelector(`.note-tile[data-id="${noteId}"]`);
         if (tile) {
-            tile.remove();
+            // Запускаем текучее сжатие
+            tile.classList.add('fluid-removing');
+            tile.addEventListener('animationend', () => {
+                tile.remove(); // Удаляем из DOM только когда ширина стала 0
+            }, { once: true });
         }
+        
         const collectionTile = dom.collectionView.grid.querySelector(`.note-tile[data-id="${noteId}"]`);
         if (collectionTile) {
-            collectionTile.remove();
+            collectionTile.classList.add('fluid-removing');
+            collectionTile.addEventListener('animationend', () => {
+                collectionTile.remove();
+            }, { once: true });
+        }
+    }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    
+// --- 👇 ЗАМЕНА ДЛЯ ПУНКТА 3 ---
+    function updateNoteInDOM(noteId) {
+        const note = state.notes[noteId];
+        const preview = state.notePreviews[noteId] || '';
+        
+        const mainTile = dom.notesGrid.querySelector(`.note-tile[data-id="${noteId}"]`);
+        if (mainTile) {
+            const titleEl = mainTile.querySelector('.note-title');
+            if (titleEl) {
+                titleEl.textContent = note.title;
+                titleEl.dataset.name = note.title;
+            }
+            const textEl = mainTile.querySelector('.note-text');
+            if (textEl) textEl.textContent = preview;
+        }
+        
+        const collectionTile = dom.collectionView.grid.querySelector(`.note-tile[data-id="${noteId}"]`);
+        if (collectionTile) {
+            const titleEl = collectionTile.querySelector('.note-title');
+            if (titleEl) {
+                titleEl.textContent = note.title;
+                titleEl.dataset.name = note.title;
+            }
+            const textEl = collectionTile.querySelector('.note-text');
+            if (textEl) textEl.textContent = preview;
         }
     }
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
     
-    function updateNoteInDOM(noteId) {
-        const note = state.notes[noteId];
-        const content = state.noteContentsCache[noteId] || '';
-        const mainTile = dom.notesGrid.querySelector(`.note-tile[data-id="${noteId}"]`);
-        if (mainTile) {
-            mainTile.querySelector('.note-title').textContent = note.title;
-            mainTile.querySelector('.note-title').title = note.title;
-            mainTile.querySelector('.note-text').textContent = content;
-        }
-        const collectionTile = dom.collectionView.grid.querySelector(`.note-tile[data-id="${noteId}"]`);
-        if (collectionTile) {
-             collectionTile.querySelector('.note-title').textContent = note.title;
-             collectionTile.querySelector('.note-title').title = note.title;
-        }
-    }
-    
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function addCollectionToDOM(collId, animate = false) {
-        const item = createCollectionElement(collId);
-        if (item) {
-            dom.collectionsList.appendChild(item);
-             if (animate) {
-                item.classList.add('newly-added');
-                item.addEventListener('animationend', () => item.classList.remove('newly-added'));
+        const collection = state.collections[collId];
+        const groupElement = createCollectionGroupElement(collId);
+        
+        if (!groupElement) return;
+
+        if (collection.parentId) {
+            // Это подколлекция. Ищем родителя и добавляем в его список
+            const parentGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${collection.parentId}"]`);
+            if (parentGroup) {
+                const subsList = parentGroup.querySelector('.subcollections-list');
+                subsList.appendChild(groupElement);
+                parentGroup.classList.add('has-children');
+                
+                // ИСПРАВЛЕНИЕ: Раскрываем родителя ТОЛЬКО если пользователь прямо сейчас создал эту подколлекцию (animate = true).
+                // При загрузке страницы (animate = false) папки останутся закрытыми.
+                if (animate) {
+                    parentGroup.classList.add('expanded'); 
+                }
             }
+        } else {
+            // Это главная коллекция. Добавляем в основной список
+            dom.collectionsList.appendChild(groupElement);
+        }
+
+        if (animate) {
+            groupElement.querySelector('.collection-item').classList.add('newly-added');
+            groupElement.addEventListener('animationend', () => groupElement.querySelector('.collection-item').classList.remove('newly-added'), {once: true});
         }
     }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
     function removeCollectionFromDOM(collId, animate = false) {
         const item = dom.collectionsList.querySelector(`.collection-item[data-id="${collId}"]`);
@@ -721,22 +799,34 @@ document.addEventListener('DOMContentLoaded', () => {
             totalEl.textContent = `(${t.total}: ${totalNotes})`;
         }
 
-        document.querySelectorAll('#collections-list .collection-item').forEach(item => {
+            document.querySelectorAll('#collections-list .collection-item').forEach(item => {
             const collId = item.dataset.id;
             if (collId) {
                 const countEl = item.querySelector('.note-count');
-                const count = state.collectionNotes[collId] ? state.collectionNotes[collId].length : 0;
+                let count = state.collectionNotes[collId] ? state.collectionNotes[collId].length : 0;
+                
+                // Приплюсовываем заметки из всех подколлекций этой коллекции
+                Object.keys(state.collections).forEach(childId => {
+                    if (state.collections[childId].parentId === collId) {
+                        count += state.collectionNotes[childId] ? state.collectionNotes[childId].length : 0;
+                    }
+                });
+
                 if (countEl) countEl.textContent = count;
             }
         });
+
     }
 
     function updateCollectionInDOM(collId) {
         const collection = state.collections[collId];
         const item = dom.collectionsList.querySelector(`.collection-item[data-id="${collId}"]`);
         if (item) {
-            item.querySelector('span').textContent = collection.name;
-            item.querySelector('span').title = collection.name;
+            const nameSpan = item.querySelector('span[data-name]');
+            if (nameSpan) {
+                nameSpan.textContent = collection.name;
+                nameSpan.dataset.name = collection.name;
+            }
         }
         if (currentOpenCollectionId === collId) {
             dom.collectionView.title.textContent = collection.name;
@@ -778,7 +868,15 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.add('no-notes-present');
         }
 
-        Object.keys(state.collections).forEach(collId => addCollectionToDOM(collId));
+        // Сначала рендерим основные коллекции (родителей)
+        Object.keys(state.collections).forEach(collId => {
+            if (!state.collections[collId].parentId) addCollectionToDOM(collId);
+        });
+        
+        // Затем рендерим подколлекции (детей)
+        Object.keys(state.collections).forEach(collId => {
+            if (state.collections[collId].parentId) addCollectionToDOM(collId);
+        });
         
         const t = translations[state.settings.language];
         let hamburgerHTML = `<div class="dropdown-menu-item" id="add-vault-btn" data-translate="addVault">${t.addVault}</div><div class="dropdown-menu-item" id="rename-vault-btn" data-translate="renameVault">${t.renameVault}</div><div class="dropdown-menu-item" id="delete-vault-btn" data-translate="deleteVault">${t.deleteVault}</div><div class="dropdown-divider"></div><div class="dropdown-menu-item" id="import-vault-btn" data-translate="importVault">${t.importVault}</div><div class="dropdown-menu-item" id="backup-vault-btn" data-translate="exportVault">${t.exportVault}</div>`;
@@ -841,44 +939,66 @@ document.addEventListener('DOMContentLoaded', () => {
     function showLoader() { dom.loadingOverlay.classList.add('visible'); }
     function hideLoader() { dom.loadingOverlay.classList.remove('visible'); }
 
-// --- 👇 ЗАМЕНИТЕ ВСЮ ФУНКЦИЮ НА ЭТОТ БЛОК ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function showNotification(messageKey) {
+        if (messageKey === 'noteDeleted' || messageKey === 'collectionDeleted') {
+            SoundManager.play('delete');
+        } else {
+            SoundManager.play('success');
+        }
+
         const t = translations[state.settings.language];
         const notification = dom.notification;
 
-        // 1. Отменяем предыдущий таймер, если он был
+        // Сбрасываем старые таймеры и классы
         clearTimeout(notificationTimer);
         notification.classList.remove('show');
+        notification.classList.remove('hide');
+        notification.onanimationend = null; // Очищаем старые слушатели
 
-        // 2. Устанавливаем новый текст
         notification.textContent = t[messageKey] || messageKey;
 
-        // 3. Трюк для перезапуска анимации
-        // Сначала заставляем браузер "увидеть" удаленный класс
+        // Принудительный рефлоу для перезапуска анимации
         void notification.offsetWidth; 
         
-        // 4. Затем добавляем класс снова, чтобы анимация запустилась заново
         notification.classList.add('show');
 
-        // 5. Устанавливаем таймер на скрытие (соответствует длительности анимации)
+        // Ждем 1.5 секунды, затем запускаем анимацию скрытия
         notificationTimer = setTimeout(() => {
             notification.classList.remove('show');
-        }, 1100);
+            notification.classList.add('hide');
+            
+            // Как только уехало - полностью сбрасываем
+            notification.onanimationend = () => {
+                notification.classList.remove('hide');
+                notification.onanimationend = null;
+            };
+        }, 1500); // 1.5 секунды на экране
     }
-// --- 👆 КОНЕЦ ЗАМЕНЫ ---
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
+// --- 👇 ЗАМЕНА ДЛЯ ПУНКТА 5 ---
     function showDropdown(menu, button) {
         const rect = button.getBoundingClientRect();
-        menu.style.top = `${rect.bottom + 5}px`;
-        if (menu === dom.optionsMenu || menu === dom.contextMenu) {
+        
+        // Учитываем смещение главной стеклянной панели (main-panel)
+        const parentPanel = document.querySelector('.main-panel');
+        const parentRect = parentPanel.getBoundingClientRect();
+        
+        // Вычисляем позицию строго относительно панели
+        menu.style.top = `${rect.bottom - parentRect.top + 5}px`;
+        
+        if (menu === dom.optionsMenu) {
             menu.style.left = 'auto';
-            menu.style.right = `${window.innerWidth - rect.right}px`;
+            menu.style.right = `${parentRect.right - rect.right}px`;
         } else {
             menu.style.right = 'auto';
-            menu.style.left = `${rect.left}px`;
+            menu.style.left = `${rect.left - parentRect.left}px`;
         }
+        
         menu.classList.add('visible');
     }
+// --- 👆 КОНЕЦ ЗАМЕНЫ ---
     
 // --- 👇 ЗАМЕНИТЕ ОБЕ ФУНКЦИИ НА ЭТИ ВЕРСИИ ---
     async function openNoteModal(noteId = null) {
@@ -1090,10 +1210,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function updateDragGhostPosition(e) {
-        dom.dragGhost.style.left = `${e.clientX + 15}px`;
-        dom.dragGhost.style.top = `${e.clientY + 15}px`;
+        // Увеличили отступы от курсора (с 15px до 25px вправо и 30px вниз),
+        // чтобы курсор не перекрывал счетчик или верхний угол призрака
+        dom.dragGhost.style.left = `${e.clientX + 25}px`;
+        dom.dragGhost.style.top = `${e.clientY + 30}px`;
     }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
 // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
 
     // --- 👇 НОВЫЙ БЛОК ---
@@ -1187,12 +1312,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     });
 
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     Mousetrap.bind('mod+s', () => {
+        // Если открыто окно редактирования/создания заметки
         if (dom.noteModal.el.classList.contains('visible')) {
             dom.noteModal.saveBtn.click();
+        } 
+        // Если открыто окно создания коллекции (или подколлекции)
+        else if (dom.collectionModal.el.classList.contains('visible')) {
+            dom.collectionModal.saveBtn.click();
         }
         return false;
     });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     Mousetrap.bind('mod+f', () => {
         dom.searchInput.focus();
@@ -1217,6 +1349,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return false;
     });
+
+    // --- 👇 ВСТАВИТЬ ДЛЯ ПУНКТА 1 ---
+    function highlightElement(element) {
+        if (!element) return;
+        element.classList.add('is-highlighted');
+        element.addEventListener('animationend', () => {
+            element.classList.remove('is-highlighted');
+        }, { once: true });
+    }
+// --- 👆 КОНЕЦ ВСТАВКИ ---
+
 
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
 
@@ -1296,13 +1439,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const tile = dom.notesGrid.querySelector(`.note-tile[data-id="${result.id}"]`);
 
-                // --- 👇 НОВЫЙ БЛОК ---
-                if (tile) {
-                    // 3. Перемещаем плитку в самое начало сетки
-                    dom.notesGrid.prepend(tile);
-                }
-                // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
-                
+
                 // 4. Подсвечиваем плитку и показываем уведомление
                 highlightElement(tile);
                 showNotification('noteUpdated');
@@ -1361,23 +1498,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-// --- 👇 ЗАМЕНИТЕ ЭТОТ БЛОК ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.collectionModal.saveBtn.addEventListener('click', async () => {
         const name = dom.collectionModal.nameInput.value.trim();
         if (!name) { return await showCustomAlert('inputError', 'collectionNameRequired'); }
         
-        const result = await eel.create_collection(name)();
+        // Передаем parentIdForNewSubcollection на бэкенд (если он есть)
+        const result = await eel.create_collection(name, parentIdForNewSubcollection)();
+        
         if (result) {
             state.collections[result.id] = result.data;
             state.collectionNotes[result.id] = [];
+            
+            // Если мы создали подколлекцию, нужно добавить стрелочку раскрытия (класс has-children) родительской папке
+            if (parentIdForNewSubcollection) {
+                const parentGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${parentIdForNewSubcollection}"]`);
+                if (parentGroup && !parentGroup.classList.contains('has-children')) {
+                    parentGroup.classList.add('has-children');
+                }
+            }
+            
             addCollectionToDOM(result.id, true);
             showNotification('collectionCreated');
         }
+        
+        // Обязательно сбрасываем глобальную переменную после создания!
+        parentIdForNewSubcollection = null; 
         closeCollectionModal();
     });
-    // --- ВОТ ВОССТАНОВЛЕННАЯ СТРОКА ---
-    dom.collectionModal.cancelBtn.addEventListener('click', closeCollectionModal);
-// --- 👆 КОНЕЦ ЗАМЕНЫ ---
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+    dom.collectionModal.cancelBtn.addEventListener('click', () => {
+        parentIdForNewSubcollection = null;
+        closeCollectionModal();
+    });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
 
 
@@ -1387,8 +1542,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!tile) return;
         const noteId = tile.dataset.id;
 
-        // --- НОВАЯ ЛОГИКА: РЕЖИМ ВЫДЕЛЕНИЯ ---
         if (isSelectionModeActive) {
+            SoundManager.play('click'); // <-- ЗВУК ВЫДЕЛЕНИЯ
             if (selectedNoteIds.has(noteId)) {
                 selectedNoteIds.delete(noteId);
                 tile.classList.remove('is-selected');
@@ -1398,13 +1553,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             updateSelectionCounter();
 
-            // Если не осталось выделенных заметок, выходим из режима
             if (selectedNoteIds.size === 0) {
                 deactivateSelectionMode();
             }
             return;
         }
-        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
 
         if (!dom.contextMenu.classList.contains('visible')) {
             let fullContent = state.noteContentsCache[noteId];
@@ -1414,7 +1567,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             navigator.clipboard.writeText(fullContent);
-            showNotification('copied');
+            showNotification('copied'); // Звук 'success' сработает внутри showNotification
         }
     }
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -1422,13 +1575,27 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.notesGrid.addEventListener('click', handleNoteClick);
     dom.collectionView.grid.addEventListener('click', handleNoteClick);
     
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    // Действия при клике на любое свободное место
     dom.contentArea.addEventListener('click', (e) => {
-        if (e.target === dom.contentArea) {
-            if (currentOpenCollectionId) {
-                closeCollectionView();
+        // Если кликнули по самой заметке - прерываемся, пусть работает логика копирования
+        if (e.target.closest('.note-tile')) {
+            return;
+        }
+
+        // Действие 1: Закрываем правую шторку с содержимым коллекции (если она открыта)
+        if (currentOpenCollectionId) {
+            closeCollectionView();
+        } 
+        // Действие 2: ИНАЧЕ, если шторка закрыта, сворачиваем раскрытое дерево подколлекций слева
+        else {
+            const expandedGroup = document.querySelector('.collection-group.expanded');
+            if (expandedGroup) {
+                expandedGroup.classList.remove('expanded');
             }
         }
     });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 
     const hideTooltip = () => {
@@ -1436,40 +1603,69 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.noteTooltip.classList.remove('visible');
     };
     
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     const handleNoteMouseOver = (e) => {
         const tile = e.target.closest('.note-tile');
         if (!tile) return;
         
+        // --- 👇 ЗАЩИТА ОТ ТУЛТИПА ПРИ ОТКРЫТОМ МЕНЮ ---
+        if (dom.contextMenu.classList.contains('visible')) {
+            return; 
+        }
+        // --- 👆 КОНЕЦ ЗАЩИТЫ ---
+        
+        // Определяем, на что именно навели: на заголовок или на остальную часть карточки
+        const isHoveringTitle = e.target.closest('.note-title');
+        
         tooltipTimer = setTimeout(async () => {
-            const noteId = tile.dataset.id;
-            let content = state.noteContentsCache[noteId];
-            if (content === undefined) {
-                content = await eel.get_note_content(noteId)();
-                state.noteContentsCache[noteId] = content;
-            }
-            if (!content) return;
-
             const tooltip = dom.noteTooltip;
-            tooltip.textContent = content.substring(0, 750);
+            
+            if (isHoveringTitle) {
+                // ПОКАЗЫВАЕМ ПОЛНЫЙ ЗАГОЛОВОК
+                const titleText = isHoveringTitle.dataset.name;
+                if (!titleText) return;
+                
+                tooltip.textContent = titleText;
+                tooltip.classList.add('metadata-tooltip'); // Делаем тултип компактным (как для коллекций)
+                
+            } else {
+                // ПОКАЗЫВАЕМ СОДЕРЖИМОЕ ЗАМЕТКИ
+                const noteId = tile.dataset.id;
+                let content = state.noteContentsCache[noteId];
+                if (content === undefined) {
+                    content = await eel.get_note_content(noteId)();
+                    state.noteContentsCache[noteId] = content;
+                }
+                if (!content) return;
+                
+                tooltip.textContent = content.substring(0, 750);
+                tooltip.classList.remove('metadata-tooltip'); // Обычный широкий тултип
+            }
+
             tooltip.classList.add('visible');
 
+            // --- Позиционирование ---
             const { offsetWidth: tooltipWidth, offsetHeight: tooltipHeight } = tooltip;
             const { clientX: mouseX, clientY: mouseY } = e;
             const { innerWidth, innerHeight } = window;
             const offset = 15;
             const margin = 5;
             let x, y;
+            
             if (mouseX + offset + tooltipWidth + margin < innerWidth) { x = mouseX + offset; } 
             else if (mouseX - offset - tooltipWidth - margin > 0) { x = mouseX - offset - tooltipWidth; }
             else { x = innerWidth - tooltipWidth - margin; }
+            
             if (mouseY + offset + tooltipHeight + margin < innerHeight) { y = mouseY + offset; }
             else if (mouseY - offset - tooltipHeight - margin > 0) { y = mouseY - offset - tooltipHeight; }
             else { y = innerHeight - tooltipHeight - margin; }
+            
             tooltip.style.left = `${x}px`;
             tooltip.style.top = `${y}px`;
 
         }, 500);
     };
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     const handleNoteMouseOut = (e) => {
         clearTimeout(tooltipTimer);
@@ -1488,26 +1684,110 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.collectionView.grid.addEventListener('mouseout', handleNoteMouseOut);
     dom.collectionView.grid.addEventListener('scroll', handleGridScroll);
     
+        // --- Кастомный тултип для коллекций ---
+    let collectionTooltipTimer = null;
+
+    dom.collectionsList.addEventListener('mouseover', (e) => {
+        const item = e.target.closest('.collection-item');
+        if (!item || item.id === 'add-collection-btn') return;
+        
+        if (dom.contextMenu.classList.contains('visible')) {
+            return; 
+        }
+
+        const collId = item.dataset.id;
+        const collection = state.collections[collId];
+        if (!collection) return;
+
+        collectionTooltipTimer = setTimeout(() => {
+            const tooltip = dom.noteTooltip;
+            tooltip.textContent = collection.name;
+            tooltip.classList.add('metadata-tooltip'); // Делает тултип компактным
+            tooltip.classList.add('visible');
+
+            // Позиционируем справа от коллекции
+            const itemRect = item.getBoundingClientRect();
+            tooltip.style.top = `${itemRect.top + (itemRect.height / 2) - (tooltip.offsetHeight / 2)}px`;
+            tooltip.style.left = `${itemRect.right + 10}px`;
+        }, 500); // Появится через 0.5 сек
+    });
+
+    dom.collectionsList.addEventListener('mouseout', () => {
+        clearTimeout(collectionTooltipTimer);
+        dom.noteTooltip.classList.remove('visible');
+        dom.noteTooltip.classList.remove('metadata-tooltip');
+    });
+    
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.collectionView.grid.addEventListener('dragover', (e) => {
-        if (draggedElement.type === 'note' && draggedElement.source === 'collection-notes-grid') {
+        if (draggedElement.type === 'note') {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
-            const targetTile = e.target.closest('.note-tile');
-            if (targetTile && targetTile.dataset.id !== draggedElement.id) {
-                const oldIndicator = dom.collectionView.grid.querySelector('.drag-over-indicator');
-                if (oldIndicator) oldIndicator.classList.remove('drag-over-indicator');
-                targetTile.classList.add('drag-over-indicator');
+
+            if (draggedElement.source === 'collection-notes-grid') {
+                // Старая логика: если тащим ВНУТРИ коллекции - показываем линию сортировки
+                const targetTile = e.target.closest('.note-tile');
+                if (targetTile && targetTile.dataset.id !== draggedElement.id) {
+                    const oldIndicator = dom.collectionView.grid.querySelector('.drag-over-indicator');
+                    if (oldIndicator) oldIndicator.classList.remove('drag-over-indicator');
+                    targetTile.classList.add('drag-over-indicator');
+                }
+            } else if (draggedElement.source === 'notes-grid') {
+                // НОВАЯ ЛОГИКА: если тащим С ГЛАВНОГО ОКНА - подсвечиваем всю панель
+                dom.collectionView.panel.classList.add('drag-over-panel');
+            }
+        }
+    });
+
+    // Убираем подсветку, если увели курсор с панели
+    dom.collectionView.grid.addEventListener('dragleave', (e) => {
+        if (draggedElement.source === 'notes-grid') {
+            if (!dom.collectionView.grid.contains(e.relatedTarget)) {
+                dom.collectionView.panel.classList.remove('drag-over-panel');
             }
         }
     });
 
     dom.collectionView.grid.addEventListener('drop', async (e) => {
         e.preventDefault();
-        const dropTarget = e.target.closest('.note-tile');
+        
+        // Очищаем любые эффекты наведения
+        dom.collectionView.panel.classList.remove('drag-over-panel');
         const indicator = dom.collectionView.grid.querySelector('.drag-over-indicator');
         if (indicator) indicator.classList.remove('drag-over-indicator');
 
-        if (dropTarget && draggedElement.type === 'note' && draggedElement.source === 'collection-notes-grid' && draggedElement.id !== dropTarget.dataset.id) {
+        if (draggedElement.type !== 'note') return;
+
+        // 1. НОВАЯ ЛОГИКА: ДОБАВЛЕНИЕ ЗАМЕТКИ ИЗ ГЛАВНОГО ОКНА
+        if (draggedElement.source === 'notes-grid' && currentOpenCollectionId) {
+            const collectionId = currentOpenCollectionId;
+            const idsToProcess = draggedElement.isBatch ? Array.from(selectedNoteIds) : [draggedElement.id];
+            
+            // Фильтруем: берем только те заметки, которых ЕЩЕ НЕТ в этой коллекции
+            const notesToAdd = idsToProcess.filter(id => !(state.collectionNotes[collectionId] && state.collectionNotes[collectionId].includes(id)));
+            
+            if (notesToAdd.length > 0) {
+                const t = translations[state.settings.language];
+                const result = await eel.add_notes_to_collection_batch(notesToAdd, collectionId)();
+                
+                if (result.success) {
+                    notesToAdd.forEach(id => {
+                        if (!state.collectionNotes[collectionId].includes(id)) {
+                            state.collectionNotes[collectionId].push(id);
+                        }
+                    });
+                    updateCounters();
+                    showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
+                    renderCollectionView(collectionId); // Мгновенно перерисовываем
+                }
+            }
+            deactivateSelectionMode();
+            return;
+        }
+
+        // 2. СТАРУЮ ЛОГИКА: СОРТИРОВКА ВНУТРИ КОЛЛЕКЦИИ
+        const dropTarget = e.target.closest('.note-tile');
+        if (dropTarget && draggedElement.source === 'collection-notes-grid' && draggedElement.id !== dropTarget.dataset.id) {
             const draggedId = draggedElement.id;
             const targetId = dropTarget.dataset.id;
             
@@ -1525,9 +1805,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
-        dom.collectionsList.addEventListener('contextmenu', (e) => {
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    dom.collectionsList.addEventListener('contextmenu', (e) => {
         // --- НОВАЯ ЛОГИКА: ПЕРЕКЛЮЧЕНИЕ (TOGGLE) ---
+        hideTooltip();
         if (dom.contextMenu.classList.contains('visible')) {
             e.preventDefault();
             hideContextMenuAnimated();
@@ -1537,23 +1820,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const item = e.target.closest('.collection-item');
         if (!item || item.id === 'add-collection-btn') return;
+        
         const collId = item.dataset.id;
+        const collection = state.collections[collId];
+        
         dom.contextMenu.dataset.noteId = '';
         dom.contextMenu.dataset.collId = collId;
+        
         const t = translations[state.settings.language];
-        const menuItems = [
-            { label: t.rename, action: 'rename-collection' },
-            { label: t.delete, action: 'delete-collection' }
-        ];
+        const menuItems = [];
+
+        // Проверяем условия для появления кнопки "Создать подколлекцию"
+        const notesCount = state.collectionNotes[collId] ? state.collectionNotes[collId].length : 0;
+        const isSubcollection = !!collection.parentId;
+
+        // Если это не подколлекция (главная папка) и в ней НЕТ записок -> добавляем кнопку
+        if (!isSubcollection && notesCount === 0) {
+            menuItems.push({ label: t.createSubcollection, action: 'create-subcollection' });
+            menuItems.push({ type: 'divider' });
+        }
+
+        menuItems.push({ label: t.rename, action: 'rename-collection' });
+        menuItems.push({ label: t.delete, action: 'delete-collection' });
+        
         showContextMenu(e, menuItems);
     });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    // Глобальная переменная для отслеживания, куда создаем подколлекцию
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.collectionsList.addEventListener('click', async (e) => {
         const item = e.target.closest('.collection-item');
         if (!item || item.id === 'add-collection-btn') return;
 
         const collId = item.dataset.id;
-        
+        const group = item.closest('.collection-group');
+        const hasChildren = Object.values(state.collections).some(c => c.parentId === collId);
+
+        // Условие 1: Если есть подколлекции - работает как аккордеон.
+        if (hasChildren) {
+            // Закрываем ВСЕ остальные раскрытые коллекции, кроме той, на которую нажали
+            document.querySelectorAll('.collection-group.expanded').forEach(expandedGroup => {
+                if (expandedGroup !== group) {
+                    expandedGroup.classList.remove('expanded');
+                }
+            });
+
+            // Переключаем текущую (открываем, если была закрыта; закрываем, если была открыта)
+            group.classList.toggle('expanded');
+            return;
+        }
+
+        // Условие 2: Обычная коллекция или подколлекция (без детей) - открываем панель с записками
         if (collId === currentOpenCollectionId) {
             closeCollectionView();
         } else if (currentOpenCollectionId !== null) {
@@ -1569,7 +1889,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 void dom.collectionView.grid.offsetHeight;
                 dom.collectionView.grid.classList.add('is-shown');
-                
                 dom.collectionView.curtain.classList.remove('active');
             }, 150);
         } else {
@@ -1587,6 +1906,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 200);
         }
     });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
         // Теперь оба фильтра вызывают одну и ту же функцию
     dom.searchInput.addEventListener('input', applyFilters);
@@ -1629,16 +1949,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    dom.contextMenu.addEventListener('mouseleave', () => { menuHideTimer = setTimeout(hideContextMenuAnimated, 300); });
-    
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    // Чистые обработчики без дубликатов
     dom.hamburgerMenu.addEventListener('mouseleave', () => { menuHideTimer = setTimeout(hideHamburgerMenuAnimated, 300); });
     dom.hamburgerMenu.addEventListener('mouseenter', () => { clearTimeout(menuHideTimer); });
     
     dom.optionsMenu.addEventListener('mouseleave', () => { menuHideTimer = setTimeout(hideOptionsMenuAnimated, 300); });
     dom.optionsMenu.addEventListener('mouseenter', () => { clearTimeout(menuHideTimer); });
     
-    dom.contextMenu.addEventListener('mouseleave', () => { menuHideTimer = setTimeout(() => dom.contextMenu.classList.remove('visible'), 300); });
-    dom.contextMenu.addEventListener('mouseenter', () => { clearTimeout(menuHideTimer); });
+    // ЕДИНСТВЕННЫЙ обработчик для контекстного меню
+    dom.contextMenu.addEventListener('mouseleave', () => { 
+        menuHideTimer = setTimeout(hideContextMenuAnimated, 300); 
+    });
+    dom.contextMenu.addEventListener('mouseenter', () => { 
+        clearTimeout(menuHideTimer); 
+    });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+    dom.contextMenu.addEventListener('mouseout', (e) => {
+        const container = e.target.closest('.context-submenu-container');
+        if (!container) return;
+
+        // 🔥 САМАЯ ВАЖНАЯ ПРОВЕРКА: 
+        // Если мы перевели курсор на элемент ВНУТРИ этого же контейнера 
+        // (например, на треугольник или на всплывшее подменю) - мы игнорируем уход!
+        if (container.contains(e.relatedTarget)) {
+            return;
+        }
+
+        const submenu = container.querySelector('.submenu');
+        if (submenu) {
+            clearTimeout(submenu.hideTimer);
+            submenu.hideTimer = setTimeout(() => {
+                submenu.classList.add('is-closing');
+                submenu.addEventListener('animationend', () => {
+                    if (submenu.classList.contains('is-closing')) {
+                        submenu.classList.remove('visible');
+                        submenu.classList.remove('is-closing');
+                    }
+                }, { once: true });
+            }, 200);
+        }
+    });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+    dom.contextMenu.addEventListener('mouseout', (e) => {
+        const container = e.target.closest('.context-submenu-container');
+        if (container) {
+            const submenu = container.querySelector('.submenu');
+            if (submenu) {
+                // Как только курсор уходит с кнопки ИЛИ с меню - запускаем таймер
+                clearTimeout(submenu.hideTimer); // сброс на всякий случай
+                submenu.hideTimer = setTimeout(() => {
+                    submenu.classList.add('is-closing');
+                    submenu.addEventListener('animationend', () => {
+                        if (submenu.classList.contains('is-closing')) {
+                            submenu.classList.remove('visible');
+                            submenu.classList.remove('is-closing');
+                        }
+                    }, { once: true });
+                }, 200); // Даем ровно 200мс, чтобы успеть перевести мышку
+            }
+        }
+    });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     // --- 👇 НОВЫЙ БЛОК: ВОССТАНОВЛЕНИЕ ЛОГИКИ НАВЕДЕНИЯ НА МЕНЮ ОПЦИЙ ---
 
@@ -1846,6 +2220,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.appContainer.addEventListener('dragstart', (e) => {
+
+            function canDropNoteIntoCollection(collId) {
+        if (collId === 'coll_favorites') return false;
+        const hasChildren = Object.values(state.collections).some(c => c.parentId === collId);
+        return !hasChildren;
+        }
+
         hideTooltip();
         const noteTile = e.target.closest('.note-tile');
         const collectionItem = e.target.closest('.collection-item:not(#add-collection-btn)');
@@ -1904,7 +2285,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else {
                 document.querySelectorAll('#collections-list .collection-item').forEach(item => {
                     const collId = item.dataset.id;
-                    if (collId && collId !== 'coll_favorites' && !idsToDrag.some(id => state.collectionNotes[collId]?.includes(id))) {
+                    if (collId && canDropNoteIntoCollection(collId) && !idsToDrag.some(id => state.collectionNotes[collId]?.includes(id))) {
                         item.classList.add('drag-over');
                     }
                 });
@@ -1912,7 +2293,186 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
         }
     });
+
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    let dragExpandTimer = null;
+    let currentHoveredGroup = null;
+
+    // МЫ ПОЛНОСТЬЮ УДАЛИЛИ ГЛЮЧНЫЙ dragenter. 
+    // Всё работает через dragover (срабатывает постоянно при движении)
+    dom.collectionsList.addEventListener('dragover', (e) => { 
+        e.preventDefault(); 
+        e.dataTransfer.dropEffect = 'move'; 
+        
+        if (draggedElement.type === 'collection') {
+            const oldIndicator = document.querySelector('.collection-item.drag-over-indicator'); 
+            if (oldIndicator) { oldIndicator.classList.remove('drag-over-indicator'); } 
+            const target = e.target.closest('.collection-item'); 
+            if (target && draggedElement.id !== target.dataset.id) { 
+                target.classList.add('drag-over-indicator'); 
+            }
+            return;
+        }
+
+        if (draggedElement.type === 'note') {
+            const item = e.target.closest('.collection-item');
+            
+            // 1. УПРАВЛЕНИЕ ИСЧЕЗНОВЕНИЕМ ВЫДЕЛЕНИЯ
+            // Сначала очищаем класс со ВСЕХ остальных папок, чтобы не залипало
+            document.querySelectorAll('.collection-item.drag-hovered').forEach(el => {
+                if (el !== item) el.classList.remove('drag-hovered');
+            });
+            
+            // Если мы над валидной папкой - гасим её выделение
+            if (item && item.classList.contains('drag-over')) {
+                item.classList.add('drag-hovered');
+            }
+
+            // 2. ТАЙМЕР РАСКРЫТИЯ ПОДКОЛЛЕКЦИЙ
+            const group = e.target.closest('.collection-group');
+            if (group && group.classList.contains('has-children')) {
+                if (currentHoveredGroup !== group) {
+                    clearTimeout(dragExpandTimer);
+                    currentHoveredGroup = group;
+                    dragExpandTimer = setTimeout(() => {
+                        if (currentHoveredGroup === group) {
+                            group.classList.add('drag-expanded');
+                        }
+                    }, 600);
+                }
+            } else {
+                clearTimeout(dragExpandTimer);
+                currentHoveredGroup = null;
+            }
+        }
+    });
+
+    dom.collectionsList.addEventListener('dragleave', (e) => { 
+        if (draggedElement.type === 'note') {
+            const item = e.target.closest('.collection-item'); 
+            // Возвращаем выделение, когда курсор покинул папку
+            if (item && !item.contains(e.relatedTarget)) { 
+                item.classList.remove('drag-hovered'); 
+            }
+
+            const group = e.target.closest('.collection-group');
+            if (group && !group.contains(e.relatedTarget)) {
+                group.classList.remove('drag-expanded'); 
+                if (currentHoveredGroup === group) {
+                    clearTimeout(dragExpandTimer);
+                    currentHoveredGroup = null;
+                }
+            }
+        }
+    });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    dom.collectionsList.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        const dropTarget = e.target.closest('.collection-item');
+        if (!dropTarget) return;
+
+        if (dropTarget.dataset.id === 'coll_favorites') {
+            dropTarget.classList.remove('drag-over', 'drag-hovered');
+            return;
+        }
+
+        const collectionId = dropTarget.dataset.id;
+
+        // Железно сбрасываем все стили наведения при броске
+        dropTarget.classList.remove('drag-over', 'drag-over-indicator', 'drag-hovered');
+
+        if (draggedElement.type === 'note') {
+            // ЗАЩИТА: Запрещаем бросать в коллекцию с детьми
+            if (!canDropNoteIntoCollection(collectionId)) {
+                return;
+            }
+
+            const t = translations[state.settings.language];
+            
+            const idsToProcess = draggedElement.isBatch ? Array.from(selectedNoteIds) : [draggedElement.id];
+
+            const result = await eel.add_notes_to_collection_batch(idsToProcess, collectionId)();
+            if (result.success) {
+                idsToProcess.forEach(id => {
+                    if (!state.collectionNotes[collectionId].includes(id)) {
+                        state.collectionNotes[collectionId].push(id);
+                    }
+                });
+                updateCounters();
+                if (result.added_count > 0) {
+                    showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
+                }
+
+                // Перерисовываем, если бросили в открытую сейчас коллекцию
+                if (currentOpenCollectionId === collectionId) {
+                    renderCollectionView(collectionId);
+                }
+            }
+            deactivateSelectionMode();
+        } 
+
+        
+        // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+        else if (draggedElement.type === 'collection' && draggedElement.id !== dropTarget.dataset.id) {
+            const draggedId = draggedElement.id;
+            const targetId = dropTarget.dataset.id;
+
+            // Ищем новые КОНТЕЙНЕРЫ (группы), а не просто кнопки
+            const draggedGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${draggedId}"]`);
+            const targetGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${targetId}"]`);
+            
+            // Если пытаемся переместить в разные иерархии (родителя к детям) - отменяем
+            if (!draggedGroup || !targetGroup || draggedGroup.parentNode !== targetGroup.parentNode) {
+                dropTarget.classList.remove('drag-over-indicator');
+                return;
+            }
+
+            // 1. Мгновенная визуальная перестановка
+            const container = draggedGroup.parentNode;
+            const groups = Array.from(container.children);
+            if (groups.indexOf(draggedGroup) < groups.indexOf(targetGroup)) {
+                targetGroup.after(draggedGroup);
+            } else {
+                targetGroup.before(draggedGroup);
+            }
+            dropTarget.classList.remove('drag-over-indicator');
+
+            // 2. Правильный сбор ID для сохранения с учетом групп
+            const newOrderIds = [];
+            dom.collectionsList.querySelectorAll(':scope > .collection-group').forEach(group => {
+                if (group.dataset.groupId) newOrderIds.push(group.dataset.groupId);
+                group.querySelectorAll('.subcollections-list > .collection-group').forEach(subGroup => {
+                    if (subGroup.dataset.groupId) newOrderIds.push(subGroup.dataset.groupId);
+                });
+            });
+
+            // 3. Сохранение
+            const result = await eel.save_collections_order(newOrderIds)();
+            if (result.success) {
+                const newCollections = {};
+                newOrderIds.forEach(id => { if (state.collections[id]) newCollections[id] = state.collections[id]; });
+                state.collections = newCollections;
+            } else {
+                renderFullUI(); 
+            }
+        }
+    }); // <-- Закрывающая скобка обработчика
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    // Вспомогательная функция, чтобы определить, можно ли кидать заметку в коллекцию
+    function canDropNoteIntoCollection(collId) {
+        if (collId === 'coll_favorites') return false;
+        // Нельзя кидать в коллекцию, если у нее есть дети (подколлекции)
+        const hasChildren = Object.values(state.collections).some(c => c.parentId === collId);
+        return !hasChildren;
+    }
+    
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.appContainer.addEventListener('dragover', (e) => {
@@ -1934,72 +2494,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
-
-    dom.collectionsList.addEventListener('dragenter', (e) => { const target = e.target.closest('.collection-item'); if (target && draggedElement.type === 'note') { target.classList.remove('drag-over'); } });
-    dom.collectionsList.addEventListener('dragleave', (e) => { const target = e.target.closest('.collection-item'); if (target && draggedElement.type === 'note') { const collId = target.dataset.id; if (collId && !(state.collectionNotes[collId] && state.collectionNotes[collId].includes(draggedElement.id))) { target.classList.add('drag-over'); } } });
-    dom.collectionsList.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; const oldIndicator = document.querySelector('.collection-item.drag-over-indicator'); if (oldIndicator) { oldIndicator.classList.remove('drag-over-indicator'); } const target = e.target.closest('.collection-item'); if (draggedElement.type === 'collection' && target && draggedElement.id !== target.dataset.id) { target.classList.add('drag-over-indicator'); } });
-
-    
-// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
-    dom.collectionsList.addEventListener('drop', async (e) => {
-        e.preventDefault();
-        const dropTarget = e.target.closest('.collection-item');
-        if (!dropTarget) return;
-
-        if (dropTarget.dataset.id === 'coll_favorites') {
-            dropTarget.classList.remove('drag-over');
-            return;
-        }
-
-        dropTarget.classList.remove('drag-over', 'drag-over-indicator');
-
-        if (draggedElement.type === 'note') {
-            const collectionId = dropTarget.dataset.id;
-            const t = translations[state.settings.language];
-            
-            const idsToProcess = draggedElement.isBatch ? Array.from(selectedNoteIds) : [draggedElement.id];
-
-            const result = await eel.add_notes_to_collection_batch(idsToProcess, collectionId)();
-            if (result.success) {
-                idsToProcess.forEach(id => {
-                    if (!state.collectionNotes[collectionId].includes(id)) {
-                        state.collectionNotes[collectionId].push(id);
-                    }
-                });
-                updateCounters();
-                if (result.added_count > 0) {
-                    showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
-                }
-
-                // --- 👇 ВОТ ИСПРАВЛЕНИЕ ---
-                // Если мы бросили заметку в уже открытую коллекцию, перерисовываем ее
-                if (currentOpenCollectionId === collectionId) {
-                    renderCollectionView(collectionId);
-                }
-                // --- 👆 КОНЕЦ ИСПРАВЛЕНИЯ ---
-            }
-            deactivateSelectionMode();
-        } 
-        else if (draggedElement.type === 'collection' && draggedElement.id !== dropTarget.dataset.id) {
-            const draggedId = draggedElement.id;
-            const targetId = dropTarget.dataset.id;
-            const collectionIds = Array.from(dom.collectionsList.querySelectorAll('.collection-item:not(#add-collection-btn)')).map(item => item.dataset.id);
-            const draggedIndex = collectionIds.indexOf(draggedId);
-            collectionIds.splice(draggedIndex, 1);
-            const targetIndex = collectionIds.indexOf(targetId);
-            collectionIds.splice(targetIndex, 0, draggedId);
-
-            const result = await eel.save_collections_order(collectionIds)();
-            if (result.success) {
-                const newCollections = {};
-                collectionIds.forEach(id => { newCollections[id] = state.collections[id]; });
-                state.collections = newCollections;
-                renderFullUI();
-            }
-        }
-    });
-// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- 
 
     dom.notesGrid.addEventListener('dragover', (e) => { if (draggedElement.type === 'note' && currentOpenCollectionId && draggedElement.source === 'collection-notes-grid') { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } });
 
@@ -2032,6 +2527,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.appContainer.addEventListener('dragend', () => {
+
+        dom.dragGhost.classList.remove('visible');
+        dom.dragGhost.innerHTML = '';
+        
+        // Очищаем подсветку открытой панели коллекций
+        dom.collectionView.panel.classList.remove('drag-over-panel');
+
+        // Очищаем таймер раскрытия
+        clearTimeout(dragExpandTimer);
+        currentHoveredGroup = null;
+
         // 1. Прячем призрак
         dom.dragGhost.classList.remove('visible');
         dom.dragGhost.innerHTML = '';
@@ -2052,8 +2558,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.collection-item').forEach(item => {
             item.classList.remove('drag-over');
             item.classList.remove('drag-over-indicator');
+            item.classList.remove('drag-hovered'); // <-- ДОБАВИЛИ
             // Принудительно сбрасываем стиль, если он "залип"
             item.style.backgroundColor = ''; 
+        });
+
+        document.querySelectorAll('.collection-group').forEach(group => {
+        group.classList.remove('drag-expanded');
         });
 
         // 6. Очистка корзины
@@ -2069,6 +2580,18 @@ document.addEventListener('DOMContentLoaded', () => {
             hideAllAnimatedMenus();
         }
     });
+
+// --- 👇 НОВЫЙ БЛОК: ЗВУК ПРИ НАВЕДЕНИИ НА МЕНЮ ---
+    document.addEventListener('mouseover', (e) => {
+        // Ищем ближайший родительский элемент, который является пунктом меню
+        const menuItem = e.target.closest('.dropdown-menu-item');
+        
+        // Если нашли и это новое наведение (не внутри того же элемента)
+        if (menuItem && e.relatedTarget && !menuItem.contains(e.relatedTarget)) {
+            SoundManager.play('hover');
+        }
+    });
+// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
 
     // --- 👇 НОВЫЙ БЛОК: ОБРАБОТЧИКИ ДЛЯ КОРЗИНЫ ---
     dom.dragDeleteZone.addEventListener('dragover', (e) => {
@@ -2091,7 +2614,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- ЛОГИКА ДЛЯ ЗАМЕТКИ ---
         if (draggedElement.type === 'note') {
-            // Без подтверждения
             const result = await eel.delete_notes_batch(idsToProcess)();
             if (result.success) {
                 result.deleted_ids.forEach(id => {
@@ -2105,6 +2627,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateCounters();
                 showNotification('noteDeleted');
             }
+            deactivateSelectionMode();
         } 
         // --- ЛОГИКА ДЛЯ КОЛЛЕКЦИИ ---
         else if (draggedElement.type === 'collection') {
@@ -2114,20 +2637,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (await showCustomConfirm('deleteCollectionTitle', t.deleteCollectionMessage(collName), 'deleteAction', 'cancel', true)) {
                 const result = await eel.delete_collection(collId)();
                 if (result.success) {
-                    if (currentOpenCollectionId === result.deleted_id) {
+                    
+                    // Если удаляемая коллекция (или одна из ее подколлекций) сейчас открыта справа - закрываем шторку
+                    if (result.deleted_ids.includes(currentOpenCollectionId)) {
                         closeCollectionView();
                     }
-                    delete state.collections[result.deleted_id];
-                    delete state.collectionNotes[result.deleted_id];
-                    removeCollectionFromDOM(result.deleted_id, true);
+                    
+                    // Удаляем коллекцию и все её подколлекции из state и DOM
+                    result.deleted_ids.forEach(id => {
+                        delete state.collections[id];
+                        delete state.collectionNotes[id];
+                        
+                        const groupToRemove = dom.collectionsList.querySelector(`.collection-group[data-group-id="${id}"]`);
+                        if (groupToRemove) {
+                            groupToRemove.remove(); // Удаляем мгновенно и без зависаний
+                        }
+                    });
+                    
                     updateCounters();
                     showNotification('collectionDeleted');
                 }
             }
+            deactivateSelectionMode();
         }
-
-        // Выходим из режима выделения после любого действия с корзиной
-        deactivateSelectionMode();
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
@@ -2206,7 +2738,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- КОНЕЦ ИЗМЕНЕНИЯ ---
 
         if (target.matches('[data-action="about-app"]')) {
-            await showCustomAlert('About app', 'Prompt Manager v1.5');
+            await showCustomAlert('About app', 'Prompt Manager v2.0');
             hideAllAnimatedMenus();
         }
     });
@@ -2223,6 +2755,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.type === 'divider') return '<div class="dropdown-divider"></div>';
             if (item.type === 'short-divider') return '<div class="short-divider"></div>';
             if (item.type === 'header') return `<div class="dropdown-header">${t[item.labelKey]}</div>`;
+            if (item.type === 'collections-submenu') return item.html; // <-- НОВАЯ СТРОКА
             return `<div class="dropdown-menu-item" data-action="${item.action}">${item.label}</div>`;
         }).join('');
 
@@ -2291,6 +2824,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
+// --- 👇 НАЧАЛО НОВОГО БЛОКА ---
+    function generateCollectionsSubmenu(noteId, excludeCollId = null) {
+        const t = translations[state.settings.language];
+        let collectionsHtml = '';
+        const parents = Object.keys(state.collections).filter(c => !state.collections[c].parentId);
+        let hasAddableCollections = false;
+
+        parents.forEach(parentId => {
+            if (parentId === excludeCollId) return;
+
+            const children = Object.keys(state.collections).filter(c => state.collections[c].parentId === parentId);
+            
+            if (children.length > 0) {
+                // Если есть подколлекции - фильтруем их
+                const availableChildren = children.filter(childId => 
+                    childId !== excludeCollId && 
+                    !(state.collectionNotes[childId] && state.collectionNotes[childId].includes(noteId))
+                );
+                
+                if (availableChildren.length > 0) {
+                    hasAddableCollections = true;
+                    collectionsHtml += `
+                        <div class="context-collection-group">
+                            <div class="dropdown-menu-item context-collection-parent" style="justify-content: flex-start;">
+                                <span class="expander-icon" style="visibility:visible; transform: scale(0.55); margin-right: 8px; transition: transform 0.2s;">▶</span>
+                                <span style="pointer-events: none;">${state.collections[parentId].name}</span>
+                            </div>
+                            <div class="context-subcollections-list" style="display:none; flex-direction:column; padding-left: 15px; background: rgba(0,0,0,0.1); border-radius: 4px; margin: 2px 5px;">
+                                ${availableChildren.map(childId => `
+                                    <div class="dropdown-menu-item" data-action="add-to-collection-${childId}">
+                                        <span style="color: var(--text-color-dark); margin-right: 5px; font-weight:300;">-</span> ${state.collections[childId].name}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                // Если нет подколлекций (обычная папка)
+                if (!(state.collectionNotes[parentId] && state.collectionNotes[parentId].includes(noteId))) {
+                    hasAddableCollections = true;
+                    collectionsHtml += `<div class="dropdown-menu-item" data-action="add-to-collection-${parentId}">${state.collections[parentId].name}</div>`;
+                }
+            }
+        });
+
+        if (hasAddableCollections) {
+            return {
+                type: 'collections-submenu',
+                html: `
+                    <div class="dropdown-submenu-container context-submenu-container">
+                        <div class="dropdown-menu-item" style="justify-content: space-between;">
+                            ${t.addToCollection || 'Add to Collection'}
+                            <span style="font-size: 0.8em; color: var(--text-color-dark);">►</span>
+                        </div>
+                        <div class="dropdown-menu submenu" style="max-height: 300px; overflow-y: auto; overflow-x: hidden; min-width: 180px;">
+                            ${collectionsHtml}
+                        </div>
+                    </div>
+                `
+            };
+        }
+        return null;
+    }
+// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.notesGrid.addEventListener('contextmenu', (e) => {
         if (dom.contextMenu.classList.contains('visible')) {
@@ -2312,18 +2911,15 @@ document.addEventListener('DOMContentLoaded', () => {
             { label: t.select, action: 'select-note' },
             { type: 'divider' },
             { label: t.metadata, action: 'show-metadata' },
-            { type: 'short-divider' },
+            { type: 'divider' },
             { label: t.edit, action: 'edit-note' },
             { label: t.delete, action: 'delete-note' }
         ];
 
-        const availableCollections = Object.keys(state.collections).filter(collId => !(state.collectionNotes[collId] && state.collectionNotes[collId].includes(noteId)));
-        if (availableCollections.length > 0) {
+        const submenuItem = generateCollectionsSubmenu(noteId);
+        if (submenuItem) {
             menuItems.push({ type: 'divider' });
-            menuItems.push({ type: 'header', labelKey: 'addToCollection' });
-            availableCollections.forEach(collId => {
-                menuItems.push({ label: state.collections[collId].name, action: `add-to-collection-${collId}` });
-            });
+            menuItems.push(submenuItem);
         }
         
         showContextMenu(e, menuItems);
@@ -2331,6 +2927,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
 
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.collectionView.grid.addEventListener('contextmenu', (e) => {
         if (dom.contextMenu.classList.contains('visible')) {
             e.preventDefault();
@@ -2347,38 +2944,163 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.contextMenu.dataset.collId = currentOpenCollectionId;
         const t = translations[state.settings.language];
 
+        // 1. Базовые пункты меню для заметки внутри коллекции
         let menuItems = [
             { label: t.metadata, action: 'show-metadata' },
-            { type: 'short-divider' },
+            { type: 'divider' },
             { label: t.edit, action: 'edit-note' },
             { label: t.delete, action: 'delete-note' },
             { type: 'divider' },
             { label: t.removeFromCollection, action: 'remove-from-collection' }
         ];
 
-        const availableCollections = Object.keys(state.collections).filter(collId => 
-            collId !== currentOpenCollectionId &&
-            !(state.collectionNotes[collId] && state.collectionNotes[collId].includes(noteId))
-        );
-
-        if (availableCollections.length > 0) {
+        // 2. Генерируем всплывающее меню с коллекциями
+        // Передаем currentOpenCollectionId, чтобы исключить текущую коллекцию из списка
+        const submenuItem = generateCollectionsSubmenu(noteId, currentOpenCollectionId);
+        
+        // 3. Если есть куда добавлять, вставляем подменю
+        if (submenuItem) {
             menuItems.push({ type: 'divider' });
-            menuItems.push({ type: 'header', labelKey: 'addToCollection' });
-            availableCollections.forEach(collId => {
-                menuItems.push({ label: state.collections[collId].name, action: `add-to-collection-${collId}` });
-            });
+            menuItems.push(submenuItem);
         }
         
+        // 4. Показываем меню
         showContextMenu(e, menuItems);
     });
-// --- 👆 КОНЕЦ ЗАМЕНЫ ---
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
-dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.target.closest('.collection-item'); if (!item || item.id === 'add-collection-btn') return; const collId = item.dataset.id; dom.contextMenu.dataset.noteId = ''; dom.contextMenu.dataset.collId = collId; const t = translations[state.settings.language]; const menuItems = [{ label: t.rename, action: 'rename-collection' }, { label: t.delete, action: 'delete-collection' }]; showContextMenu(e, menuItems); });
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    // Всплытие подменю в контекстном меню (защита от моргания)
+    
+    // Вспомогательная функция для принудительного показа
+    function showContextSubmenu(submenu) {
+        clearTimeout(submenu.hideTimer);
+        
+        // Жестко сбрасываем состояние закрытия
+        submenu.classList.remove('is-closing');
+        
+        // Важно: если анимация закрытия еще шла, она может "выстрелить" позже.
+        // Убираем клоны элемента, чтобы сбросить все слушатели animationend
+        const newSubmenu = submenu.cloneNode(true);
+        submenu.parentNode.replaceChild(newSubmenu, submenu);
+        
+        newSubmenu.classList.add('visible');
+        
+        // Позиционируем
+        newSubmenu.style.top = '-5px';
+        newSubmenu.style.left = '100%';
+        newSubmenu.style.right = 'auto';
+        
+        // Если не влезает в экран справа - открываем влево
+        const rect = newSubmenu.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+            newSubmenu.style.left = 'auto';
+            newSubmenu.style.right = '100%';
+        }
+    }
+
+    // Вспомогательная функция для плавного скрытия
+    function hideContextSubmenu(submenu) {
+        if (!submenu.classList.contains('visible') || submenu.classList.contains('is-closing')) {
+            return;
+        }
+
+        submenu.hideTimer = setTimeout(() => {
+            submenu.classList.add('is-closing');
+            
+            // Используем onanimationend вместо addEventListener, чтобы легче переопределять
+            submenu.onanimationend = () => {
+                if (submenu.classList.contains('is-closing')) {
+                    submenu.classList.remove('visible');
+                    submenu.classList.remove('is-closing');
+                }
+                submenu.onanimationend = null; // Очищаем за собой
+            };
+        }, 150); // Уменьшили задержку со 300мс до 150мс для более четкой реакции
+    }
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    // Управление подменю коллекций
+    dom.contextMenu.addEventListener('mouseover', (e) => {
+        const container = e.target.closest('.context-submenu-container');
+        if (container) {
+            const submenu = container.querySelector('.submenu');
+            if (submenu) {
+                clearTimeout(submenu.hideTimer);
+                submenu.classList.remove('is-closing');
+                submenu.classList.add('visible');
+                
+                // Позиционируем
+                submenu.style.top = '-5px';
+                submenu.style.left = '100%';
+                submenu.style.right = 'auto';
+                
+                const rect = submenu.getBoundingClientRect();
+                if (rect.right > window.innerWidth) {
+                    submenu.style.left = 'auto';
+                    submenu.style.right = '100%';
+                }
+            }
+        }
+    });
+
+    dom.contextMenu.addEventListener('mouseout', (e) => {
+        const container = e.target.closest('.context-submenu-container');
+        if (container) {
+            const submenu = container.querySelector('.submenu');
+            if (submenu) {
+                // Если мы перешли на элемент внутри этого же подменю - ничего не делаем
+                if (container.contains(e.relatedTarget)) return;
+
+                clearTimeout(submenu.hideTimer);
+                submenu.hideTimer = setTimeout(() => {
+                    submenu.classList.add('is-closing');
+                    submenu.addEventListener('animationend', () => {
+                        if (submenu.classList.contains('is-closing')) {
+                            submenu.classList.remove('visible');
+                            submenu.classList.remove('is-closing');
+                        }
+                    }, { once: true });
+                }, 200); // Твои 200мс на перевод мышки
+            }
+        }
+    });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+    dom.contextMenu.addEventListener('mouseout', (e) => {
+        const container = e.target.closest('.context-submenu-container');
+        if (container) {
+            // Если курсор перешел на дочерний элемент ЭТОГО ЖЕ контейнера - ничего не делаем
+            if (container.contains(e.relatedTarget)) return;
+            
+            const submenu = container.querySelector('.submenu');
+            if (submenu) hideContextSubmenu(submenu);
+        }
+    });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.contextMenu.addEventListener('click', async (e) => {
         const target = e.target.closest('.dropdown-menu-item');
         if (!target) return;
+
+                // --- ЛОГИКА АККОРДЕОНА В МЕНЮ ---
+        if (target.classList.contains('context-collection-parent')) {
+            e.stopPropagation(); // Останавливаем закрытие меню
+            const group = target.closest('.context-collection-group');
+            const list = group.querySelector('.context-subcollections-list');
+            const icon = group.querySelector('.expander-icon');
+            
+            if (list.style.display === 'none') {
+                list.style.display = 'flex';
+                icon.style.transform = 'scale(0.55) rotate(90deg)';
+            } else {
+                list.style.display = 'none';
+                icon.style.transform = 'scale(0.55)';
+            }
+            return; // Прерываем выполнение, чтобы не сработал основной клик
+        }
+        // --- КОНЕЦ ЛОГИКИ АККОРДЕОНА ---
         
         const action = target.dataset.action;
         if (!action) return;
@@ -2496,13 +3218,28 @@ dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.targ
                 showNotification('removeFromCollection');
             }
         }
+        else if (action === 'create-subcollection') {
+            parentIdForNewSubcollection = collId;
+            openCollectionModal(); // Открываем стандартное окно
+        }
+
+                else if (action === 'create-subcollection') {
+            parentIdForNewSubcollection = collId; // Запоминаем, куда кладем
+            openCollectionModal(); // Открываем стандартное окно ввода имени
+        }
+
         else if (action === 'rename-collection') {
+            
             const newName = await showCustomPrompt('rename', t.enterNewName, state.collections[collId].name);
             if (newName && newName !== state.collections[collId].name) {
                 const result = await eel.rename_collection(collId, newName)();
                 if (result) {
                     state.collections[collId] = result.data;
-                    updateCollectionInDOM(collId);
+                    const item = dom.collectionsList.querySelector(`.collection-item[data-id="${collId}"]`);
+                    if (item) {
+                        item.querySelector('span[data-name]').textContent = newName;
+                        item.querySelector('span[data-name]').dataset.name = newName;
+                    }
                 }
             }
         }
@@ -2510,18 +3247,31 @@ dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.targ
             if (await showCustomConfirm('deleteCollectionTitle', t.deleteCollectionMessage(state.collections[collId].name), 'deleteAction', 'cancel', true)) {
                 const result = await eel.delete_collection(collId)();
                 if (result.success) {
-                    if (currentOpenCollectionId === result.deleted_id) {
+                    // Закрываем просмотр, если удалили открытую
+                    if (currentOpenCollectionId === collId || result.deleted_ids.includes(currentOpenCollectionId)) {
                         closeCollectionView();
                     }
-                    delete state.collections[result.deleted_id];
-                    delete state.collectionNotes[result.deleted_id];
-                    renderFullUI();
+                    // Удаляем из state
+                    result.deleted_ids.forEach(id => {
+                        delete state.collections[id];
+                        delete state.collectionNotes[id];
+
+                        const groupToRemove = dom.collectionsList.querySelector(`.collection-group[data-group-id="${id}"]`);
+                        if (groupToRemove) {
+                            groupToRemove.classList.add('fading-out');
+                            groupToRemove.addEventListener('transitionend', () => groupToRemove.remove(), { once: true });
+                        }
+
+                    });
+                    
+                    renderFullUI(); // Проще перерисовать дерево целиком
                     updateCounters();
                     showNotification('collectionDeleted');
                 }
             }
         }
     });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 
@@ -2591,13 +3341,34 @@ dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.targ
                         <div class="dropdown-menu-item" data-lang="en">English</div>
                     </div>
                 </div>
+
+                <div class="dropdown-menu-item" style="justify-content: space-between; padding-right: 8px;">
+                    <span data-translate="sound">${t.sound}</span>
+                    <!-- Используем тот же ID, но добавляем pointer-events: none на сам пункт меню, 
+                         чтобы клик точно попадал на label со слайдером -->
+                    <label class="switch" style="transform: scale(0.8); margin: 0; cursor: pointer;" onclick="event.stopPropagation();">
+                        <input type="checkbox" id="sound-toggle" style="display: none;" ${state.settings.sound_enabled !== false ? 'checked' : ''}>
+                        <div class="slider-track"><div class="slider-nub"></div></div>
+                    </label>
+                </div>
+
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-menu-item" data-action="change-notes-dir"><span data-translate="changeNotesDir">${t.changeNotesDir}</span></div>
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-menu-item" data-action="tutorial"><span data-translate="showTutorial">${t.showTutorial}</span></div>
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-menu-item" data-action="about-app"><span data-translate="aboutApp">${t.aboutApp}</span></div>
+
             `;
+
+            // 👇 ВСТАВЬТЕ ЭТОТ ОБРАБОТЧИК
+            document.getElementById('sound-toggle').addEventListener('change', async (e) => {
+                const isEnabled = e.target.checked;
+                state.settings.sound_enabled = isEnabled;
+                await eel.save_settings({ sound_enabled: isEnabled })();
+                if (isEnabled) SoundManager.play('success'); 
+            });
+            // 👆 КОНЕЦ           
             
             // Мы должны заново найти все наши контейнеры после перерисовки
             dom.accentColorsContainer = document.getElementById('accent-colors-container');
@@ -2646,7 +3417,7 @@ dom.collectionsList.addEventListener('contextmenu', (e) => { const item = e.targ
                     eel.mark_tutorial_as_seen()();
 
                     if (takeTour) {
-                        startTutorial(tutorialSteps);
+                        startTutorial(tutorialSteps, state.settings.language);
                     } else {
                         pointToTutorialButton();
                     }

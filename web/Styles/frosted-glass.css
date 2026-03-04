@@ -103,10 +103,29 @@ body {
     transform: translateY(-5px);
 }
 
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 .note-title {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     color: white !important; 
+    border-bottom: none; /* Убираем стандартную линию */
+    padding-bottom: 8px; /* Даем место для линии */
+    margin-bottom: 0px;
+    position: relative; /* ВАЖНО для абсолютного позиционирования разделителя */
 }
+
+/* Добавляем градиентный разделитель (как в soft pastel) */
+.note-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    /* Градиент, который затухает вправо. Используем белый или цвет акцента */
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.6), transparent);
+    display: block;
+    z-index: 1;
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 
 .note-text {
     color: rgba(255, 255, 255, 0.9) !important;
