@@ -2,9 +2,11 @@
 
 **Prompt Manager** is a fast, local, and offline-first desktop application for managing and organizing your text notes, ideas, and any other snippets of information. The application's philosophy is maximum speed, full control over your data, and a minimalist, distraction-free interface.
 
-![App Screenshot](https://github.com/user-attachments/assets/283198ba-0232-4f6e-a881-910acd113760)
+![App Screenshot](<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/3f722592-5af8-45fc-b572-d8c1ac8df589" />)
 
 ## ✨ Key Features
+
+![App Screenshot]<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/e4beeadd-8699-4943-bd90-60c9861ee120" />
 
 - **⚡ Instant Copy:** A single click on any note instantly copies its full content to the clipboard.
 - **🗂️ Collections:** Group your notes into virtual folders (Collections) using intuitive drag-and-drop.
