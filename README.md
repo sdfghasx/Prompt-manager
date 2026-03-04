@@ -2,7 +2,7 @@
 
 **Prompt Manager** is a fast, local, and offline-first desktop application for managing and organizing your text notes, ideas, and any other snippets of information. The application's philosophy is maximum speed, full control over your data, and a minimalist, distraction-free interface.
 
-(<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/3f722592-5af8-45fc-b572-d8c1ac8df589" />)
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/3f722592-5af8-45fc-b572-d8c1ac8df589" />
 
 ## ✨ Key Features
 
