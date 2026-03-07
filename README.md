@@ -1,39 +1,42 @@
 # Prompt Manager
 
-**Prompt Manager** is a fast, local, and offline-first desktop application for managing and organizing your text notes, ideas, and any other snippets of information. The application's philosophy is maximum speed, full control over your data, and a minimalist, distraction-free interface.
+**Prompt Manager** — это локальное приложение для быстрого управления текстовыми заметками/промптами. Программа работает полностью оффлайн, быстро откликается на действия и хранит данные исключительно на вашем устройстве. 
 
-![App Screenshot](https://github.com/user-attachments/assets/283198ba-0232-4f6e-a881-910acd113760)
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/3f722592-5af8-45fc-b572-d8c1ac8df589" />
 
-## ✨ Key Features
+## ✨ Основные функции
 
-- **⚡ Instant Copy:** A single click on any note instantly copies its full content to the clipboard.
-- **🗂️ Collections:** Group your notes into virtual folders (Collections) using intuitive drag-and-drop.
-- **🗄️ Vaults:** Keep your work and personal life separate with Vaults — fully isolated workspaces for your notes.
-- **🎨 Customization:**
-    - Light & Dark themes.
-    - 6 accent colors for the UI.
-    - 5 additional color themes for the note text itself, allowing you to find the perfect combination for readability.
-- **⌨️ Full Keyboard Control:** Navigate and operate the app using standard hotkeys (`Ctrl+N` for new, `Ctrl+S` for save, `Esc` to close, etc.).
-- **💪 Robust & Reliable:**
-    - **Data Safety:** The app automatically creates backups of your data files and can recover from corruption.
-    - **Interactive Onboarding:** A step-by-step tutorial guides new users through all the main features.
-- **✅ Selection Mode:** Select multiple notes to perform batch actions like deleting, adding to a collection, or moving between vaults.
-- **🗑️ Drag & Drop Deletion:** Easily delete notes and collections by dragging them to the animated trash can.
+<img width="1920" height="1080" alt="Image" src="https://github.com/user-attachments/assets/e4beeadd-8699-4943-bd90-60c9861ee120" />
 
-## 🚀 Installation
+- **Быстрое копирование:** Клик левой кнопкой мыши по любой заметке моментально копирует её текст в буфер обмена.
+- **Организация данных:** 
+  - Создавайте вложенные папки (Коллекции) любой глубины. 
+  - Распределяйте заметки перетаскиванием (Drag & Drop).
+  - Используйте Хранилища (Vaults), чтобы полностью изолировать разные проекты друг от друга (например, "Работа" и "Хобби").
+- **Система тегов:** Добавляйте теги с автодополнением и ищите нужные заметки через `#` в строке поиска.
+- **Пакетная работа:** Выделяйте несколько заметок сразу, чтобы переместить их в другую папку или удалить.
+- **Кастомизация:** 
+  - Настройка цвета интерфейса и текста с помощью встроенной палитры.
+  - Назначение уникальных иконок и цветов для каждой папки.
+  - Переключение между отображением карточками (Grid) или компактным списком (List).
+- **Горячие клавиши:** Поддержка базовых шорткатов (`Ctrl+N` — создать, `Ctrl+S` — сохранить, `Esc` — закрыть окно, `Ctrl+F` — поиск).
+- **Надежность:** Программа автоматически делает резервные копии данных при каждом изменении и умеет восстанавливаться при сбоях.
 
-1.  Go to the [**Releases**](https://github.com/sdfghasx/Prompt-manager/releases) page.
-2.  Download the latest `PromptManager_Setup_vX.X.exe` file.
-3.  Run the installer. The application will be installed, and shortcuts will be created.
+## 🚀 Установка
 
-## 🛠️ Tech Stack
+1. Перейдите на страницу [**Releases**](https://github.com/sdfghasx/Prompt-manager/releases).
+2. Скачайте последнюю версию файла `PromptManager_Setup_v2.5.exe`.
+3. Запустите установщик. 
+*Примечание: Если вам нужна Portable-версия, вы можете установить программу в любую пользовательскую папку (например, на флешку) — данные будут храниться рядом с `.exe` файлом.*
 
-This project is a testament to the power of a minimalist tech stack with no external dependencies where possible.
+## 🛠️ Стек технологий
 
-- **Backend:** Pure **Python 3** with standard libraries.
-- **Frontend:** Pure **Vanilla JavaScript (ES6+)**, HTML5, and CSS3. **No frameworks.**
-- **Bridge:** The `eel` library is used to create a bridge between the Python backend and the JavaScript frontend.
-- **Packaging:** `PyInstaller` to bundle the application and `Inno Setup` to create the Windows installer.
+Проект построен на архитектуре минимализма с отказом от тяжеловесных фреймворков.
+
+- **Бэкенд:** Чистый **Python 3** со стандартными библиотеками.
+- **Фронтенд:** Vanilla **JavaScript (ES6+)**, HTML5 и CSS3. 
+- **Связь:** Библиотека `eel` для соединения Python-логики с интерфейсом браузера.
+- **Сборка:** `PyInstaller` (упаковка) и `Inno Setup` (создание инсталлятора).
 
 ---
-*This project is built and maintained with the assistance of a AI*
+*Проект почти полностью создан и поддерживается с помощью ИИ.*

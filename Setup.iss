@@ -3,12 +3,13 @@
 ; ===================================================================
 
 #define MyAppName "Prompt Manager"
-#define MyAppVersion "2.0"
+#define MyAppVersion "2.5"
 #define MyAppPublisher "D."
 #define MyAppURL "https://github.com/sdfghasx/Prompt-manager"
 #define MyAppExeName "Prompt Manager.exe"
 
 [Setup]
+
 ; AppId генерируется один раз и НИКОГДА не меняется.
 ; Это ключ к правильному обновлению.
 AppId={{AUTO_GUID}}
@@ -33,10 +34,12 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+; Убрали флаг "unchecked", теперь галочка создания ярлыка стоит по умолчанию
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
 Source: "dist\{#MyAppName}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
