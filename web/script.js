@@ -2894,16 +2894,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Слушаем весь документ, чтобы ловить тултипы и из меню, и из модального окна
     document.addEventListener('mouseover', (e) => {
-        // Ищем либо точку в меню (.theme-dot), либо точку в сетке палитры (.cp-grid-dot)
-        const dot = e.target.closest('.theme-dot, .cp-grid-dot');
+        // Ищем элементы, у которых есть наш кастомный атрибут (цвета или кнопки)
+        const dot = e.target.closest('.theme-dot, .cp-grid-dot, [data-tooltip-text]');
         
         // Не показываем тултип, если открыто меню ПКМ (чтобы не мешал)
         if (!dot || dom.contextMenu.classList.contains('visible') || activeDotContext) return;
 
-        // Не показываем тултип, если открыто меню ПКМ (чтобы не мешал)
-        if (!dot || dom.contextMenu.classList.contains('visible') || activeDotContext) return;
-
         const text = dot.dataset.tooltipText;
+
         if (!text) return;
 
         dotTooltipTimer = setTimeout(() => {
@@ -2918,17 +2916,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // Выравниваем по центру по горизонтали
             tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
             
-            // Если это цвет текста - показываем СНИЗУ
-            if (dot.hasAttribute('data-theme-text')) {
+            // Если элемент прижат к верхнему краю окна (Top Bar) ИЛИ это цвет текста - показываем СНИЗУ
+            if (rect.top < 60 || dot.hasAttribute('data-theme-text')) {
                 tooltip.style.top = `${rect.bottom + 8}px`;
+                tooltip.style.zIndex = '3000'; // Поднимаем над шторками и меню
             } 
             // Если это точка из сетки (colorpicker) - показываем строго СВЕРХУ, чтобы не закрывать другие кружки
             else if (dot.classList.contains('cp-grid-dot')) {
                 tooltip.style.top = `${rect.top - tooltip.offsetHeight - 8}px`;
-                // Опционально: можно сделать тултип поверх всех окон, если он обрезается
                 tooltip.style.zIndex = '3000';
             } 
-            // Обычные точки акцента - показываем СВЕРХУ
+            // Обычные точки акцента (и всё остальное) - показываем СВЕРХУ
             else {
                 tooltip.style.top = `${rect.top - tooltip.offsetHeight - 8}px`;
             }
@@ -2937,8 +2935,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
+
     document.addEventListener('mouseout', (e) => {
-        const dot = e.target.closest('.theme-dot, .cp-grid-dot');
+        const dot = e.target.closest('.theme-dot, .cp-grid-dot, [data-tooltip-text]');
         if (dot) {
             clearTimeout(dotTooltipTimer);
             dom.noteTooltip.classList.remove('visible');
@@ -2948,6 +2947,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
 
     
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---

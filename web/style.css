@@ -700,37 +700,63 @@ body[data-theme-base="light"] .icon-btn img {
 
 /* Стили сплющенной карточки */
 #notes-grid.list-view .note-tile {
-    height: 70px; /* Делаем её низкой */
+    height: 90px; /* Слегка увеличили высоту для 2 строк */
     padding: 12px 20px;
-    flex-direction: row; /* Заголовок и текст выстраиваются в ряд */
-    align-items: center; /* Центрируем по вертикали */
+    flex-direction: row; 
+    align-items: center; 
     gap: 15px;
 }
 
-/* Эффект верхнего света на компактной карточке нужно немного опустить */
 #notes-grid.list-view .note-tile::before {
-    display: none; /* Убираем блик, чтобы не перегружать тонкую рамку */
+    display: none; 
 }
 
 #notes-grid.list-view .note-title {
-    flex-shrink: 0; /* Заголовок не сжимается */
-    width: 35%; /* Отдаем заголовку 35% ширины плитки */
-    font-size: 1em;
+    flex-shrink: 0; 
+    width: 30%; 
+    font-size: 1.05em; 
     padding-bottom: 0;
     margin-bottom: 0;
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
 }
 
-#notes-grid.list-view .note-title::after {
-    display: none; /* Убираем градиентную линию под заголовком */
+#notes-grid.list-view .note-custom-line {
+    display: none; 
 }
 
 #notes-grid.list-view .note-text {
     flex-grow: 1;
-    font-size: 0.8em;
-    -webkit-line-clamp: 1; /* Ограничиваем текст строго ОДНОЙ строкой */
-    white-space: nowrap; /* Запрещаем перенос строк */
+    font-size: 0.85em;
+    
+    /* Секретный соус для Flex-контейнера: разрешаем блоку с текстом расти в высоту */
+    min-height: 2.8em; /* 2 строчки по 1.4 line-height */
+    line-height: 1.4;
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    /* Жестко разрешаем перенос строк (на случай, если где-то выше остался nowrap) */
+    white-space: normal !important;
+    word-break: break-word;
+    
+    /* Принудительно центрируем сам блок текста по вертикали относительно родительского Flex */
+    align-self: center; 
+    
+    -webkit-mask-image: none; 
+    mask-image: none;
+    margin: 0; /* Убираем любые возможные отступы, которые могут сжимать текст */
 }
+
+
+
 /* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+
 
 
 #notes-grid.drag-over {
@@ -770,12 +796,12 @@ body[data-theme-base="light"] .icon-btn img {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 20px;
-    padding: 24px;
+    padding: 16px 20px; /* УМЕНЬШИЛИ ОТСТУПЫ (было 24px) */
     cursor: pointer;
     height: 150px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 4px; /* УМЕНЬШИЛИ GAP между элементами (было 12px) */
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     transition: transform 0.4s var(--spring), box-shadow 0.4s ease, border-color 0.4s ease;
@@ -783,6 +809,7 @@ body[data-theme-base="light"] .icon-btn img {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
+
 
 .note-tile::before {
     content: '';
@@ -828,12 +855,12 @@ body[data-theme-base="light"] .icon-btn img {
     height: 1px;
     min-height: 1px;
     width: 100%;
-    margin-top: 8px;
-    margin-bottom: 8px; /* Чтобы текст не прилипал к линии снизу */
+    margin-top: 4px; /* УМЕНЬШИЛИ (было 8px) */
+    margin-bottom: 4px; /* УМЕНЬШИЛИ (было 8px) */
     opacity: 0.7;
-    /* Убираем растягивание для List View (там линия не нужна) */
     flex-shrink: 0; 
 }
+
 
 /* Резервный цвет (нейтрально-белый), если у папки нет своего кастомного цвета */
 .note-custom-line.default-line {
@@ -863,19 +890,36 @@ body[data-theme-base="light"] .note-custom-line.default-line {
 .note-text {
     font-size: var(--note-preview-font-size);
     color: var(--note-text-color);
-    line-height: 1.5;
+    line-height: 1.4;
     display: -webkit-box;
-    -webkit-line-clamp: 4;
+    /* Убираем жесткий line-clamp, пусть текст льется до конца карточки, а маска его растворит */
     -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
     flex-grow: 1;
     margin-top: 0px;
     opacity: 0.9;
+    align-self: flex-start;
+    width: 100%;
+    white-space: pre-wrap;
+    
+    /* НОВОЕ: Плавное растворение текста снизу (Fade Out) */
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 25px), transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 25px), transparent 100%);
 }
 
+/* Адаптация для компактного (List) вида, чтобы там маска не съедала текст */
+#notes-grid.list-view .note-text,
+#collection-notes-grid.list-view .note-text {
+    -webkit-mask-image: none;
+    mask-image: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* В List View возвращаем 1 строку с многоточием */
+}
+
+
+
 #collection-notes-grid .note-tile {
-    height: 110px;
+    height: 130px; /* Чуть увеличили высоту плитки внутри коллекции (было 110) */
     padding: 16px;
     border-radius: 16px;
     gap: 8px;
@@ -892,8 +936,9 @@ body[data-theme-base="light"] .note-custom-line.default-line {
 
 #collection-notes-grid .note-text {
     font-size: 0.8em;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 4; /* Увеличили с 2 до 4 строк внутри коллекции */
 }
+
 
 /* --- Модальные окна (VisionOS Blur) --- */
 /* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
@@ -2217,12 +2262,12 @@ body.no-notes-present #empty-state-overlay {
 /* --- 👇 ВСТАВИТЬ В КОНЕЦ ФАЙЛА style.css --- */
 /* КОМПАКТНЫЙ РЕЖИМ ДЛЯ ПАНЕЛИ КОЛЛЕКЦИИ */
 #collection-notes-grid.list-view {
-    gap: 8px; /* Карточки ближе друг к другу */
+    gap: 10px; /* Чуть увеличили отступ между 2-строчными карточками */
 }
 
 #collection-notes-grid.list-view .note-tile {
-    height: 50px; /* Очень компактные полоски */
-    padding: 8px 12px;
+    height: 75px; /* Увеличили высоту под 2 строки */
+    padding: 10px 14px;
     flex-direction: row;
     align-items: center;
     gap: 12px;
@@ -2230,23 +2275,42 @@ body.no-notes-present #empty-state-overlay {
 
 #collection-notes-grid.list-view .note-title {
     flex-shrink: 0;
-    width: 40%; /* Заголовок занимает 40% ширины */
-    font-size: 0.9em;
+    width: 35%; 
+    font-size: 0.95em;
     padding-bottom: 0;
     margin-bottom: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-#collection-notes-grid.list-view .note-title::after {
-    display: none; /* Убираем черту */
+#collection-notes-grid.list-view .note-custom-line {
+    display: none; 
 }
 
 #collection-notes-grid.list-view .note-text {
     flex-grow: 1;
-    font-size: 0.75em;
-    -webkit-line-clamp: 1;
-    white-space: nowrap;
+    font-size: 0.8em;
+    
+    min-height: 2.8em;
+    line-height: 1.4;
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    white-space: normal !important; 
+    word-break: break-word;
+    align-self: center;
+    
+    -webkit-mask-image: none;
+    mask-image: none;
+    margin: 0;
 }
-/* --- 👆 КОНЕЦ ВСТАВКИ --- */
+
+
 
 /* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 .quick-actions-bar {
