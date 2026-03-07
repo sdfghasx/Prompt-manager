@@ -73,11 +73,31 @@
                             </div>
                         </label>
                     </div>
+<!-- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+<!-- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
                     <div class="search-container">
                         <img src="icons/icon_search.svg" class="search-icon">
                         <input type="text" id="search-input" placeholder="Search Prompts...">
+                        
+                        <!-- ВСПЛЫВАЮЩИЙ БЛОК ТЕГОВ -->
+                        <div id="tags-bar">
+                            <div id="tags-list-container" style="display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end;">
+                                <!-- Теги будут генерироваться здесь -->
+                            </div>
+                        </div>
+
                     </div>
+<!-- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+
+                    
+                    <!-- НОВАЯ КНОПКА ПЕРЕКЛЮЧЕНИЯ ВИДА -->
+                    <button id="view-mode-btn" class="icon-btn" title="Toggle List/Grid View">
+                        <img src="icons/icon_list.svg" id="view-mode-icon">
+                    </button>
+                    
                     <button id="options-btn" class="icon-btn">
+<!-- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+
                         <img src="icons/icon_options.svg">
                     </button>
                 </div>
@@ -111,20 +131,46 @@
 
             <div class="content-area">
                 <div id="collection-view-panel">
-                    <h3 id="collection-view-title"></h3>
+<!-- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: none; background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); background-size: 100% 1px; background-position: bottom; background-repeat: no-repeat; padding-bottom: 15px; margin-bottom: 20px;">
+                        <h3 id="collection-view-title" style="margin: 0; padding: 0; border: none; background: none;"></h3>
+                        <button id="collection-view-mode-btn" class="icon-btn" style="padding: 4px; margin-right: 10px;">
+                            <img src="" id="collection-view-mode-icon">
+                        </button>
+                    </div>
+<!-- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+
                     <div id="collection-notes-grid"></div>
                     <div id="collection-view-curtain"></div>
                 </div>
+                <!-- Контейнер для пустого состояния теперь снаружи сетки, чтобы не удаляться -->
+                <div id="empty-state-overlay" class="empty-state-container">
+                    <img src="icons/icon_add.svg" class="empty-state-icon" style="width: 48px; height: 48px; opacity: 0.5; margin-bottom: 15px;">
+                    <p data-translate="emptyStateMessage">No prompts yet. Click "New" to create your first one!</p>
+                </div>
                 <div id="notes-grid">
-                    <div class="empty-state-container">
-                        <img src="icons/icon_add.svg" class="empty-state-icon">
-                        <p data-translate="emptyStateMessage">No prompts yet. Click "New" to create your first one!</p>
-                    </div>
                     <div id="notes-grid-curtain"></div>
                 </div>
+
             </div>
         </div>
     </div>
+
+        <!-- Экран обрыва связи -->
+<!-- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+    <!-- Экран обрыва связи / Фатальной ошибки -->
+    <div id="fatal-error-overlay">
+        <h1>Fatal Error</h1>
+        <p id="fatal-error-message">The application encountered a critical problem and stopped working.</p>
+        <div style="margin-top: 25px; display: flex; gap: 15px;">
+            <button class="modal-btn" onclick="location.reload()" style="background: rgba(255,255,255,0.1);">Restart App</button>
+            <button class="modal-btn" id="copy-bug-report-btn" onclick="copyFatalErrorLog()" style="background-color: var(--accent-color-danger); color: white; border: none; box-shadow: 0 4px 15px rgba(255, 69, 58, 0.4);">Copy Bug Report</button>
+        </div>
+        <div id="bug-report-copied-msg" style="color: var(--accent-color); font-size: 0.85em; margin-top: 15px; opacity: 0; transition: opacity 0.3s;">Copied to clipboard! You can paste it in GitHub Issues.</div>
+    </div>
+<!-- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ -->
+
+
 
     <!-- Модальные окна -->
     <div id="note-modal" class="modal">
@@ -132,18 +178,73 @@
             <h3 id="modal-title"></h3>
             <input type="text" id="note-title-input" class="mousetrap">
             <textarea id="note-content-input" class="mousetrap"></textarea>
+            <textarea id="note-desc-input" class="mousetrap" rows="2"></textarea>
+            
+            <!-- Оборачиваем инпут тегов, чтобы позиционировать подсказки относительно него -->
+            <div style="position: relative;">
+                <input type="text" id="note-tags-input" class="mousetrap" autocomplete="off">
+                <div id="tags-autocomplete-panel"></div>
+            </div>
+            
             <div class="modal-buttons"> <button class="modal-btn" data-action="cancel"></button> <button
                     class="modal-btn accent" data-action="save"></button> </div>
         </div>
     </div>
-    <div id="collection-modal" class="modal">
-        <div class="modal-content">
-            <h3 data-translate="newCollection"></h3>
-            <input type="text" id="collection-name-input" class="mousetrap">
-            <div class="modal-buttons"> <button class="modal-btn" data-action="cancel" data-translate="cancel"></button>
-                <button class="modal-btn accent" data-action="save" data-translate="ok"></button> </div>
+
+
+<!-- 👇 НАЧАЛО ВСТАВКИ -->
+    <div id="quick-edit-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;"> <!-- Сделаем его чуть шире для удобства редактирования больших текстов -->
+            <h3 id="quick-edit-title" style="margin-bottom: 5px;"></h3>
+            <!-- Оставляем ТОЛЬКО поле для текста -->
+            <textarea id="quick-edit-content-input" class="mousetrap" style="min-height: 450px; margin-top: 0;"></textarea>
+            <div class="modal-buttons"> 
+                <button class="modal-btn" data-action="cancel">Cancel</button> 
+                <button class="modal-btn accent" data-action="save">OK</button> 
+            </div>
         </div>
     </div>
+<!-- 👆 КОНЕЦ ВСТАВКИ -->
+
+
+    <div id="collection-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="collection-modal-title" data-translate="newCollection"></h3>
+            
+            <div style="display: flex; gap: 12px; align-items: stretch; margin-top: 5px; position: relative;">
+                <button id="collection-icon-btn" class="icon-btn" style="width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);">
+                    <!-- Сюда вставится SVG -->
+                </button>
+                
+                <!-- Обертка для инпута и кнопки цвета -->
+                <div style="position: relative; flex-grow: 1; display: flex; align-items: center;">
+                    <input type="text" id="collection-name-input" class="mousetrap" style="margin: 0; width: 100%; padding-right: 45px;">
+                    <!-- Точка выбора цвета -->
+                    <div id="collection-color-btn" style="position: absolute; right: 12px; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 2px 5px rgba(0,0,0,0.4); transition: transform 0.2s;"></div>
+                </div>
+            </div>
+
+            <!-- Сетка для выбора иконок (по умолчанию скрыта) -->
+            <!-- Внешний жесткий контейнер -->
+            <div id="collection-icon-wrapper" class="hidden-grid" style="margin-top: 15px; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); padding: 0 12px; overflow: hidden;">
+                <!-- Внутренний контейнер для маски и скролла -->
+                <div id="collection-icon-grid" style="display: flex; gap: 10px; padding: 12px 0; overflow-x: auto; overflow-y: hidden;">
+                    <!-- Иконки генерируются через JS -->
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="modal-buttons" style="margin-top: 20px;"> 
+                <button class="modal-btn" data-action="cancel" data-translate="cancel"></button>
+                <button class="modal-btn accent" data-action="save" data-translate="ok"></button> 
+            </div>
+        </div>
+    </div>
+
     <div id="alert-modal" class="modal">
         <div class="modal-content">
             <h3 id="alert-title"></h3>
@@ -154,7 +255,7 @@
     <div id="prompt-modal" class="modal">
         <div class="modal-content">
             <h3 id="prompt-title"></h3>
-            <p id="prompt-message"></p> <input type="text" id="prompt-input">
+            <p id="prompt-message"></p> <input type="text" id="prompt-input" class="mousetrap">
             <div id="prompt-buttons" class="modal-buttons"></div>
         </div>
     </div>
@@ -162,6 +263,59 @@
     <div id="loading-overlay" class="modal">
         <div class="spinner"></div>
     </div>
+
+    <div id="color-picker-modal" class="modal">
+        <div class="modal-content" style="max-width: 320px; align-items: center; padding: 24px 16px; overflow: hidden;">
+            
+            <!-- Шапка со стрелочками и предпросмотром -->
+            <div style="display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; align-items: center;">
+                <button id="cp-prev" class="icon-btn" style="background: transparent; border: none; font-size: 1.5em; color: var(--text-color); cursor: pointer;">&lsaquo;</button>
+                <div id="cp-preview" style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.3);"></div>
+                <button id="cp-next" class="icon-btn" style="background: transparent; border: none; font-size: 1.5em; color: var(--text-color); cursor: pointer;">&rsaquo;</button>
+            </div>
+
+            <!-- Зона Карусели -->
+            <div style="width: 280px; overflow: hidden; position: relative;">
+<!-- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (main.html) -->
+            <!-- Зона Карусели -->
+            <div style="width: 280px; overflow: hidden; position: relative;">
+                <!-- Изменили width с 300% на 200% -->
+                <div id="cp-carousel" style="display: flex; width: 200%; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15);">
+                    
+<!-- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (main.html) -->
+                    <!-- Экран 1: Сетка (Grid) с размытием краев -->
+                    <div style="width: 50%; height: 200px; padding: 0 5px;" id="cp-grid-container">
+                        <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; align-content: flex-start; padding-bottom: 20px;" id="cp-grid"></div>
+                    </div>
+<!-- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (main.html) -->
+                    
+                    <!-- Экран 2 удален! -->
+                    
+                    <!-- Экран 3 (Теперь Экран 2): 2D Квадрат (Изменили ширину на 50%) -->
+                    <div style="width: 50%; padding: 0 10px; display: flex; flex-direction: column; gap: 15px;">
+                        <div id="cp-square" style="width: 100%; height: 160px; border-radius: 8px; position: relative; cursor: crosshair; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);">
+                            <div style="position: absolute; inset: 0; background: linear-gradient(to right, #fff, transparent);"></div>
+                            <div style="position: absolute; inset: 0; background: linear-gradient(to top, #000, transparent);"></div>
+                            <div id="cp-square-thumb" style="width: 14px; height: 14px; border: 2px solid #fff; border-radius: 50%; position: absolute; transform: translate(-50%, -50%); box-shadow: 0 0 4px rgba(0,0,0,0.5); pointer-events: none;"></div>
+                        </div>
+                        <input type="range" id="cp-square-hue" min="0" max="360" value="0" class="cp-slider hue-slider">
+                    </div>
+
+                </div>
+            </div>
+<!-- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (main.html) -->
+
+            </div>
+
+            <!-- Кнопки подтверждения -->
+            <div class="modal-buttons" style="width: 100%; margin-top: 20px; justify-content: space-between;">
+                <button class="modal-btn" id="cp-cancel" data-translate="cancel">Cancel</button>
+                <button class="modal-btn accent" id="cp-ok" data-translate="ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- Контекстное меню -->
     <div id="context-menu" class="dropdown-menu"></div>
@@ -207,11 +361,16 @@
     <div id="tutorial-exit-btn" class="hidden">Exit Tutorial</div>
     <!-- 👆 КОНЕЦ НОВОГО БЛОКА -->
 
-    <script src="mousetrap.min.js"></script>
+    <!-- Скрытые инпуты для кастомных цветов -->
+    <input type="color" id="custom-accent-picker" style="display: none;">
+    <input type="color" id="custom-text-picker" style="display: none;">
 
+    <script src="mousetrap.min.js"></script>
+    <script src="colornamer.js"></script>
+
+    <script src="colorpicker.js"></script> <!-- ДОБАВЛЕНО -->
     <script src="script.js"></script>
 
-    <script src="tutorial.js"></script>
 
 
 

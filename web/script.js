@@ -1,8 +1,71 @@
+// Текущая версия приложения (ОБЯЗАТЕЛЬНО ОБНОВЛЯТЬ ПРИ КАЖДОМ РЕЛИЗЕ!)
+const APP_VERSION = "v2.5";
+
+// --- 👇 НОВЫЙ БЛОК: СЛОВАРЬ SVG ИКОНОК (В САМОМ ВЕРХУ - ГЛОБАЛЬНО) ---
+const svgs = {
+    // 📁 Базовые: Папки, Архивы, Коробки
+    folder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
+    dash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="12" x2="16" y2="12"></line></svg>`,
+    archive: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>`,
+
+    box: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`,
+    inbox: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>`,
+
+    // ⭐ Важное: Звезды, Сердца, Флаги, Закладки
+    star: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+    heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`,
+    bookmark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>`,
+    flag: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>`,
+    
+    // 💻 IT & Dev: Код, Терминал, Базы, Серверы, Сети
+    code: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`,
+    terminal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>`,
+    database: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>`,
+    cpu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>`,
+    server: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>`,
+    command: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"></path></svg>`,
+    hash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>`,
+    git_branch: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>`,
+    
+    // 💼 Работа & Обучение: Книги, Портфели, Списки, Графики
+    book: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
+    briefcase: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`,
+    list: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>`,
+    check_square: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>`,
+    clipboard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`,
+    bar_chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>`,
+    pie_chart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>`,
+    
+    // 🎨 Медиа & Дизайн: Картинки, Видео, Звук, Дизайн
+    image: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`,
+    camera: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>`,
+    film: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>`,
+    headphones: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>`,
+    pen_tool: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>`,
+    
+    // 🌐 Коммуникации: Мир, Письмо, Чат, Связь
+    globe: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`,
+    mail: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`,
+    message_square: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`,
+    link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`,
+    
+    // 🛡️ Прочее: Замок, Щит, Ключ, Настройки
+    lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
+    shield: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`,
+    key: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>`,
+    settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`
+};
+// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
+// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
 // --- Точка входа: ожидаем загрузки DOM ---
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. Глобальное состояние приложения ---
+
     let state = {
+
         notes: {},
         collections: {},
         collectionNotes: {},
@@ -14,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let initialNoteTitle = '';
     let initialNoteContent = '';
+    let initialNoteDesc = '';
     let currentOpenCollectionId = null;
     let currentEditingNoteId = null;
     let draggedElement = { id: null, type: null, source: null };
@@ -21,9 +85,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let tooltipTimer = null;
     let notificationTimer = null;
     let isSelectionModeActive = false;
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     let selectedNoteIds = new Set();
+    let activeDotContext = null;
     let previousThemeBase = null; 
-   let parentIdForNewSubcollection = null;
+    let parentIdForNewSubcollection = null;
+    let isInteractingWithSubmenu = false; // <-- НОВЫЙ ФЛАГ (Замок закрытия)
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     // --- 2. Ссылки на DOM-элементы ---
     const dom = {
@@ -35,8 +103,18 @@ document.addEventListener('DOMContentLoaded', () => {
         collectionsList: document.getElementById('collections-list'),
         newNoteBtn: document.getElementById('new-note-btn'),
         addCollectionBtn: document.getElementById('add-collection-btn'),
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
         hamburgerBtn: document.getElementById('hamburger-btn'),
         optionsBtn: document.getElementById('options-btn'),
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+        viewModeBtn: document.getElementById('view-mode-btn'),
+        viewModeIcon: document.getElementById('view-mode-icon'),
+        collViewModeBtn: document.getElementById('collection-view-mode-btn'),
+        collViewModeIcon: document.getElementById('collection-view-mode-icon'),
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
         hamburgerMenu: document.getElementById('hamburger-menu'),
         optionsMenu: document.getElementById('options-menu'),
         contextMenu: document.getElementById('context-menu'),
@@ -48,16 +126,40 @@ document.addEventListener('DOMContentLoaded', () => {
             el: document.getElementById('note-modal'),
             title: document.getElementById('modal-title'),
             titleInput: document.getElementById('note-title-input'),
+            tagsInput: document.getElementById('note-tags-input'),
+            tagsPanel: document.getElementById('tags-autocomplete-panel'), // <-- ДОБАВЛЕНО
+            descInput: document.getElementById('note-desc-input'),
             contentInput: document.getElementById('note-content-input'),
             saveBtn: document.querySelector('#note-modal [data-action="save"]'),
             cancelBtn: document.querySelector('#note-modal [data-action="cancel"]')
         },
+
+
+// --- 👇 ВСТАВИТЬ ПОСЛЕ noteModal ---
+        quickEditModal: {
+            el: document.getElementById('quick-edit-modal'),
+            title: document.getElementById('quick-edit-title'),
+            contentInput: document.getElementById('quick-edit-content-input'),
+            saveBtn: document.querySelector('#quick-edit-modal [data-action="save"]'),
+            cancelBtn: document.querySelector('#quick-edit-modal [data-action="cancel"]')
+        },
+// --- 👆 КОНЕЦ ВСТАВКИ ---
+
+
         collectionModal: {
             el: document.getElementById('collection-modal'),
+            title: document.getElementById('collection-modal-title'), 
             nameInput: document.getElementById('collection-name-input'),
+            iconBtn: document.getElementById('collection-icon-btn'), 
+            iconWrapper: document.getElementById('collection-icon-wrapper'), // <-- НОВОЕ
+            iconGrid: document.getElementById('collection-icon-grid'), 
+            colorBtn: document.getElementById('collection-color-btn'), 
             saveBtn: document.querySelector('#collection-modal [data-action="save"]'),
             cancelBtn: document.querySelector('#collection-modal [data-action="cancel"]')
         },
+
+
+
         alertModal: document.getElementById('alert-modal'),
         promptModal: document.getElementById('prompt-modal'),
         loadingOverlay: document.getElementById('loading-overlay'),
@@ -84,23 +186,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 3. Словари и утилиты для UI ---
     const accentThemes = {
-        blue: { name: 'Blue', color: '#589DF6' },
-        green: { name: 'Green', color: '#6DC274' },
-        purple: { name: 'Purple', color: '#B388FF' },
-        orange: { name: 'Orange', color: '#FFAB70' },
-        red: { name: 'Rose', color: '#F06292' },
-        cyan: { name: 'Cyan', color: '#4DD0E1' }
+        blue: { nameKey: 'themeDefault', color: '#589DF6' },
+        purple: { nameKey: 'themePurple', color: '#B388FF' },
+        orange: { nameKey: 'themeOrange', color: '#FFAB70' },
+        red: { nameKey: 'themeRose', color: '#F06292' },
+        cyan: { nameKey: 'themeCyan', color: '#4DD0E1' },
+        custom: { nameKey: 'themeCustom', color: 'transparent' }
     };
 
     // --- 👇 НОВЫЙ БЛОК ---
     const textThemes = {
-        default: { name: 'Default', color: '#B0B0B0' },
-        sky: { name: 'Sky', color: '#A6D1E6' },
-        mint: { name: 'Mint', color: '#A4E8C2' },
-        sand: { name: 'Sand', color: '#E9D699' },
-        blush: { name: 'Blush', color: '#EBBAB9' }
+        default: { nameKey: 'themeDefault', color: '#B0B0B0' },
+        sky: { nameKey: 'themeSky', color: '#A6D1E6' },
+        lavender: { nameKey: 'themeLavender', color: '#CDB4DB' },
+        sand: { nameKey: 'themeSand', color: '#E9D699' },
+        blush: { nameKey: 'themeBlush', color: '#EBBAB9' },
+        custom: { nameKey: 'themeCustom', color: 'transparent' }
     };
+
 // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
+
 
 // --- 👇 НОВЫЙ БЛОК ---
     const visualStyles = {
@@ -118,14 +224,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     const translations = {
+
+
         en: {
+            quickEdit: 'Quick Edit',
+            changeColor: 'Change Color',
+            resetColor: 'Reset to Default',
+            chooseColor: 'Choose Color',
+            tagsPlaceholder: 'Tags (comma separated)',
+            descPlaceholder: 'Description (optional, max 500 chars)',
             changeStyle: 'Change Style',
             styleUpdated: 'Style updated',
             myWorkspace: 'My Workspace', 
             collections: 'Collections', 
             newCollection: 'New Collection',
             createSubcollection: 'Create Subcollection',
-            createSubcollection: 'Create Subcollection', // <-- НОВОЕ
             newNote: 'New', 
             searchPlaceholder: 'Search Prompts...', 
             changeTheme: 'Change Theme', 
@@ -152,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
             edit: 'Edit', 
             delete: 'Delete', 
             addToCollection: 'Add to Collection', 
-            rename: 'Rename', 
             inputError: 'Input Error', 
             titleRequired: 'Title is required.', 
             collectionNameRequired: 'Collection name is required.', 
@@ -178,8 +290,10 @@ document.addEventListener('DOMContentLoaded', () => {
             discard: 'Discard',
             noteCreated: 'Note created',
             collectionCreated: 'Collection created',
+            collectionUpdated: 'Collection updated',
             collectionDeleted: 'Collection deleted',
             languageUpdated: 'Language updated',
+
             themeUpdated: 'Theme updated',
             vaultCreated: 'Vault created. Reloading...',
             vaultRenamed: 'Vault renamed. Reloading...',
@@ -205,17 +319,56 @@ document.addEventListener('DOMContentLoaded', () => {
             move: 'Move',
             done: 'Done',
             selected: 'Selected',
-            sound: 'Sound Effects'
+            sound: 'Sound Effects',
+            updateAvailable: '🎉 Update Available',
+            downloadUpdate: 'Download now)',
+            infoTitle: 'Info',
+            errorTitle: 'Error',
+            noOtherVaults: 'No other vaults available to move or copy notes to.',
+            importCheckFailed: 'Failed to check import:\n',
+            importFailed: 'Failed to import vault:\n',
+            exportFailed: 'Failed to export vault:\n',
+            fatalInitError: 'Initialization Error: Could not load application data. The application will now close.',
+            
+            // Темы и Цвета
+            themeDefault: 'Default',
+            themePurple: 'Purple',
+            themeOrange: 'Orange',
+            themeRose: 'Rose',
+            themeCyan: 'Cyan',
+            themeSky: 'Sky',
+            themeLavender: 'Lavender',
+            themeSand: 'Sand',
+            themeBlush: 'Blush',
+            themeCustom: 'Custom',
+
+            // Ошибки Бэкенда (Коды)
+            err_note_in_collection: 'Note already in collection.',
+            err_collection_not_found: 'Collection not found.',
+            err_vault_name_empty: 'Vault name cannot be empty.',
+            err_vault_exists: 'Vault with this name already exists.',
+            err_vault_not_found: (name) => `Vault "${name}" not found.`,
+            err_vault_name_taken: (name) => `A vault named "${name}" already exists.`,
+            err_rename_failed: (e) => `Error renaming vault: ${e}`,
+            err_delete_last_vault: 'Cannot delete the last remaining vault.',
+            err_delete_failed: (e) => `Error deleting vault directory: ${e}`,
+            err_export_cancelled: 'Export cancelled.',
+            err_import_cancelled: 'Import cancelled.',
+            err_missing_args: 'Missing note IDs or target vault.',
+            err_target_vault_not_found: (name) => `Target vault "${name}" not found.`,
+            err_dir_cancelled: 'Directory selection cancelled.'
         },
         ru: {
             changeStyle: 'Сменить стиль', 
             styleUpdated: 'Стиль обновлен', 
+            chooseColor: 'Выберите цвет',
             myWorkspace: 'My Workspace', 
             collections: 'Коллекции',
             emptyStateMessage: "Пока нет ни одной записки. Нажмите Создать, чтобы добавить первую!",
             newCollection: 'Новая коллекция', 
             createSubcollection: 'Создать подколлекцию',
-            createSubcollection: 'Создать подколлекцию', // <-- НОВОЕ
+            tagsPlaceholder: 'Теги (через запятую)',
+            descPlaceholder: 'Описание (необязательно, до 500 символов)',
             newNote: 'Создать', 
             searchPlaceholder: 'Поиск записок...', 
             changeTheme: 'Сменить тему', 
@@ -224,9 +377,12 @@ document.addEventListener('DOMContentLoaded', () => {
             editNote: 'Редактировать записку', 
             noteNamePlaceholder: 'Название записки', 
             noteContentPlaceholder: 'Введите текст вашей записки...', 
+            quickEdit: 'Редактор',
+            changeColor: 'Изменить цвет',
+            resetColor: 'Сбросить по умолчанию',
             collectionNamePlaceholder: 'Название коллекции', 
             ok: 'Да', 
-            cancel: 'Нет', 
+            cancel: 'Отмена', 
             copied: 'Скопировано в буфер',
             noteDeleted: 'Записка удалена',
             noteAddedToCollection: 'Заметка добавлена в коллекцию', 
@@ -242,7 +398,6 @@ document.addEventListener('DOMContentLoaded', () => {
             edit: 'Изменить', 
             delete: 'Удалить', 
             addToCollection: 'Добавить в коллекцию', 
-            rename: 'Переименовать', 
             inputError: 'Ошибка ввода', 
             titleRequired: 'Требуется название.', 
             collectionNameRequired: 'Требуется название коллекции.', 
@@ -268,8 +423,10 @@ document.addEventListener('DOMContentLoaded', () => {
             discard: 'Сбросить',
             noteCreated: 'Записка создана',
             collectionCreated: 'Коллекция создана',
+            collectionUpdated: 'Коллекция обновлена',
             collectionDeleted: 'Коллекция удалена',
             languageUpdated: 'Язык обновлен',
+
             themeUpdated: 'Тема обновлена',
             vaultCreated: 'Хранилище создано. Перезагрузка...',
             vaultRenamed: 'Хранилище переименовано. Перезагрузка...',
@@ -295,7 +452,44 @@ document.addEventListener('DOMContentLoaded', () => {
             move: 'Переместить',
             done: 'Готово',
             selected: 'Выделено',
-            sound: 'Звуковые эффекты'
+            sound: 'Звуковые эффекты',
+            updateAvailable: '🎉 Доступно обновление',
+            downloadUpdate: 'Скачать)',
+            infoTitle: 'Информация',
+            errorTitle: 'Ошибка',
+            noOtherVaults: 'Нет других хранилищ для перемещения или копирования.',
+            importCheckFailed: 'Не удалось проверить импорт:\n',
+            importFailed: 'Не удалось импортировать хранилище:\n',
+            exportFailed: 'Не удалось экспортировать хранилище:\n',
+            fatalInitError: 'Ошибка инициализации: Не удалось загрузить данные приложения. Программа будет закрыта.',
+            
+            // Темы и Цвета
+            themeDefault: 'По умолчанию',
+            themePurple: 'Фиолетовый',
+            themeOrange: 'Оранжевый',
+            themeRose: 'Розовый',
+            themeCyan: 'Голубой',
+            themeSky: 'Небесный',
+            themeLavender: 'Лавандовый',
+            themeSand: 'Песочный',
+            themeBlush: 'Румянец',
+            themeCustom: 'Пользовательский',
+
+            // Ошибки Бэкенда (Коды)
+            err_note_in_collection: 'Заметка уже в коллекции.',
+            err_collection_not_found: 'Коллекция не найдена.',
+            err_vault_name_empty: 'Имя хранилища не может быть пустым.',
+            err_vault_exists: 'Хранилище с таким именем уже существует.',
+            err_vault_not_found: (name) => `Хранилище "${name}" не найдено.`,
+            err_vault_name_taken: (name) => `Хранилище с именем "${name}" уже существует.`,
+            err_rename_failed: (e) => `Ошибка переименования: ${e}`,
+            err_delete_last_vault: 'Нельзя удалить последнее хранилище.',
+            err_delete_failed: (e) => `Ошибка удаления папки: ${e}`,
+            err_export_cancelled: 'Экспорт отменен.',
+            err_import_cancelled: 'Импорт отменен.',
+            err_missing_args: 'Отсутствуют ID заметок или целевое хранилище.',
+            err_target_vault_not_found: (name) => `Целевое хранилище "${name}" не найдено.`,
+            err_dir_cancelled: 'Выбор папки отменен.'
         }
     };
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -416,6 +610,91 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
+    // Утилита для конвертации HEX (#ff0000) в строку RGB (255, 0, 0)
+    function hexToRgbString(hex) {
+        let r = 0, g = 0, b = 0;
+        if (hex.length === 4) {
+            r = parseInt(hex[1] + hex[1], 16);
+            g = parseInt(hex[2] + hex[2], 16);
+            b = parseInt(hex[3] + hex[3], 16);
+        } else if (hex.length === 7) {
+            r = parseInt(hex.substring(1, 3), 16);
+            g = parseInt(hex.substring(3, 5), 16);
+            b = parseInt(hex.substring(5, 7), 16);
+        }
+        return `${r}, ${g}, ${b}`;
+    }
+
+
+    // Кастомный выбор цвета
+    function openCustomColorPicker(initialColorHex) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('color-picker-modal');
+            const preview = document.getElementById('color-picker-preview');
+            const hueSlider = document.getElementById('color-picker-hue');
+            const lightSlider = document.getElementById('color-picker-lightness');
+            const btnOk = document.getElementById('color-picker-ok');
+            const btnCancel = document.getElementById('color-picker-cancel');
+
+            // Вспомогательная функция для обновления предпросмотра
+            const updatePreview = () => {
+                const color = `hsl(${hueSlider.value}, 100%, ${lightSlider.value}%)`;
+                preview.style.backgroundColor = color;
+                // Красим фон ползунка яркости в текущий оттенок
+                lightSlider.style.background = `linear-gradient(to right, #000, hsl(${hueSlider.value}, 100%, 50%), #fff)`;
+            };
+
+            // Слушатели ползунков (обновление в реальном времени)
+            hueSlider.oninput = updatePreview;
+            lightSlider.oninput = updatePreview;
+
+            // Сброс яркости на 50% при двойном клике
+            lightSlider.ondblclick = () => {
+                lightSlider.value = 50;
+                updatePreview(); // Обязательно перерисовываем кружок
+            };
+
+            // Вспомогательная функция конвертации HSL в HEX
+
+            const hslToHex = (h, s, l) => {
+                l /= 100;
+                const a = s * Math.min(l, 1 - l) / 100;
+                const f = n => {
+                    const k = (n + h / 30) % 12;
+                    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                    return Math.round(255 * color).toString(16).padStart(2, '0');
+                };
+                return `#${f(0)}${f(8)}${f(4)}`;
+            };
+
+            // Кнопки
+            const close = () => {
+                modal.classList.remove('visible');
+                btnOk.onclick = null;
+                btnCancel.onclick = null;
+            };
+
+            btnOk.onclick = () => {
+                const hexColor = hslToHex(hueSlider.value, 100, lightSlider.value);
+                close();
+                resolve(hexColor);
+            };
+
+            btnCancel.onclick = () => {
+                close();
+                resolve(null);
+            };
+
+            // Примитивная инициализация (чтобы не усложнять конвертер HEX->HSL, просто сбрасываем в дефолт)
+            hueSlider.value = 200; 
+            lightSlider.value = 50;
+            updatePreview();
+
+            modal.classList.add('visible');
+        });
+    }
+
+
 
         function formatDate(isoString) {
         const date = new Date(isoString);
@@ -455,8 +734,19 @@ document.addEventListener('DOMContentLoaded', () => {
             collectionsHtml = `<div class="dropdown-divider"></div><div style="font-size: 0.9em; color: var(--text-color);">In collections:<div style="margin-top: 4px;">${listHtml}</div></div>`;
         }
 
+        // --- Блок 3: Теги ---
+        let tagsHtml = '';
+        if (note.tags && note.tags.trim() !== '') {
+            // Разбиваем строку "tag1, tag2" в массив и форматируем каждый с решеткой
+            const tagsArray = note.tags.split(',').map(t => t.trim()).filter(t => t);
+            if (tagsArray.length > 0) {
+                const tagsList = tagsArray.map(t => `<span style="display: block; color: var(--accent-color); padding-left: 8px;">#${t}</span>`).join('');
+                tagsHtml = `<div class="dropdown-divider"></div><div style="font-size: 0.9em; color: var(--text-color);">Tags:<div style="margin-top: 4px;">${tagsList}</div></div>`;
+            }
+        }
+
         // --- Блок 3: Сборка финального HTML ---
-        return dateHtml + collectionsHtml;
+        return dateHtml + collectionsHtml + tagsHtml;
     }
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
 
@@ -472,31 +762,84 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.noteModal.titleInput.placeholder = t.noteNamePlaceholder;
         dom.noteModal.contentInput.placeholder = t.noteContentPlaceholder;
         dom.collectionModal.nameInput.placeholder = t.collectionNamePlaceholder;
+        dom.noteModal.tagsInput.placeholder = t.tagsPlaceholder;
+        dom.noteModal.descInput.placeholder = t.descPlaceholder;
+
+        // Динамическое имя для тултипов цвета
+        document.querySelectorAll('.theme-dot').forEach(dot => {
+            const isText = dot.hasAttribute('data-theme-text');
+            const key = isText ? dot.dataset.themeText : dot.dataset.themeAccent;
+            const prefix = isText ? 'text_' : 'accent_';
+            const defaultColor = isText ? textThemes[key].color : accentThemes[key].color;
+            const nameKey = isText ? textThemes[key].nameKey : accentThemes[key].nameKey;
+            
+            let currentColor = defaultColor;
+            
+            if (key === 'custom') {
+                currentColor = isText ? state.settings.custom_text : state.settings.custom_accent;
+                dot.dataset.tooltipText = t[nameKey];
+            } else if (state.settings.color_overrides && state.settings.color_overrides[`${prefix}${key}`]) {
+                currentColor = state.settings.color_overrides[`${prefix}${key}`];
+                dot.dataset.tooltipText = ColorNamer.getName(currentColor, lang);
+            } else {
+                dot.dataset.tooltipText = t[nameKey];
+            }
+        });
     }
 
-// --- 👇 ЗАМЕНИТЕ ВСЮ ЭТУ ФУНКЦИЮ ---
+
     function applyTheme(base, accent) {
-        // 1. Сохраняем выбор в локальном state
         state.settings.theme_base = base;
         state.settings.theme_accent = accent;
 
-        // 2. Устанавливаем data-атрибуты на body, что меняет цвета через CSS
         document.body.dataset.themeBase = base;
         document.body.dataset.themeAccent = accent;
 
-        // 3. Визуально обновляем "выбранные" пункты в меню
-        // Сначала убираем все старые выделения
-        document.querySelectorAll('#theme-submenu-container .selected').forEach(el => el.classList.remove('selected'));
-        // Затем добавляем новые
-        document.querySelector(`[data-theme-base="${base}"]`)?.classList.add('selected');
-        document.querySelector(`.theme-dot[data-theme-accent="${accent}"]`)?.classList.add('selected');
-    }
-// --- 👆 КОНЕЦ ЗАМЕНЫ ---
+        const overrides = state.settings.color_overrides || {};
+        const overrideKey = `accent_${accent}`;
 
-// --- 👇 НОВЫЙ БЛОК ---
+        if (accent === 'custom') {
+            const hex = state.settings.custom_accent;
+            document.body.style.setProperty('--accent-color', hex);
+            document.body.style.setProperty('--accent-color-rgb', hexToRgbString(hex));
+        } else if (overrides[overrideKey]) {
+            // Если пользователь перекрасил стандартную тему - применяем её
+            const hex = overrides[overrideKey];
+            document.body.style.setProperty('--accent-color', hex);
+            document.body.style.setProperty('--accent-color-rgb', hexToRgbString(hex));
+        } else {
+            document.body.style.removeProperty('--accent-color');
+            document.body.style.removeProperty('--accent-color-rgb');
+        }
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+        // 1. Обновляем выделение только для Базовой Темы (Light/Dark)
+        document.querySelectorAll('#theme-submenu-container [data-theme-base]').forEach(el => el.classList.remove('selected'));
+        document.querySelector(`[data-theme-base="${base}"]`)?.classList.add('selected');
+        
+        // 2. Обновляем выделение ТОЛЬКО для точек АКЦЕНТА (игнорируя точки текста)
+        document.querySelectorAll('#accent-colors-container .theme-dot').forEach(el => el.classList.remove('selected'));
+        document.querySelector(`#accent-colors-container .theme-dot[data-theme-accent="${accent}"]`)?.classList.add('selected');
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+    }
+
+
+
+// --- 👇 ЗАМЕНА APPLY TEXT THEME ---
     function applyTextTheme(theme) {
         state.settings.theme_text = theme;
         document.body.dataset.themeText = theme;
+
+        if (theme === 'custom') {
+            const hex = state.settings.custom_text;
+            document.body.style.setProperty('--note-title-color', hex);
+            // Текст делаем тем же цветом, но чуть прозрачнее для иерархии
+            document.body.style.setProperty('--note-text-color', `color-mix(in srgb, ${hex} 70%, transparent)`);
+        } else {
+            document.body.style.removeProperty('--note-title-color');
+            document.body.style.removeProperty('--note-text-color');
+        }
 
         const textColorsContainer = document.getElementById('text-colors-container');
         if (textColorsContainer) {
@@ -504,7 +847,8 @@ document.addEventListener('DOMContentLoaded', () => {
             textColorsContainer.querySelector(`[data-theme-text="${theme}"]`)?.classList.add('selected');
         }
     }
-// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+// --- 👆 КОНЕЦ ЗАМЕНЫ ---
+
 
 // --- 👇 ЗАМЕНИТЕ ЭТУ ФУНКЦИЮ ---
     function applyVisualStyle(styleKey) {
@@ -555,8 +899,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function getErrorMessage(result) {
+        // НОВЫЙ БЛОК: Проверка на фатальный краш бэкенда
+        if (result && result.is_fatal) {
+            // Закрываем все модалки, если открыты
+            document.querySelectorAll('.modal.visible').forEach(m => m.classList.remove('visible'));
+            // Вызываем HTML экран смерти, передавая ему чистый трейсбэк из Python!
+            showFatalErrorScreen(result.errorArg);
+            // Возвращаем пустую строку, чтобы предотвратить дальнейшие алерты
+            return ""; 
+        }
+
+        const t = translations[state.settings.language];
+        if (result.errorCode) {
+            if (result.errorArg) {
+                return t[result.errorCode](result.errorArg);
+            }
+            return t[result.errorCode] || result.errorCode;
+        }
+        return result.message || 'Unknown error';
+    }
+
+
 // --- 👇 ЗАМЕНИТЕ ВСЕ ТРИ ФУНКЦИИ (`showCustomAlert`, `showCustomConfirm`, `showCustomPrompt`) НА ЭТОТ БЛОК ---
     const showCustomAlert = (titleKey, messageKey) => {
+
         const t = translations[state.settings.language];
         return new Promise(resolve => {
             dom.alertModal.querySelector('#alert-title').textContent = t[titleKey] || titleKey;
@@ -619,6 +986,73 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
 
     // --- 4. Функции рендеринга и обновления DOM ---
+
+// --- 👇 ВСТАВИТЬ СЮДА ---
+    // Движок плавной перестройки сетки (FLIP Animation)
+    function animateGridFLIP(grid, actionCallback) {
+        // 1. First: Запоминаем текущие позиции и размеры всех карточек
+        const children = Array.from(grid.querySelectorAll('.note-tile'));
+        const firstPositions = new Map();
+        children.forEach(child => firstPositions.set(child.dataset.id, child.getBoundingClientRect()));
+
+        // 2. Выполняем мгновенное переключение класса (Grid -> List)
+        actionCallback();
+
+        // 3. Last: Запоминаем новые позиции и размеры, куда браузер их мгновенно перекинул
+        const newChildren = Array.from(grid.querySelectorAll('.note-tile'));
+        const lastPositions = new Map();
+        newChildren.forEach(child => lastPositions.set(child.dataset.id, child.getBoundingClientRect()));
+
+        // 4. Invert & Play: Возвращаем карточки в прошлое и плавно отпускаем
+        newChildren.forEach(child => {
+            const id = child.dataset.id;
+            const first = firstPositions.get(id);
+            const last = lastPositions.get(id);
+
+            if (first && last) {
+                const dx = first.left - last.left;
+                const dy = first.top - last.top;
+                const dw = first.width / last.width;
+                const dh = first.height / last.height;
+                
+                if (dx !== 0 || dy !== 0 || dw !== 1 || dh !== 1) {
+                    // Возвращаем в прошлое (сдвигаем и масштабируем)
+                    child.style.transformOrigin = 'top left';
+                    child.style.transform = `translate(${dx}px, ${dy}px) scale(${dw}, ${dh})`;
+                    child.style.transition = 'none'; // Отключаем CSS-переходы на кадр
+                    
+                    // Гасим текст, чтобы он не плющился
+                    const innerText = child.querySelector('.note-text');
+                    if (innerText) innerText.style.opacity = '0';
+                    
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+                    // Плавно и РЕЗКО отпускаем в настоящее
+                    requestAnimationFrame(() => {
+                        child.style.transform = '';
+                        // Сократили время до 0.25s и сделали резкий старт с плавным торможением (ease-out)
+                        child.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+                        if (innerText) {
+                            innerText.style.opacity = '';
+                            // Текст появляется быстрее
+                            innerText.style.transition = 'opacity 0.15s ease 0.1s';
+                        }
+                        
+                        // Очищаем стили чуть раньше
+                        setTimeout(() => {
+                            child.style.transition = '';
+                            child.style.transformOrigin = '';
+                            if (innerText) innerText.style.transition = '';
+                        }, 300);
+                    });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+                }
+            }
+        });
+    }
+// --- 👆 КОНЕЦ ВСТАВКИ ---
+
+
     function createNoteTileElement(noteId) {
         const note = state.notes[noteId];
         if (!note) return null;
@@ -627,9 +1061,46 @@ document.addEventListener('DOMContentLoaded', () => {
         tile.dataset.id = noteId;
         tile.setAttribute('draggable', 'true');
         const content = state.notePreviews[noteId] || '';
-        tile.innerHTML = `<div class="note-title" data-name="${note.title.replace(/"/g, '&quot;')}">${note.title}</div><div class="note-text">${content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+        
+        const quickActionsHtml = `
+            <div class="quick-actions-bar">
+                <button class="qa-btn qa-edit" data-qa-action="edit"></button>
+                <button class="qa-btn qa-delete" data-qa-action="delete"></button>
+            </div>
+        `;
+
+        // --- УМНАЯ ПОДКРАСКА ЛИНИИ ---
+        const parentCollections = Object.keys(state.collectionNotes).filter(collId => state.collectionNotes[collId].includes(noteId));
+        
+        let lineStyleHTML = '';
+        if (parentCollections.length > 0) {
+            // Берем первую коллекцию
+            const firstCollId = parentCollections[0];
+            const coll = state.collections[firstCollId];
+            
+            // Если у коллекции ЕСТЬ кастомный цвет - жестко вшиваем его в инлайн-стиль!
+            // Псевдоэлемент ::after нельзя стилизовать через HTML, поэтому мы добавим реальный <div> линии.
+            if (coll && coll.color) {
+                lineStyleHTML = `<div class="note-custom-line" style="background: linear-gradient(90deg, ${coll.color}, transparent);"></div>`;
+            }
+        }
+        
+        // Если кастомного цвета нет - генерируем стандартную линию
+        if (!lineStyleHTML) {
+            lineStyleHTML = `<div class="note-custom-line default-line"></div>`;
+        }
+        // ------------------------------
+
+        tile.innerHTML = `
+            <div class="note-title" data-name="${note.title.replace(/"/g, '&quot;')}">${note.title}</div>
+            ${lineStyleHTML}
+            <div class="note-text">${content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+            ${quickActionsHtml}
+        `;
         return tile;
     }
+
+
     
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function createCollectionGroupElement(collId) {
@@ -648,19 +1119,28 @@ document.addEventListener('DOMContentLoaded', () => {
         item.dataset.id = collId;
         item.setAttribute('draggable', 'true');
 
-        // УСЛОВИЕ: Дефис теперь имеет уменьшенную ширину и отрицательный отступ справа
-        const iconOrDash = collection.parentId 
-            ? `<span style="color: var(--text-color-dark); font-weight: 400; font-size: 1em; display: flex; align-items: center; justify-content: center; width: 10px; margin-right: -6px;">-</span>` 
-            : `<img src="icons/${collection.icon}" class="icon">`;
+        // Если иконка не задана: для подколлекций ставим 'dash', для главных 'folder'
+        let defaultIcon = collection.parentId ? 'dash' : 'folder';
+        const iconKey = collection.icon && svgs[collection.icon] ? collection.icon : defaultIcon;
+        
+        // --- НОВАЯ ЛОГИКА ОКРАСКИ ---
+        const customColorStyle = collection.color ? `style="color: ${collection.color};"` : '';
+        
+        // Если это дефис, мы можем немного сузить его, чтобы сымитировать старый дизайн, но оставить его полноценной иконкой
+        const extraClass = iconKey === 'dash' ? 'icon-dash' : '';
+        const iconHtml = svgs[iconKey].replace('<svg ', `<svg class="icon ${extraClass}" ${customColorStyle} `); 
 
         // Внутренности кнопки
         item.innerHTML = `
             <span class="expander-icon">▶</span>
-            ${iconOrDash}
+            ${iconHtml}
             <span data-name="${collection.name}">${collection.name}</span>
             <span class="note-count">0</span>
         `;
         group.appendChild(item);
+
+
+
 
         // Контейнер для детей (подколлекций)
         if (!collection.parentId) {
@@ -722,6 +1202,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const note = state.notes[noteId];
         const preview = state.notePreviews[noteId] || '';
         
+        // Вычисляем цвет линии, как при создании
+        const parentCollections = Object.keys(state.collectionNotes).filter(collId => state.collectionNotes[collId].includes(noteId));
+        let lineColorStyle = '';
+        if (parentCollections.length > 0) {
+            const firstCollId = parentCollections[0];
+            const coll = state.collections[firstCollId];
+            if (coll && coll.color) {
+                lineColorStyle = `linear-gradient(90deg, ${coll.color}, transparent)`;
+            }
+        }
+
         const mainTile = dom.notesGrid.querySelector(`.note-tile[data-id="${noteId}"]`);
         if (mainTile) {
             const titleEl = mainTile.querySelector('.note-title');
@@ -731,6 +1222,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const textEl = mainTile.querySelector('.note-text');
             if (textEl) textEl.textContent = preview;
+            
+            // Обновляем линию
+            const lineEl = mainTile.querySelector('.note-custom-line');
+            if (lineEl) {
+                if (lineColorStyle) {
+                    lineEl.style.background = lineColorStyle;
+                    lineEl.classList.remove('default-line');
+                } else {
+                    lineEl.style.background = ''; // Сбрасываем инлайн
+                    lineEl.classList.add('default-line');
+                }
+            }
         }
         
         const collectionTile = dom.collectionView.grid.querySelector(`.note-tile[data-id="${noteId}"]`);
@@ -742,10 +1245,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const textEl = collectionTile.querySelector('.note-text');
             if (textEl) textEl.textContent = preview;
+
+            // Обновляем линию
+            const lineEl = collectionTile.querySelector('.note-custom-line');
+            if (lineEl) {
+                if (lineColorStyle) {
+                    lineEl.style.background = lineColorStyle;
+                    lineEl.classList.remove('default-line');
+                } else {
+                    lineEl.style.background = '';
+                    lineEl.classList.add('default-line');
+                }
+            }
         }
     }
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
-    
+
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function addCollectionToDOM(collId, animate = false) {
         const collection = state.collections[collId];
@@ -835,10 +1350,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
 // --- 👇 ЗАМЕНИТЕ ВСЮ ФУНКЦИЮ НА ЭТОТ БЛОК ---
     function renderFullUI() {
-        // Очистка
-        dom.notesGrid.innerHTML = '<div class="empty-state-container"><p data-translate="emptyStateMessage"></p></div><div id="notes-grid-curtain"></div>';
+
+        // Запоминаем ID всех открытых папок перед очисткой
+        const expandedGroups = Array.from(document.querySelectorAll('.collection-group.expanded')).map(g => g.dataset.groupId);
+
+        // Очистка (теперь не трогаем пустой экран, так как он снаружи)
+        dom.notesGrid.innerHTML = '<div id="notes-grid-curtain"></div>';
         dom.collectionsList.innerHTML = ''; 
         dom.hamburgerMenu.innerHTML = '';
+
         
         // Рендеринг
         dom.vaultDisplay.textContent = state.settings.current_vault;
@@ -877,7 +1397,12 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.keys(state.collections).forEach(collId => {
             if (state.collections[collId].parentId) addCollectionToDOM(collId);
         });
-        
+
+        expandedGroups.forEach(id => {
+            const group = dom.collectionsList.querySelector(`.collection-group[data-group-id="${id}"]`);
+            if (group) group.classList.add('expanded');
+        });
+
         const t = translations[state.settings.language];
         let hamburgerHTML = `<div class="dropdown-menu-item" id="add-vault-btn" data-translate="addVault">${t.addVault}</div><div class="dropdown-menu-item" id="rename-vault-btn" data-translate="renameVault">${t.renameVault}</div><div class="dropdown-menu-item" id="delete-vault-btn" data-translate="deleteVault">${t.deleteVault}</div><div class="dropdown-divider"></div><div class="dropdown-menu-item" id="import-vault-btn" data-translate="importVault">${t.importVault}</div><div class="dropdown-menu-item" id="backup-vault-btn" data-translate="exportVault">${t.exportVault}</div>`;
         
@@ -890,11 +1415,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
         dom.hamburgerMenu.innerHTML = hamburgerHTML;
         
         applyTranslations(state.settings.language);
-        updateCounters(); // <--- Убедимся, что счетчики обновляются
+        updateCounters(); 
+        renderTagsBar(); // <-- ЖЕЛЕЗНЫЙ ВЫЗОВ ПРИ КАЖДОЙ ПЕРЕРИСОВКЕ
+        applyFilters(); 
     }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
     
     async function renderCollectionView(collId) {
         const collection = state.collections[collId];
@@ -939,41 +1469,55 @@ document.addEventListener('DOMContentLoaded', () => {
     function showLoader() { dom.loadingOverlay.classList.add('visible'); }
     function hideLoader() { dom.loadingOverlay.classList.remove('visible'); }
 
+    // --- 👇 НАЧАЛО ВСТАВКИ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    function closeModalAnimated(modalEl) {
+        if (!modalEl.classList.contains('visible') || modalEl.classList.contains('is-closing')) return;
+        
+        modalEl.classList.add('is-closing');
+        
+        setTimeout(() => {
+            // ПРОВЕРКА: удаляем классы только если окно всё ещё находится в состоянии закрытия.
+            // Если пользователь успел снова нажать Ctrl+N, класс is-closing будет снят, и мы ничего не сломаем.
+            if (modalEl.classList.contains('is-closing')) {
+                modalEl.classList.remove('visible');
+                modalEl.classList.remove('is-closing');
+            }
+        }, 150); 
+    }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+// --- 👆 КОНЕЦ ВСТАВКИ ---
+
+
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function showNotification(messageKey) {
-        if (messageKey === 'noteDeleted' || messageKey === 'collectionDeleted') {
-            SoundManager.play('delete');
-        } else {
-            SoundManager.play('success');
-        }
+    if (messageKey === 'noteDeleted' || messageKey === 'collectionDeleted') {
+        SoundManager.play('delete');
+    } else {
+        SoundManager.play('success');
+    }
 
-        const t = translations[state.settings.language];
-        const notification = dom.notification;
+    const t = translations[state.settings.language];
+    const container = dom.notification; // Используем старый элемент как контейнер
 
-        // Сбрасываем старые таймеры и классы
-        clearTimeout(notificationTimer);
-        notification.classList.remove('show');
-        notification.classList.remove('hide');
-        notification.onanimationend = null; // Очищаем старые слушатели
+    // 1. Создаем новую плашку
+    const toast = document.createElement('div');
+    toast.className = 'notification-toast';
+    toast.textContent = t[messageKey] || messageKey;
 
-        notification.textContent = t[messageKey] || messageKey;
+    // 2. Добавляем её в конец контейнера (она появится снизу, сдвинув старые вверх)
+    container.appendChild(toast);
 
-        // Принудительный рефлоу для перезапуска анимации
-        void notification.offsetWidth; 
-        
-        notification.classList.add('show');
-
-        // Ждем 1.5 секунды, затем запускаем анимацию скрытия
-        notificationTimer = setTimeout(() => {
-            notification.classList.remove('show');
-            notification.classList.add('hide');
-            
-            // Как только уехало - полностью сбрасываем
-            notification.onanimationend = () => {
-                notification.classList.remove('hide');
-                notification.onanimationend = null;
-            };
-        }, 1500); // 1.5 секунды на экране
+    // 3. Запускаем индивидуальный таймер на удаление именно ЭТОЙ плашки
+    setTimeout(() => {
+        toast.classList.add('hiding');
+        // Как только анимация исчезновения закончится, удаляем элемент из HTML
+        toast.addEventListener('animationend', () => {
+            toast.remove();
+        }, { once: true });
+    }, 2000); // 2 секунды на экране
     }
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
@@ -1000,19 +1544,98 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
     
+
+// --- 👇 ВСТАВИТЬ ПЕРЕД async function openNoteModal ---
+    async function openQuickEditModal(noteId) {
+        currentEditingNoteId = noteId;
+        const note = state.notes[noteId];
+        const t = translations[state.settings.language];
+        
+        dom.quickEditModal.title.textContent = note.title; // Показываем название для контекста
+        dom.quickEditModal.cancelBtn.textContent = t.cancel;
+        
+        if (state.noteContentsCache[noteId] !== undefined) {
+            initialNoteContent = state.noteContentsCache[noteId];
+            dom.quickEditModal.contentInput.value = initialNoteContent;
+        } else {
+            dom.quickEditModal.contentInput.value = 'Loading...';
+            const content = await eel.get_note_content(noteId)();
+            state.noteContentsCache[noteId] = content;
+            initialNoteContent = content;
+            dom.quickEditModal.contentInput.value = content;
+        }
+        
+        dom.quickEditModal.el.classList.add('visible');
+        dom.quickEditModal.contentInput.focus();
+    }
+
+    async function closeQuickEditModal() {
+        if (dom.quickEditModal.contentInput.value !== initialNoteContent) {
+            const t = translations[state.settings.language];
+            if (!await showCustomConfirm('unsavedChangesTitle', t.unsavedChangesMessage, 'discard', 'cancel', true)) {
+                return;
+            }
+        }
+        closeModalAnimated(dom.quickEditModal.el);
+        currentEditingNoteId = null;
+        initialNoteContent = '';
+    }
+
+    // Слушатели кнопок для Quick Edit
+    dom.quickEditModal.saveBtn.addEventListener('click', async () => {
+        const content = dom.quickEditModal.contentInput.value;
+        const noteId = currentEditingNoteId;
+        const note = state.notes[noteId];
+        
+        closeModalAnimated(dom.quickEditModal.el);
+        
+        // Отправляем старые данные для всего, кроме контента
+        const result = await eel.update_note(noteId, note.title, content, note.tags, note.description)();
+        if (result) {
+            state.notes[noteId] = result.data;
+            state.noteContentsCache[noteId] = content;
+            state.notePreviews[noteId] = content.substring(0, 150).replace(/\n/g, ' ');
+            updateNoteInDOM(noteId);
+            
+            const tile = dom.notesGrid.querySelector(`.note-tile[data-id="${noteId}"]`) || 
+                         dom.collectionView.grid.querySelector(`.note-tile[data-id="${noteId}"]`);
+            highlightElement(tile);
+            showNotification('noteUpdated');
+            renderTagsBar(); // <-- ИСПРАВЛЕНИЕ: На всякий случай обновляем, хотя теги тут не меняются
+            applyFilters();
+        }
+        currentEditingNoteId = null;
+        initialNoteContent = '';
+
+    });
+
+    dom.quickEditModal.cancelBtn.addEventListener('click', closeQuickEditModal);
+// --- 👆 КОНЕЦ ВСТАВКИ ---
+
+
+
 // --- 👇 ЗАМЕНИТЕ ОБЕ ФУНКЦИИ НА ЭТИ ВЕРСИИ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     async function openNoteModal(noteId = null) {
         currentEditingNoteId = noteId;
         const t = translations[state.settings.language];
         
         dom.noteModal.title.textContent = noteId ? t.editNote : t.newNote;
-        dom.noteModal.saveBtn.textContent = t.ok;
-        dom.noteModal.cancelBtn.textContent = t.cancel;
+        dom.noteModal.saveBtn.textContent = 'OK'; // Всегда OK
+        dom.noteModal.cancelBtn.textContent = t.cancel; // Переводится (Нет / Отмена)
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
 
         if (noteId) {
             const note = state.notes[noteId];
-            initialNoteTitle = note.title; // Сохраняем исходное
+            initialNoteTitle = note.title;
+            initialNoteDesc = note.description || '';
             dom.noteModal.titleInput.value = note.title;
+            dom.noteModal.tagsInput.value = note.tags || '';
+            dom.noteModal.descInput.value = note.description || '';
             
             if (state.noteContentsCache[noteId] !== undefined) {
                 initialNoteContent = state.noteContentsCache[noteId]; // Сохраняем исходное
@@ -1030,7 +1653,11 @@ document.addEventListener('DOMContentLoaded', () => {
             initialNoteContent = '';
             dom.noteModal.titleInput.value = '';
             dom.noteModal.contentInput.value = '';
+            dom.noteModal.tagsInput.value = '';
+            dom.noteModal.descInput.value = '';
+            initialNoteDesc = '';
         }
+
         
         dom.noteModal.el.classList.add('visible');
         dom.noteModal.titleInput.focus();
@@ -1088,13 +1715,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     result.deleted_ids.forEach(id => {
                         delete state.notes[id];
                         delete state.noteContentsCache[id];
+                        delete state.notePreviews[id];
                         Object.keys(state.collectionNotes).forEach(cId => {
+
                             state.collectionNotes[cId] = state.collectionNotes[cId].filter(nId => nId !== id);
                         });
                         removeNoteFromDOM(id);
                     });
                     updateCounters();
                     showNotification('noteDeleted');
+                    applyFilters(); // <--- ДОБАВИТЬ СЮДА
                 }
                 deactivateSelectionMode();
             }
@@ -1128,26 +1758,169 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 showContextMenu(e, menuItems, true);
             } else {
-                await showCustomAlert('Info', 'No other vaults available to move or copy notes to.');
+                await showCustomAlert('infoTitle', t.noOtherVaults);
                 deactivateSelectionMode();
             }
         }
+
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
-    function openCollectionModal() {
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    let currentSelectedIconKey = 'folder';
+    let currentSelectedIconColor = null; // <-- НОВОЕ: Храним выбранный цвет (null = стандартный)
+    let currentEditingCollectionId = null; 
+
+    // Инициализация сетки иконок (выполняется 1 раз)
+
+    function renderIconGrid() {
+        // Жесткая проверка: если внутри уже есть "опции", значит сетка построена
+        if (dom.collectionModal.iconGrid.querySelector('.collection-icon-option')) return;
+        
+        let gridHtml = '';
+        for (const [key, svgCode] of Object.entries(svgs)) {
+            gridHtml += `<div class="collection-icon-option" data-icon-key="${key}">${svgCode}</div>`;
+        }
+        dom.collectionModal.iconGrid.innerHTML = gridHtml;
+
+        // --- Физическая модель короткой инерции (Без CSS-лагов) ---
+        let isScrolling = false;
+        let velocity = 0;
+
+        dom.collectionModal.iconGrid.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault();
+                
+                // Мгновенно добавляем скорость. 
+                // e.deltaY обычно равно 100 на один "тик" колесика.
+                // Множитель 0.5 делает шаг адекватным.
+                velocity += e.deltaY * 0.5; 
+                
+                // Если цикл анимации еще не запущен — стартуем
+                if (!isScrolling) {
+                    isScrolling = true;
+                    requestAnimationFrame(updateScroll);
+                }
+            }
+        });
+
+        function updateScroll() {
+            const grid = dom.collectionModal.iconGrid;
+            
+            // Применяем текущую скорость к позиции прокрутки
+            grid.scrollLeft += velocity;
+            
+            // Сильное трение (0.75). Чем меньше число, тем быстрее останавливается.
+            // При 0.75 скорость падает очень быстро (короткая инерция).
+            velocity *= 0.75; 
+
+            // Если скорость упала ниже порога восприятия (0.5 пикселя за кадр)
+            if (Math.abs(velocity) > 0.5) {
+                requestAnimationFrame(updateScroll);
+            } else {
+                // Полная остановка
+                velocity = 0;
+                isScrolling = false;
+            }
+        }
+        // ------------------------------------------------
+
+        dom.collectionModal.iconGrid.addEventListener('click', (e) => {
+
+            const option = e.target.closest('.collection-icon-option');
+            if (!option) return;
+            
+            // Снимаем выделение со всех
+            dom.collectionModal.iconGrid.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+            
+            // Выделяем текущую
+            option.classList.add('selected');
+            currentSelectedIconKey = option.dataset.iconKey;
+            
+            // <-- ЗАМЕНА: Вызываем новую общую функцию обновления превью
+            updateIconPreview();
+            
+            // Автоматически прячем сетку после выбора
+            dom.collectionModal.iconWrapper.classList.add('hidden-grid');
+        });
+    }
+
+    dom.collectionModal.iconBtn.addEventListener('click', () => {
+        dom.collectionModal.iconWrapper.classList.toggle('hidden-grid');
+    });
+
+    // --- НОВАЯ ЛОГИКА ЦВЕТА ---
+
+    dom.collectionModal.colorBtn.addEventListener('click', async () => {
+        // Открываем палитру, передавая текущий цвет (или цвет акцента по умолчанию)
+        const startColor = currentSelectedIconColor || getComputedStyle(document.body).getPropertyValue('--accent-color').trim();
+        const newColor = await AdvancedColorPicker.open(startColor);
+        
+        if (newColor) {
+            currentSelectedIconColor = newColor;
+        } else {
+            currentSelectedIconColor = null; 
+        }
+        updateIconPreview();
+    });
+
+    function updateIconPreview() {
+        let svg = svgs[currentSelectedIconKey];
+        if (currentSelectedIconColor) {
+            svg = svg.replace('<svg ', `<svg style="color: ${currentSelectedIconColor};" `);
+            dom.collectionModal.colorBtn.style.backgroundColor = currentSelectedIconColor;
+            dom.collectionModal.colorBtn.style.borderColor = 'transparent';
+        } else {
+            dom.collectionModal.colorBtn.style.backgroundColor = 'transparent';
+            dom.collectionModal.colorBtn.style.borderColor = 'rgba(255,255,255,0.3)';
+        }
+        dom.collectionModal.iconBtn.innerHTML = svg;
+    }
+    // --- 👆 КОНЕЦ НОВОЙ ЛОГИКИ ---
+
+    function openCollectionModal(collId = null) {
+
+        renderIconGrid(); // Генерируем сетку, если еще не создана
+        currentEditingCollectionId = collId;
+        
         const t = translations[state.settings.language];
-        dom.collectionModal.el.querySelector('h3').textContent = t.newCollection;
-        dom.collectionModal.saveBtn.textContent = t.ok;
+        dom.collectionModal.title.textContent = collId ? t.edit : t.newCollection;
+        dom.collectionModal.saveBtn.textContent = 'OK';
         dom.collectionModal.cancelBtn.textContent = t.cancel;
-        dom.collectionModal.nameInput.value = '';
+        
+        dom.collectionModal.iconWrapper.classList.add('hidden-grid');
+
+        if (collId) {
+
+            const collection = state.collections[collId];
+            dom.collectionModal.nameInput.value = collection.name;
+            currentSelectedIconKey = collection.icon && svgs[collection.icon] ? collection.icon : 'folder';
+            if (currentSelectedIconKey === 'folder.svg') currentSelectedIconKey = 'folder'; // Совместимость со старой версий
+            currentSelectedIconColor = collection.color || null; // <-- ДОБАВЛЕНО
+        } else {
+            dom.collectionModal.nameInput.value = '';
+            currentSelectedIconKey = 'folder';
+            currentSelectedIconColor = null; // <-- ДОБАВЛЕНО
+        }
+
+        // <-- ЗАМЕНА: Вызов общей функции
+        updateIconPreview(); 
+        
+        dom.collectionModal.iconGrid.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+
+        const activeOption = dom.collectionModal.iconGrid.querySelector(`.collection-icon-option[data-icon-key="${currentSelectedIconKey}"]`);
+        if (activeOption) activeOption.classList.add('selected');
+
         dom.collectionModal.el.classList.add('visible');
         dom.collectionModal.nameInput.focus();
     }
 
     function closeCollectionModal() {
         dom.collectionModal.el.classList.remove('visible');
+        currentEditingCollectionId = null;
     }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function activateSelectionMode(noteId) {
@@ -1191,17 +1964,33 @@ document.addEventListener('DOMContentLoaded', () => {
     let emptyImage = new Image(); // Пустое изображение для скрытия стандартного призрака
     emptyImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
-    function createDragGhost(count) {
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (script.js) ---
+    function createDragGhost(count, noteId) {
         const ghost = dom.dragGhost;
-        ghost.innerHTML = ''; // Очищаем
+        ghost.innerHTML = ''; // Очищаем старое
 
-        const numTiles = Math.min(count, 3); // Показываем максимум 3 плитки
+        const note = state.notes[noteId];
+        const previewText = state.notePreviews[noteId] || '';
+
+        // Определяем, сколько визуальных "слоев" стопки рисовать (максимум 3)
+        const numTiles = Math.min(count, 3); 
+
         for (let i = 0; i < numTiles; i++) {
-            const tile = document.createElement('div');
-            tile.className = 'ghost-tile';
-            ghost.appendChild(tile);
+            // Создаем мини-копию карточки для каждого слоя
+            const miniTile = document.createElement('div');
+            // Если это первый (верхний) слой, вешаем базовый класс. Если нижние - добавляем классы для поворота.
+            miniTile.className = `ghost-mini-tile ${i === 1 ? 'ghost-layer-2' : ''} ${i === 2 ? 'ghost-layer-3' : ''}`;
+            
+            // Вставляем реальные данные заметки (только для верхнего слоя, остальные можно оставить пустыми для оптимизации, но так красивее)
+            miniTile.innerHTML = `
+                <div class="note-title">${note ? note.title : 'Note'}</div>
+                <div class="note-text">${previewText.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+            `;
+            
+            ghost.appendChild(miniTile);
         }
 
+        // Если тянем несколько заметок сразу - вешаем бэйджик с цифрой поверх всех
         if (count > 1) {
             const counter = document.createElement('div');
             counter.className = 'ghost-counter';
@@ -1209,17 +1998,18 @@ document.addEventListener('DOMContentLoaded', () => {
             ghost.appendChild(counter);
         }
     }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (script.js) ---
+
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function updateDragGhostPosition(e) {
-        // Увеличили отступы от курсора (с 15px до 25px вправо и 30px вниз),
-        // чтобы курсор не перекрывал счетчик или верхний угол призрака
-        dom.dragGhost.style.left = `${e.clientX + 25}px`;
-        dom.dragGhost.style.top = `${e.clientY + 30}px`;
+        // Уменьшили отступы от курсора, чтобы призрак держался ближе.
+        // Оставляем 15px вправо и 15px вниз (как раз хватает, чтобы не перекрыть курсором счетчик)
+        dom.dragGhost.style.left = `${e.clientX + 15}px`;
+        dom.dragGhost.style.top = `${e.clientY + 15}px`;
     }
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
-// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
 
     // --- 👇 НОВЫЙ БЛОК ---
     function pointToTutorialButton() {
@@ -1313,17 +2103,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     Mousetrap.bind('mod+s', () => {
-        // Если открыто окно редактирования/создания заметки
         if (dom.noteModal.el.classList.contains('visible')) {
             dom.noteModal.saveBtn.click();
         } 
-        // Если открыто окно создания коллекции (или подколлекции)
+        // ДОБАВИЛИ ЭТУ ПРОВЕРКУ:
+        else if (dom.quickEditModal.el.classList.contains('visible')) {
+            dom.quickEditModal.saveBtn.click();
+        }
         else if (dom.collectionModal.el.classList.contains('visible')) {
             dom.collectionModal.saveBtn.click();
         }
+        else if (dom.promptModal.classList.contains('visible')) {
+            const okBtn = dom.promptModal.querySelector('.modal-btn.accent');
+            if (okBtn) okBtn.click();
+        }
         return false;
     });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     Mousetrap.bind('mod+f', () => {
@@ -1333,11 +2132,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     Mousetrap.bind('esc', () => {
+        // --- ИСПРАВЛЕНИЕ: ПРОВЕРЯЕМ ПАЛИТРУ ЦВЕТОВ В ПЕРВУЮ ОЧЕРЕДЬ ---
+        const colorPicker = document.getElementById('color-picker-modal');
+        if (colorPicker && colorPicker.classList.contains('visible')) {
+            // Имитируем нажатие "Отмена", чтобы корректно завершить Promise в AdvancedColorPicker
+            document.getElementById('cp-cancel').click();
+            return false;
+        }
+
         // --- НОВАЯ ЛОГИКА: Сначала проверяем режим выделения ---
         if (isSelectionModeActive) {
             deactivateSelectionMode();
         } 
         // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
+        else if (dom.quickEditModal.el.classList.contains('visible')) {
+            closeQuickEditModal();
+        }
         else if (dom.noteModal.el.classList.contains('visible')) {
             closeNoteModal();
         } else if (dom.collectionModal.el.classList.contains('visible')) {
@@ -1349,6 +2159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return false;
     });
+
 
     // --- 👇 ВСТАВИТЬ ДЛЯ ПУНКТА 1 ---
     function highlightElement(element) {
@@ -1377,57 +2188,276 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👇 ЗАМЕНИТЕ ВСЮ ЭТУ ФУНКЦИЮ НА ЭТОТ БЛОК ---
     function applyFilters() {
+        renderTagsBar(); 
+
         const searchTerm = dom.searchInput.value.toLowerCase().trim();
         const uncollectedOnly = dom.uncollectedFilterToggle.checked;
 
+
         // --- УМНАЯ ЛОГИКА ПОИСКА ---
-        // 1. Разбиваем поисковый запрос на отдельные слова.
-        //    Фильтруем пустые строки, если пользователь ввел несколько пробелов.
-        const searchWords = searchTerm.split(/\s+/).filter(word => word.length > 0);
-        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
+
+        const isTagSearch = searchTerm.startsWith('#');
+        let searchWords = [];
+        let searchTags = [];
+
+        if (activeFilterTag) {
+            searchTags = [activeFilterTag];
+        } else if (isTagSearch) {
+            searchTags = searchTerm.substring(1).split(',').map(t => t.trim().toLowerCase()).filter(t => t);
+        } else {
+            searchWords = searchTerm.split(/\s+/).filter(word => word.length > 0);
+        }
 
         let collectedNotesSet;
         if (uncollectedOnly) {
             collectedNotesSet = new Set(Object.values(state.collectionNotes).flat());
         }
 
+        let visibleCount = 0; // <-- НОВАЯ ПЕРЕМЕННАЯ: Считаем видимые заметки
+
         document.querySelectorAll('#notes-grid .note-tile').forEach(tile => {
             const noteId = tile.dataset.id;
             const title = tile.querySelector('.note-title').textContent.toLowerCase();
+            const note = state.notes[noteId];
             
-            // --- УМНАЯ ЛОГИКА ПОИСКА ---
-            // 2. Проверяем, что КАЖДОЕ слово из поиска есть в заголовке.
-            const searchMatch = searchWords.every(word => title.includes(word));
-            // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
+            let searchMatch = true;
+
+            if (isTagSearch || activeFilterTag) {
+                if (!note || !note.tags) {
+                    searchMatch = false;
+                } else {
+                    const noteTags = note.tags.toLowerCase().split(',').map(t => t.trim());
+                    searchMatch = searchTags.every(searchTag => noteTags.some(nt => nt.includes(searchTag)));
+                }
+            } else if (searchWords.length > 0) {
+                searchMatch = searchWords.every(word => title.includes(word));
+            }
 
             let uncollectedMatch = true;
+
             if (uncollectedOnly) {
                 uncollectedMatch = !collectedNotesSet.has(noteId);
             }
 
             if (searchMatch && uncollectedMatch) {
                 tile.style.display = 'flex';
+                visibleCount++; // <-- Увеличиваем счетчик
             } else {
                 tile.style.display = 'none';
             }
         });
+
+        // --- НОВАЯ ЛОГИКА: УПРАВЛЕНИЕ EMPTY STATE ---
+        // Если после всех фильтраций на экране 0 заметок - показываем надпись
+        if (visibleCount === 0) {
+            dom.notesGrid.classList.add('is-empty');
+            document.body.classList.add('no-notes-present');
+        } else {
+            dom.notesGrid.classList.remove('is-empty');
+            document.body.classList.remove('no-notes-present');
+        }
+        // ----------------------------------------------
     }
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
+
+
+
+// --- 👇 ВСТАВИТЬ ПЕРЕД dom.newNoteBtn ---
+    // SVG Иконки для кнопки (чтобы не создавать внешние файлы)
+    const iconGrid = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>';
+    const iconList = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>';
+
+    function applyViewMode(mode, targetGrid, targetIcon) {
+        if (mode === 'list') {
+            targetGrid.classList.add('list-view');
+            targetIcon.src = iconGrid; 
+        } else {
+            targetGrid.classList.remove('list-view');
+            targetIcon.src = iconList;
+        }
+    }
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    // Кнопка главного окна
+    dom.viewModeBtn.addEventListener('click', async () => {
+        SoundManager.play('click');
+        const newMode = dom.notesGrid.classList.contains('list-view') ? 'grid' : 'list';
+        
+        // Используем FLIP для плавной перестройки всей сетки
+        animateGridFLIP(dom.notesGrid, () => {
+            applyViewMode(newMode, dom.notesGrid, dom.viewModeIcon);
+            return null;
+        });
+        
+        state.settings.view_mode = newMode;
+        await eel.save_settings({ view_mode: newMode })();
+    });
+
+    // Кнопка панели коллекции
+    dom.collViewModeBtn.addEventListener('click', async (e) => {
+        e.stopPropagation(); 
+        SoundManager.play('click');
+        const newMode = dom.collectionView.grid.classList.contains('list-view') ? 'grid' : 'list';
+        
+        // Используем FLIP для боковой панели
+        animateGridFLIP(dom.collectionView.grid, () => {
+            applyViewMode(newMode, dom.collectionView.grid, dom.collViewModeIcon);
+            return null;
+        });
+        
+        state.settings.collection_view_mode = newMode;
+        await eel.save_settings({ collection_view_mode: newMode })();
+    });
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+
 
     dom.newNoteBtn.addEventListener('click', () => { openNoteModal(); });
     dom.addCollectionBtn.addEventListener('click', () => { openCollectionModal(); });
 
 
+    // --- 👇 НОВЫЙ БЛОК: АВТОДОПОЛНЕНИЕ ТЕГОВ ---
+    let currentAutocompleteIndex = -1;
+
+    function getAllExistingTags() {
+        const tagSet = new Set();
+        Object.values(state.notes).forEach(note => {
+            if (note.tags && note.tags.trim() !== '') {
+                note.tags.split(',').forEach(t => {
+                    const clean = t.trim().toLowerCase();
+                    if (clean) tagSet.add(clean);
+                });
+            }
+        });
+        return Array.from(tagSet);
+    }
+
+    function showAutocompletePanel(matches) {
+        const panel = dom.noteModal.tagsPanel;
+        if (matches.length === 0) {
+            panel.classList.remove('visible');
+            return;
+        }
+
+        panel.innerHTML = matches.map((tag, index) => 
+            `<div class="autocomplete-item" data-index="${index}"><span style="opacity:0.5">#</span> ${tag}</div>`
+        ).join('');
+        
+        currentAutocompleteIndex = -1;
+        panel.classList.add('visible');
+    }
+
+    // Слушаем ввод текста
+    dom.noteModal.tagsInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        
+        // Находим текущее слово (после последней запятой)
+        const words = val.split(',');
+        const currentWord = words[words.length - 1].trim().toLowerCase();
+        
+        // Если ничего не введено или введен только пробел - прячем
+        if (!currentWord || currentWord.length === 0) {
+            dom.noteModal.tagsPanel.classList.remove('visible');
+            return;
+        }
+
+        const allTags = getAllExistingTags();
+        // Ищем теги, которые начинаются с введенных букв
+        const matches = allTags.filter(tag => tag.startsWith(currentWord));
+        
+        showAutocompletePanel(matches);
+    });
+
+    // Управление стрелочками (Вверх/Вниз) и Enter для выбора
+    dom.noteModal.tagsInput.addEventListener('keydown', (e) => {
+        const panel = dom.noteModal.tagsPanel;
+        if (!panel.classList.contains('visible')) return;
+
+        const items = panel.querySelectorAll('.autocomplete-item');
+        if (items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            currentAutocompleteIndex = (currentAutocompleteIndex + 1) % items.length;
+            updateAutocompleteSelection(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            currentAutocompleteIndex = (currentAutocompleteIndex - 1 + items.length) % items.length;
+            updateAutocompleteSelection(items);
+        } else if (e.key === 'Enter' || e.key === 'Tab') {
+            e.preventDefault();
+            if (currentAutocompleteIndex >= 0) {
+                // Если выбран элемент списка - кликаем по нему программно
+                items[currentAutocompleteIndex].click();
+            } else {
+                // Если ничего не выбрано, просто берем первый из списка
+                items[0].click();
+            }
+        } else if (e.key === 'Escape') {
+            panel.classList.remove('visible');
+            e.stopPropagation(); // Не закрываем само модальное окно
+        }
+    });
+
+    function updateAutocompleteSelection(items) {
+        items.forEach(item => item.classList.remove('selected'));
+        if (currentAutocompleteIndex >= 0) {
+            const selectedItem = items[currentAutocompleteIndex];
+            selectedItem.classList.add('selected');
+            selectedItem.scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    // Клик по элементу списка мышкой
+    dom.noteModal.tagsPanel.addEventListener('click', (e) => {
+        const item = e.target.closest('.autocomplete-item');
+        if (!item) return;
+
+        const selectedTag = item.textContent.replace('#', '').trim();
+        const currentInputVal = dom.noteModal.tagsInput.value;
+        
+        // Отрезаем последнее незавершенное слово и приклеиваем выбранный тег
+        const words = currentInputVal.split(',');
+        words.pop(); // Удаляем то, что мы начали писать
+        
+        // Формируем новую строку тегов
+        let newValue = words.join(', ').trim();
+        if (newValue.length > 0) newValue += ', ';
+        newValue += selectedTag + ', '; // Автоматически добавляем запятую и пробел для следующего тега
+        
+        dom.noteModal.tagsInput.value = newValue;
+        dom.noteModal.tagsPanel.classList.remove('visible');
+        dom.noteModal.tagsInput.focus();
+    });
+
+    // Прячем панель при клике вне её
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#tags-autocomplete-panel') && e.target !== dom.noteModal.tagsInput) {
+            if (dom.noteModal.tagsPanel) {
+                dom.noteModal.tagsPanel.classList.remove('visible');
+            }
+        }
+    });
+    // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
+
 // --- 👇 ЗАМЕНИТЕ ВЕСЬ ЭТОТ ОБРАБОТЧИК НА ЭТОТ БЛОК ---
     dom.noteModal.saveBtn.addEventListener('click', async () => {
+
         const title = dom.noteModal.titleInput.value.trim();
         const content = dom.noteModal.contentInput.value;
+        const tags = dom.noteModal.tagsInput.value.trim();
+        // Убираем решетки (если пользователь их случайно написал) и лишние пробелы, сохраняем как чистую строку (например "tag1, tag2")
+        const cleanTags = tags.replace(/#/g, '').split(',').map(t => t.trim()).filter(t => t).join(', ');
+        const desc = dom.noteModal.descInput.value.trim();
         if (!title) { return await showCustomAlert('inputError', 'titleRequired'); }
+
 
         dom.noteModal.el.classList.remove('visible');
 
         if (currentEditingNoteId) {
-            const result = await eel.update_note(currentEditingNoteId, title, content)();
+            const result = await eel.update_note(currentEditingNoteId, title, content, cleanTags, desc)();
             if (result) {
                 // 1. Обновляем данные в state
                 state.notes[result.id] = result.data;
@@ -1443,11 +2473,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 4. Подсвечиваем плитку и показываем уведомление
                 highlightElement(tile);
                 showNotification('noteUpdated');
+                renderTagsBar(); // <-- ИСПРАВЛЕНИЕ: Обновляем теги
+                applyFilters();
             }
         } else {
             // Логика создания новой заметки (остается без изменений)
             const wasEmpty = Object.keys(state.notes).length === 0;
-            const result = await eel.create_note(title, content)();
+            const result = await eel.create_note(title, content, cleanTags, desc)();
             if (result) {
                 state.notes[result.id] = result.data;
                 state.noteContentsCache[result.id] = content;
@@ -1461,8 +2493,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 addNoteToDOM(result.id, true);
                 updateCounters();
                 showNotification('noteCreated');
+                renderTagsBar(); // <-- ИСПРАВЛЕНИЕ: Обновляем теги
+                applyFilters();              
             }
         }
+
         
         currentEditingNoteId = null;
         initialNoteTitle = '';
@@ -1475,8 +2510,10 @@ document.addEventListener('DOMContentLoaded', () => {
     async function closeNoteModal() {
         const currentTitle = dom.noteModal.titleInput.value;
         const currentContent = dom.noteModal.contentInput.value;
+        const currentDesc = dom.noteModal.descInput.value;
 
-        if (currentTitle !== initialNoteTitle || currentContent !== initialNoteContent) {
+        if (currentTitle !== initialNoteTitle || currentContent !== initialNoteContent || currentDesc !== initialNoteDesc) {
+
             const t = translations[state.settings.language];
             const confirmed = await showCustomConfirm(
                 'unsavedChangesTitle',
@@ -1503,30 +2540,73 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = dom.collectionModal.nameInput.value.trim();
         if (!name) { return await showCustomAlert('inputError', 'collectionNameRequired'); }
         
-        // Передаем parentIdForNewSubcollection на бэкенд (если он есть)
-        const result = await eel.create_collection(name, parentIdForNewSubcollection)();
-        
-        if (result) {
-            state.collections[result.id] = result.data;
-            state.collectionNotes[result.id] = [];
-            
-            // Если мы создали подколлекцию, нужно добавить стрелочку раскрытия (класс has-children) родительской папке
-            if (parentIdForNewSubcollection) {
-                const parentGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${parentIdForNewSubcollection}"]`);
-                if (parentGroup && !parentGroup.classList.contains('has-children')) {
-                    parentGroup.classList.add('has-children');
+        if (currentEditingCollectionId) {
+            // Режим РЕДАКТИРОВАНИЯ (Передаем 4 аргумента: ID, Имя, Иконка, Цвет)
+            const result = await eel.update_collection(currentEditingCollectionId, name, currentSelectedIconKey, currentSelectedIconColor)();
+            if (result) {
+                // ОБНОВЛЯЕМ STATE ВСЕМИ НОВЫМИ ДАННЫМИ (ВКЛЮЧАЯ ЦВЕТ)
+                state.collections[currentEditingCollectionId] = result.data;
+                
+                const oldGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${currentEditingCollectionId}"]`);
+                if (oldGroup) {
+                    const isExpanded = oldGroup.classList.contains('expanded');
+                    const hasChildren = oldGroup.classList.contains('has-children');
+                    
+                    // ПЕРЕРИСОВЫВАЕМ (функция возьмет цвет из обновленного state)
+                    const newGroup = createCollectionGroupElement(currentEditingCollectionId);
+                    if (isExpanded) newGroup.classList.add('expanded');
+                    if (hasChildren) {
+                        newGroup.classList.add('has-children');
+                        const oldSubs = oldGroup.querySelector('.subcollections-list');
+                        const newSubs = newGroup.querySelector('.subcollections-list');
+                        if (oldSubs && newSubs) {
+                            while (oldSubs.firstChild) newSubs.appendChild(oldSubs.firstChild);
+                        }
+                    }
+                    oldGroup.parentNode.replaceChild(newGroup, oldGroup);
                 }
+                
+                if (currentOpenCollectionId === currentEditingCollectionId) {
+                    dom.collectionView.title.textContent = name;
+                }
+
+                // --- НОВАЯ ЛОГИКА: МГНОВЕННОЕ ОБНОВЛЕНИЕ ЦВЕТОВ ЗАМЕТОК ---
+                // Если у этой коллекции есть заметки, мы должны перерисовать их линии
+                const notesInThisCollection = state.collectionNotes[currentEditingCollectionId] || [];
+                notesInThisCollection.forEach(noteId => {
+                    updateNoteInDOM(noteId); // Эта функция сама пересчитает и обновит цвет линии
+                });
+                // -----------------------------------------------------------
+
+                showNotification('collectionUpdated'); // <-- ИСПРАВЛЕНИЕ: Правильное уведомление
             }
+        } else {
+            // Режим СОЗДАНИЯ
+
+
+            const result = await eel.create_collection(name, currentSelectedIconKey, parentIdForNewSubcollection)();
             
-            addCollectionToDOM(result.id, true);
-            showNotification('collectionCreated');
+            if (result) {
+                state.collections[result.id] = result.data;
+                state.collectionNotes[result.id] = [];
+                
+                if (parentIdForNewSubcollection) {
+                    const parentGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${parentIdForNewSubcollection}"]`);
+                    if (parentGroup && !parentGroup.classList.contains('has-children')) {
+                        parentGroup.classList.add('has-children');
+                    }
+                }
+                
+                addCollectionToDOM(result.id, true);
+                showNotification('collectionCreated');
+            }
         }
         
-        // Обязательно сбрасываем глобальную переменную после создания!
         parentIdForNewSubcollection = null; 
         closeCollectionModal();
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
 
     dom.collectionModal.cancelBtn.addEventListener('click', () => {
         parentIdForNewSubcollection = null;
@@ -1537,12 +2617,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     async function handleNoteClick(event) {
         const tile = event.target.closest('.note-tile');
         if (!tile) return;
         const noteId = tile.dataset.id;
 
+        // --- ЛОГИКА QUICK ACTIONS ---
+        const qaBtn = event.target.closest('.qa-btn');
+        if (qaBtn) {
+            event.stopPropagation(); // Не копируем текст!
+            const action = qaBtn.dataset.qaAction;
+            
+            if (action === 'edit') {
+                await openNoteModal(noteId);
+            } 
+            else if (action === 'delete') {
+                const t = translations[state.settings.language];
+                if (await showCustomConfirm('deleteNoteTitle', t.deleteNoteMessage, 'deleteAction', 'cancel', true)) {
+                    const result = await eel.delete_note(noteId)();
+                    if (result.success) {
+                        delete state.notes[result.deleted_id];
+                        delete state.noteContentsCache[result.deleted_id];
+                        delete state.notePreviews[result.deleted_id];
+                        Object.keys(state.collectionNotes).forEach(cId => {
+                            state.collectionNotes[cId] = state.collectionNotes[cId].filter(nId => nId !== result.deleted_id);
+                        });
+                        
+                        renderFullUI();
+                        updateCounters();
+                        if (currentOpenCollectionId) {
+                            renderCollectionView(currentOpenCollectionId);
+                        }
+                        showNotification('noteDeleted');
+                        applyFilters();
+                    }
+                }
+            }
+            return; // Выходим из функции, чтобы не сработало выделение или копирование
+        }
+        // --- КОНЕЦ QUICK ACTIONS ---
+
         if (isSelectionModeActive) {
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
             SoundManager.play('click'); // <-- ЗВУК ВЫДЕЛЕНИЯ
             if (selectedNoteIds.has(noteId)) {
                 selectedNoteIds.delete(noteId);
@@ -1603,34 +2721,29 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.noteTooltip.classList.remove('visible');
     };
     
-// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
-    const handleNoteMouseOver = (e) => {
-        const tile = e.target.closest('.note-tile');
-        if (!tile) return;
+    async function updateTooltipContent(e, tile, isHoveringTitle) {
+        const tooltip = dom.noteTooltip;
         
-        // --- 👇 ЗАЩИТА ОТ ТУЛТИПА ПРИ ОТКРЫТОМ МЕНЮ ---
-        if (dom.contextMenu.classList.contains('visible')) {
-            return; 
-        }
-        // --- 👆 КОНЕЦ ЗАЩИТЫ ---
-        
-        // Определяем, на что именно навели: на заголовок или на остальную часть карточки
-        const isHoveringTitle = e.target.closest('.note-title');
-        
-        tooltipTimer = setTimeout(async () => {
-            const tooltip = dom.noteTooltip;
+        if (isHoveringTitle) {
+            const titleText = isHoveringTitle.dataset.name;
+            if (!titleText) return;
+            tooltip.textContent = titleText;
+            tooltip.classList.add('metadata-tooltip');
+        } else {
+            const noteId = tile.dataset.id;
+            const note = state.notes[noteId];
             
-            if (isHoveringTitle) {
-                // ПОКАЗЫВАЕМ ПОЛНЫЙ ЗАГОЛОВОК
-                const titleText = isHoveringTitle.dataset.name;
-                if (!titleText) return;
-                
-                tooltip.textContent = titleText;
-                tooltip.classList.add('metadata-tooltip'); // Делаем тултип компактным (как для коллекций)
-                
+            const rect = tile.getBoundingClientRect();
+            const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2);
+
+            // Запоминаем текущую половину
+            const currentHalf = isLeftHalf ? 'left' : 'right';
+            tooltip.dataset.currentHalf = currentHalf;
+
+            if (isLeftHalf && note && note.description && note.description.trim() !== '') {
+                tooltip.textContent = note.description.substring(0, 500);
+                tooltip.classList.remove('metadata-tooltip');
             } else {
-                // ПОКАЗЫВАЕМ СОДЕРЖИМОЕ ЗАМЕТКИ
-                const noteId = tile.dataset.id;
                 let content = state.noteContentsCache[noteId];
                 if (content === undefined) {
                     content = await eel.get_note_content(noteId)();
@@ -1639,38 +2752,88 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!content) return;
                 
                 tooltip.textContent = content.substring(0, 750);
-                tooltip.classList.remove('metadata-tooltip'); // Обычный широкий тултип
+                tooltip.classList.remove('metadata-tooltip');
             }
+        }
 
-            tooltip.classList.add('visible');
+        tooltip.classList.add('visible');
 
-            // --- Позиционирование ---
-            const { offsetWidth: tooltipWidth, offsetHeight: tooltipHeight } = tooltip;
-            const { clientX: mouseX, clientY: mouseY } = e;
-            const { innerWidth, innerHeight } = window;
-            const offset = 15;
-            const margin = 5;
-            let x, y;
-            
-            if (mouseX + offset + tooltipWidth + margin < innerWidth) { x = mouseX + offset; } 
-            else if (mouseX - offset - tooltipWidth - margin > 0) { x = mouseX - offset - tooltipWidth; }
-            else { x = innerWidth - tooltipWidth - margin; }
-            
-            if (mouseY + offset + tooltipHeight + margin < innerHeight) { y = mouseY + offset; }
-            else if (mouseY - offset - tooltipHeight - margin > 0) { y = mouseY - offset - tooltipHeight; }
-            else { y = innerHeight - tooltipHeight - margin; }
-            
-            tooltip.style.left = `${x}px`;
-            tooltip.style.top = `${y}px`;
+        const { offsetWidth: tooltipWidth, offsetHeight: tooltipHeight } = tooltip;
+        const { clientX: mouseX, clientY: mouseY } = e;
+        const { innerWidth, innerHeight } = window;
+        const offset = 15;
+        const margin = 5;
+        let x, y;
+        
+        if (mouseX + offset + tooltipWidth + margin < innerWidth) { x = mouseX + offset; } 
+        else if (mouseX - offset - tooltipWidth - margin > 0) { x = mouseX - offset - tooltipWidth; }
+        else { x = innerWidth - tooltipWidth - margin; }
+        
+        if (mouseY + offset + tooltipHeight + margin < innerHeight) { y = mouseY + offset; }
+        else if (mouseY - offset - tooltipHeight - margin > 0) { y = mouseY - offset - tooltipHeight; }
+        else { y = innerHeight - tooltipHeight - margin; }
+        
+        tooltip.style.left = `${x}px`;
+        tooltip.style.top = `${y}px`;
+    }
+    
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    const handleNoteMouseOver = (e) => {
 
+        const tile = e.target.closest('.note-tile');
+        if (!tile) return;
+        
+        // --- 👇 ЗАЩИТА ОТ ТУЛТИПОВ ---
+        // Не показываем, если открыто меню ИЛИ если активен Drag & Drop
+        if (dom.contextMenu.classList.contains('visible') || draggedElement.id) {
+            return; 
+        }
+        // --- 👆 КОНЕЦ ЗАЩИТЫ ---
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+        
+        // Определяем, на что именно навели: на заголовок или на остальную часть карточки
+        const isHoveringTitle = e.target.closest('.note-title');
+        
+        tooltipTimer = setTimeout(() => {
+            updateTooltipContent(e, tile, isHoveringTitle);
         }, 500);
     };
+
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     const handleNoteMouseOut = (e) => {
         clearTimeout(tooltipTimer);
         dom.noteTooltip.classList.remove('visible');
     };
+
+// --- 👇 ВСТАВЬТЕ ЭТОТ НОВЫЙ БЛОК ---
+    const handleNoteMouseMove = (e) => {
+        const tooltip = dom.noteTooltip;
+        // Работаем только если тултип УЖЕ виден (таймер уже отработал)
+        if (!tooltip.classList.contains('visible')) return;
+
+        const tile = e.target.closest('.note-tile');
+        if (!tile || dom.contextMenu.classList.contains('visible')) return;
+
+        // Если мы на заголовке, деление на половины не работает
+        const isHoveringTitle = e.target.closest('.note-title');
+        if (isHoveringTitle) return;
+
+        // Определяем, на какой половине мы СЕЙЧАС
+        const rect = tile.getBoundingClientRect();
+        const isLeftHalf = (e.clientX - rect.left) < (rect.width / 2);
+        const newHalf = isLeftHalf ? 'left' : 'right';
+
+        // Если мы перешли границу (лево -> право или право -> лево)
+        if (tooltip.dataset.currentHalf !== newHalf) {
+            // МГНОВЕННО обновляем содержимое, без таймера!
+            updateTooltipContent(e, tile, false);
+        }
+    };
+// --- 👆 КОНЕЦ ВСТАВКИ ---
+
     
     const handleGridScroll = () => {
         clearTimeout(tooltipTimer);
@@ -1679,21 +2842,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dom.notesGrid.addEventListener('mouseover', handleNoteMouseOver);
     dom.notesGrid.addEventListener('mouseout', handleNoteMouseOut);
+    dom.notesGrid.addEventListener('mousemove', handleNoteMouseMove); // <-- ДОБАВЛЕНО
     dom.notesGrid.addEventListener('scroll', handleGridScroll);
+    
     dom.collectionView.grid.addEventListener('mouseover', handleNoteMouseOver);
     dom.collectionView.grid.addEventListener('mouseout', handleNoteMouseOut);
+    dom.collectionView.grid.addEventListener('mousemove', handleNoteMouseMove); // <-- ДОБАВЛЕНО
     dom.collectionView.grid.addEventListener('scroll', handleGridScroll);
+
     
-        // --- Кастомный тултип для коллекций ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    // --- Кастомный тултип для коллекций ---
     let collectionTooltipTimer = null;
 
     dom.collectionsList.addEventListener('mouseover', (e) => {
         const item = e.target.closest('.collection-item');
         if (!item || item.id === 'add-collection-btn') return;
         
-        if (dom.contextMenu.classList.contains('visible')) {
+        // ЗАЩИТА: Если открыто ПКМ-меню ИЛИ мы прямо сейчас что-то перетаскиваем - тултип не показываем!
+        if (dom.contextMenu.classList.contains('visible') || draggedElement.id) {
             return; 
         }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
 
         const collId = item.dataset.id;
         const collection = state.collections[collId];
@@ -1717,22 +2888,103 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.noteTooltip.classList.remove('visible');
         dom.noteTooltip.classList.remove('metadata-tooltip');
     });
+
+    // --- 👇 НОВЫЙ БЛОК: Кастомный тултип для цветов ---
+    let dotTooltipTimer = null;
+
+    // Слушаем весь документ, чтобы ловить тултипы и из меню, и из модального окна
+    document.addEventListener('mouseover', (e) => {
+        // Ищем либо точку в меню (.theme-dot), либо точку в сетке палитры (.cp-grid-dot)
+        const dot = e.target.closest('.theme-dot, .cp-grid-dot');
+        
+        // Не показываем тултип, если открыто меню ПКМ (чтобы не мешал)
+        if (!dot || dom.contextMenu.classList.contains('visible') || activeDotContext) return;
+
+        // Не показываем тултип, если открыто меню ПКМ (чтобы не мешал)
+        if (!dot || dom.contextMenu.classList.contains('visible') || activeDotContext) return;
+
+        const text = dot.dataset.tooltipText;
+        if (!text) return;
+
+        dotTooltipTimer = setTimeout(() => {
+            const tooltip = dom.noteTooltip;
+            tooltip.textContent = text;
+            tooltip.classList.add('metadata-tooltip'); // Делаем тултип компактным
+            
+            // Показываем перед вычислением координат
+            tooltip.classList.add('visible');
+
+            const rect = dot.getBoundingClientRect();
+            // Выравниваем по центру по горизонтали
+            tooltip.style.left = `${rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)}px`;
+            
+            // Если это цвет текста - показываем СНИЗУ
+            if (dot.hasAttribute('data-theme-text')) {
+                tooltip.style.top = `${rect.bottom + 8}px`;
+            } 
+            // Если это точка из сетки (colorpicker) - показываем строго СВЕРХУ, чтобы не закрывать другие кружки
+            else if (dot.classList.contains('cp-grid-dot')) {
+                tooltip.style.top = `${rect.top - tooltip.offsetHeight - 8}px`;
+                // Опционально: можно сделать тултип поверх всех окон, если он обрезается
+                tooltip.style.zIndex = '3000';
+            } 
+            // Обычные точки акцента - показываем СВЕРХУ
+            else {
+                tooltip.style.top = `${rect.top - tooltip.offsetHeight - 8}px`;
+            }
+
+        }, 300); // Показываем с небольшой задержкой
+
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        const dot = e.target.closest('.theme-dot, .cp-grid-dot');
+        if (dot) {
+            clearTimeout(dotTooltipTimer);
+            dom.noteTooltip.classList.remove('visible');
+            dom.noteTooltip.classList.remove('metadata-tooltip');
+            dom.noteTooltip.style.zIndex = ''; // Сбрасываем z-index
+        }
+    });
+
+    // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
     
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.collectionView.grid.addEventListener('dragover', (e) => {
         if (draggedElement.type === 'note') {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
+            handleAutoScroll(e, dom.collectionView.grid);
 
             if (draggedElement.source === 'collection-notes-grid') {
-                // Старая логика: если тащим ВНУТРИ коллекции - показываем линию сортировки
-                const targetTile = e.target.closest('.note-tile');
+                // НОВАЯ ЛОГИКА: Live Reordering (Сортировка в реальном времени)
+                const targetTile = e.target.closest('.note-tile:not(.dragging)'); // Ищем плитку, над которой мы находимся (не ту, что тащим)
+                
                 if (targetTile && targetTile.dataset.id !== draggedElement.id) {
-                    const oldIndicator = dom.collectionView.grid.querySelector('.drag-over-indicator');
-                    if (oldIndicator) oldIndicator.classList.remove('drag-over-indicator');
-                    targetTile.classList.add('drag-over-indicator');
+                    const draggedTile = dom.collectionView.grid.querySelector(`.note-tile[data-id="${draggedElement.id}"]`);
+                    
+                    if (draggedTile) {
+                        // Определяем, куда вставить: До или После
+                        // Если курсор ниже центра целевой плитки - вставляем после неё, если выше - до.
+                        const bounding = targetTile.getBoundingClientRect();
+                        const offset = bounding.y + (bounding.height / 2);
+                        
+                        // Используем FLIP для плавной перестановки остальных плиток
+                        animateGridFLIP(dom.collectionView.grid, () => {
+                            if (e.clientY - offset > 0) {
+                                targetTile.after(draggedTile);
+                            } else {
+                                targetTile.before(draggedTile);
+                            }
+                            return null;
+                        });
+                    }
                 }
             } else if (draggedElement.source === 'notes-grid') {
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
                 // НОВАЯ ЛОГИКА: если тащим С ГЛАВНОГО ОКНА - подсвечиваем всю панель
                 dom.collectionView.panel.classList.add('drag-over-panel');
             }
@@ -1741,12 +2993,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Убираем подсветку, если увели курсор с панели
     dom.collectionView.grid.addEventListener('dragleave', (e) => {
-        if (draggedElement.source === 'notes-grid') {
-            if (!dom.collectionView.grid.contains(e.relatedTarget)) {
+        if (!dom.collectionView.grid.contains(e.relatedTarget)) {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+            if (draggedElement.source === 'notes-grid') {
                 dom.collectionView.panel.classList.remove('drag-over-panel');
             }
         }
     });
+
 
     dom.collectionView.grid.addEventListener('drop', async (e) => {
         e.preventDefault();
@@ -1779,46 +3034,45 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateCounters();
                     showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
                     renderCollectionView(collectionId); // Мгновенно перерисовываем
+                    applyFilters();
                 }
             }
             deactivateSelectionMode();
             return;
         }
 
-        // 2. СТАРУЮ ЛОГИКА: СОРТИРОВКА ВНУТРИ КОЛЛЕКЦИИ
-        const dropTarget = e.target.closest('.note-tile');
-        if (dropTarget && draggedElement.source === 'collection-notes-grid' && draggedElement.id !== dropTarget.dataset.id) {
-            const draggedId = draggedElement.id;
-            const targetId = dropTarget.dataset.id;
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+        // 2. ЛОГИКА СОРТИРОВКИ (СОХРАНЕНИЕ LIVE-РЕЗУЛЬТАТА)
+        if (draggedElement.source === 'collection-notes-grid') {
+            // Поскольку элементы уже физически переставлены местами в DOM во время dragover,
+            // нам нужно просто считать их новый порядок сверху вниз.
+            const newOrderIds = Array.from(dom.collectionView.grid.querySelectorAll('.note-tile'))
+                                     .map(tile => tile.dataset.id);
             
-            let noteIds = [...state.collectionNotes[currentOpenCollectionId]];
-            noteIds = noteIds.filter(id => id !== draggedId);
-
-            const targetIndex = noteIds.indexOf(targetId);
-            noteIds.splice(targetIndex, 0, draggedId);
-            
-            const result = await eel.save_note_order_in_collection(currentOpenCollectionId, noteIds)();
-            
-            if (result.success) {
-                state.collectionNotes[currentOpenCollectionId] = noteIds;
-                await renderCollectionView(currentOpenCollectionId);
+            // Если порядок изменился (сравниваем длины на всякий случай)
+            if (newOrderIds.length === state.collectionNotes[currentOpenCollectionId].length) {
+                const result = await eel.save_note_order_in_collection(currentOpenCollectionId, newOrderIds)();
+                if (result.success) {
+                    state.collectionNotes[currentOpenCollectionId] = newOrderIds;
+                    // Мы НЕ вызываем renderCollectionView(), чтобы не было лишних морганий, всё и так красиво стоит на местах
+                }
             }
         }
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.collectionsList.addEventListener('contextmenu', (e) => {
-        // --- НОВАЯ ЛОГИКА: ПЕРЕКЛЮЧЕНИЕ (TOGGLE) ---
         hideTooltip();
         if (dom.contextMenu.classList.contains('visible')) {
-            e.preventDefault();
-            hideContextMenuAnimated();
-            return;
+            dom.contextMenu.classList.remove('visible');
+            dom.contextMenu.classList.remove('is-closing');
         }
-        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
 
         const item = e.target.closest('.collection-item');
+
         if (!item || item.id === 'add-collection-btn') return;
         
         const collId = item.dataset.id;
@@ -1840,11 +3094,13 @@ document.addEventListener('DOMContentLoaded', () => {
             menuItems.push({ type: 'divider' });
         }
 
-        menuItems.push({ label: t.rename, action: 'rename-collection' });
+        // Заменили rename на edit
+        menuItems.push({ label: t.edit, action: 'edit-collection' });
         menuItems.push({ label: t.delete, action: 'delete-collection' });
         
         showContextMenu(e, menuItems);
     });
+
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -1924,21 +3180,76 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 👇 НОВЫЙ БЛОК ---
     function hideContextMenuAnimated() {
+        activeDotContext = null; // Сбрасываем блокировку
+
         const menu = dom.contextMenu;
         if (!menu.classList.contains('visible') || menu.classList.contains('is-closing')) {
-            return;
+            return; // Прерываем, если меню и так закрыто
         }
+
+        // Таймер запускается ТОЛЬКО если контекстное меню реально закрывается прямо сейчас
+        setTimeout(() => {
+            // Добавлена защита: если мышь на кнопке опций - не закрывать
+            if (!dom.optionsMenu.matches(':hover') && !dom.contextMenu.matches(':hover') && !dom.optionsBtn.matches(':hover')) {
+                hideOptionsMenuAnimated();
+            }
+        }, 50);
+
         menu.classList.add('is-closing');
+
         // УМНАЯ ПРОВЕРКА: Слушатель сработает, только если меню все еще закрывается
         menu.addEventListener('animationend', () => {
             if (menu.classList.contains('is-closing')) {
                 menu.classList.remove('visible');
                 menu.classList.remove('is-closing');
+                activeDotContext = null; // <-- Сбрасываем активную точку
             }
         }, { once: true });
+
     }
 // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
     
+    dom.optionsMenu.addEventListener('contextmenu', (e) => {
+        const dot = e.target.closest('.theme-dot');
+        // Кастомную точку (радужную) изменять через ПКМ не будем, она меняется ЛКМ
+        if (!dot || dot.dataset.isCustom === "true") return;
+
+        activeDotContext = dot;
+        const t = translations[state.settings.language];
+        
+        const menuItems = [
+            { label: t.changeColor, action: 'change-dot-color' },
+            { type: 'divider' },
+            { label: t.resetColor, action: 'reset-dot-color' }
+        ];
+
+        // 4-й аргумент true = не закрывать основное меню опций!
+        showContextMenu(e, menuItems, false, true); 
+    });
+
+    // --- 👇 НОВЫЙ БЛОК: УМНОЕ АВТОЗАКРЫТИЕ ---
+    dom.optionsMenu.addEventListener('mouseover', (e) => {
+        if (!activeDotContext) return; 
+
+        const dot = e.target.closest('.theme-dot');
+        const isHoveringCurrentDot = (dot === activeDotContext);
+        
+        // Если курсор на контекстном меню (кнопки "Изменить" / "Сбросить") - НИЧЕГО НЕ ДЕЛАЕМ
+        if (e.target.closest('#context-menu')) return; 
+
+        if (!isHoveringCurrentDot) {
+            hideContextMenuAnimated();
+        }
+    });
+
+    // Дополнительная защита: предотвращаем закрытие, если мышь вернулась на само контекстное меню
+    dom.contextMenu.addEventListener('mouseover', () => {
+        clearTimeout(menuHideTimer);
+    });
+    // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
+
+
     dom.optionsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (dom.optionsMenu.classList.contains('visible')) {
@@ -1954,7 +3265,15 @@ document.addEventListener('DOMContentLoaded', () => {
     dom.hamburgerMenu.addEventListener('mouseleave', () => { menuHideTimer = setTimeout(hideHamburgerMenuAnimated, 300); });
     dom.hamburgerMenu.addEventListener('mouseenter', () => { clearTimeout(menuHideTimer); });
     
-    dom.optionsMenu.addEventListener('mouseleave', () => { menuHideTimer = setTimeout(hideOptionsMenuAnimated, 300); });
+    dom.optionsMenu.addEventListener('mouseleave', () => { 
+        // Если открыто меню изменения цвета, то при уходе мыши таймер начинает закрывать ЕГО
+        if (activeDotContext) {
+            menuHideTimer = setTimeout(hideContextMenuAnimated, 300);
+            return;
+        }
+        menuHideTimer = setTimeout(hideOptionsMenuAnimated, 300); 
+    });
+
     dom.optionsMenu.addEventListener('mouseenter', () => { clearTimeout(menuHideTimer); });
     
     // ЕДИНСТВЕННЫЙ обработчик для контекстного меню
@@ -1966,53 +3285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
-    dom.contextMenu.addEventListener('mouseout', (e) => {
-        const container = e.target.closest('.context-submenu-container');
-        if (!container) return;
 
-        // 🔥 САМАЯ ВАЖНАЯ ПРОВЕРКА: 
-        // Если мы перевели курсор на элемент ВНУТРИ этого же контейнера 
-        // (например, на треугольник или на всплывшее подменю) - мы игнорируем уход!
-        if (container.contains(e.relatedTarget)) {
-            return;
-        }
-
-        const submenu = container.querySelector('.submenu');
-        if (submenu) {
-            clearTimeout(submenu.hideTimer);
-            submenu.hideTimer = setTimeout(() => {
-                submenu.classList.add('is-closing');
-                submenu.addEventListener('animationend', () => {
-                    if (submenu.classList.contains('is-closing')) {
-                        submenu.classList.remove('visible');
-                        submenu.classList.remove('is-closing');
-                    }
-                }, { once: true });
-            }, 200);
-        }
-    });
-// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
-
-    dom.contextMenu.addEventListener('mouseout', (e) => {
-        const container = e.target.closest('.context-submenu-container');
-        if (container) {
-            const submenu = container.querySelector('.submenu');
-            if (submenu) {
-                // Как только курсор уходит с кнопки ИЛИ с меню - запускаем таймер
-                clearTimeout(submenu.hideTimer); // сброс на всякий случай
-                submenu.hideTimer = setTimeout(() => {
-                    submenu.classList.add('is-closing');
-                    submenu.addEventListener('animationend', () => {
-                        if (submenu.classList.contains('is-closing')) {
-                            submenu.classList.remove('visible');
-                            submenu.classList.remove('is-closing');
-                        }
-                    }, { once: true });
-                }, 200); // Даем ровно 200мс, чтобы успеть перевести мышку
-            }
-        }
-    });
-// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     // --- 👇 НОВЫЙ БЛОК: ВОССТАНОВЛЕНИЕ ЛОГИКИ НАВЕДЕНИЯ НА МЕНЮ ОПЦИЙ ---
 
@@ -2033,15 +3306,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     dom.optionsMenu.addEventListener('mouseout', (e) => {
+        if (activeDotContext) return; // <-- ЗАЩИТА ОКНА ТЕМ
+        
         const submenuContainer = e.target.closest('.dropdown-submenu-container');
         if (!submenuContainer) return;
 
         const submenu = submenuContainer.querySelector('.submenu');
+
         if (submenu) {
             // Когда курсор ПОКИНУЛ контейнер, запускаем таймер на его закрытие
             submenu.hideTimer = setTimeout(() => {
                 hideSubmenu(submenu);
-            }, 300);
+            }, 500);
         }
     });
 
@@ -2072,10 +3348,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Обработчик для запуска таймера закрытия
     dom.optionsMenu.addEventListener('mouseleave', (e) => {
+        if (activeDotContext) return; // <-- ЗАЩИТА ОКНА ТЕМ
+        
         const submenuContainer = e.target.closest('.dropdown-submenu-container');
         if (!submenuContainer) return;
 
         const submenu = submenuContainer.querySelector('.submenu');
+
         if (submenu && submenu.classList.contains('visible')) {
             // Запускаем таймер на закрытие
             submenu.hideTimer = setTimeout(() => {
@@ -2084,9 +3363,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     submenu.classList.remove('visible');
                     submenu.classList.remove('is-closing');
                 }, { once: true });
-            }, 300);
+            }, 500); // <-- Увеличили до 500мс
         }
     });
+
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
 
 
@@ -2133,25 +3413,27 @@ document.addEventListener('DOMContentLoaded', () => {
                             showNotification('vaultDeleted');
                             reload_app();
                         } else {
-                            await showCustomAlert('Error', result.message);
+                            await showCustomAlert('errorTitle', getErrorMessage(result));
                         }
                     }
                 }
                 break;
             }
+
             case 'import-vault-btn': {
                 showLoader();
                 const checkResult = await eel.check_import_for_conflict()();
                 
                 if (!checkResult.success) {
                     hideLoader();
-                    if (checkResult.message !== 'Import cancelled.') {
-                        await showCustomAlert('Error', `Failed to check import:\n${checkResult.message}`);
+                    if (checkResult.errorCode !== 'err_import_cancelled') {
+                        await showCustomAlert('errorTitle', t.importCheckFailed + getErrorMessage(checkResult));
                     }
                     break;
                 }
 
                 let finalName = checkResult.original_name;
+
 
                 if (checkResult.is_conflict) {
                     hideLoader();
@@ -2191,21 +3473,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification('vaultImported');
                 } else {
                     hideLoader();
-                    await showCustomAlert('Error', `Failed to import vault:\n${importResult.message}`);
+                    await showCustomAlert('errorTitle', t.importFailed + getErrorMessage(importResult));
                 }
                 break;
             }
+
             case 'backup-vault-btn': {
                 showLoader();
                 const result = await eel.backup_current_vault()();
                 hideLoader();
                 if (result.success) {
                     showNotification('vaultExported');
-                } else if (result.message !== 'Export cancelled.') {
-                    await showCustomAlert('Error', `Failed to export vault:\n${result.message}`);
+                } else if (result.errorCode !== 'err_export_cancelled') {
+                    await showCustomAlert('errorTitle', t.exportFailed + getErrorMessage(result));
                 }
                 break;
             }
+
         }
         
         if (target.classList.contains('vault-item')) {
@@ -2251,6 +3535,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let isBatchDrag = false;
             let idsToDrag = [];
 
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (script.js) ---
             if (isSelectionModeActive && selectedNoteIds.has(noteId)) {
                 isBatchDrag = true;
                 idsToDrag = Array.from(selectedNoteIds);
@@ -2259,8 +3544,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 idsToDrag = [noteId];
             }
             
-            createDragGhost(idsToDrag.length);
+            // Передаем и количество, и ID карточки, которую тащим
+            createDragGhost(idsToDrag.length, noteId);
             setTimeout(() => dom.dragGhost.classList.add('visible'), 0);
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (script.js) ---
+
 
             document.body.classList.add('is-dragging-note');
             
@@ -2298,22 +3586,115 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     let dragExpandTimer = null;
     let currentHoveredGroup = null;
+    let autoScrollInterval = null;
+    let autoScrollSpeed = 0;
+
+    // --- 👇 ВСТАВИТЬ СЮДА ---
+    // Умная функция авто-прокрутки для любого скроллящегося контейнера
+    function handleAutoScroll(e, container) {
+        if (!draggedElement.id) return;
+
+        const rect = container.getBoundingClientRect();
+        // Задаем "горячие зоны" сверху и снизу (40 пикселей от края)
+        const hotZone = 40; 
+        
+        // Вычисляем, насколько курсор зашел в верхнюю или нижнюю горячую зону
+        if (e.clientY < rect.top + hotZone) {
+            // Курсор вверху -> крутим вверх
+            autoScrollSpeed = -15; // Скорость (отрицательная)
+        } else if (e.clientY > rect.bottom - hotZone) {
+            // Курсор внизу -> крутим вниз
+            autoScrollSpeed = 15;
+        } else {
+            // Курсор в центре -> останавливаем скролл
+            autoScrollSpeed = 0;
+        }
+
+        // Если мы в горячей зоне и интервал еще не запущен
+        if (autoScrollSpeed !== 0 && !autoScrollInterval) {
+            autoScrollInterval = setInterval(() => {
+                container.scrollTop += autoScrollSpeed;
+            }, 20); // Плавный шаг каждые 20 мс (50 FPS)
+        } 
+        // Если вышли из горячей зоны
+        else if (autoScrollSpeed === 0 && autoScrollInterval) {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+        }
+    }
+// --- 👆 КОНЕЦ ВСТАВКИ ---
+
+
+// --- 👇 НАЧАЛО НОВОГО БЛОКА: ПРОКРУТКА КОЛЕСИКОМ ПРИ D&D ---
+    // Слушаем прокрутку колесиком в любой точке приложения
+    document.addEventListener('wheel', (e) => {
+        // Работает ТОЛЬКО если мы сейчас что-то перетаскиваем
+        if (draggedElement.id) {
+            
+            // Если курсор находится над списком коллекций (левая панель)
+            const isOverCollections = e.target.closest('#collections-list');
+            if (isOverCollections) {
+                // Принудительно крутим список вверх/вниз
+                dom.collectionsList.scrollTop += e.deltaY;
+            }
+            
+            // Если курсор находится над открытой панелью коллекции (правая шторка)
+            const isOverCollectionGrid = e.target.closest('#collection-notes-grid');
+            if (isOverCollectionGrid) {
+                dom.collectionView.grid.scrollTop += e.deltaY;
+            }
+            
+            // Если курсор находится над главной сеткой
+            const isOverNotesGrid = e.target.closest('#notes-grid');
+            if (isOverNotesGrid) {
+                dom.notesGrid.scrollTop += e.deltaY;
+            }
+        }
+    }, { passive: true }); // passive: true делает скролл плавным, не блокируя браузер
+// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
+
+
 
     // МЫ ПОЛНОСТЬЮ УДАЛИЛИ ГЛЮЧНЫЙ dragenter. 
     // Всё работает через dragover (срабатывает постоянно при движении)
     dom.collectionsList.addEventListener('dragover', (e) => { 
         e.preventDefault(); 
         e.dataTransfer.dropEffect = 'move'; 
+        handleAutoScroll(e, dom.collectionsList);
         
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ В DRAGOVER ---
         if (draggedElement.type === 'collection') {
-            const oldIndicator = document.querySelector('.collection-item.drag-over-indicator'); 
-            if (oldIndicator) { oldIndicator.classList.remove('drag-over-indicator'); } 
-            const target = e.target.closest('.collection-item'); 
-            if (target && draggedElement.id !== target.dataset.id) { 
-                target.classList.add('drag-over-indicator'); 
+            document.querySelectorAll('.collection-item').forEach(el => {
+                el.classList.remove('drag-over-indicator', 'drag-over-nest');
+            });
+
+            const target = e.target.closest('.collection-item:not(#add-collection-btn)');
+            
+            if (target && draggedElement.id !== target.dataset.id && target.dataset.id !== 'coll_favorites') {
+                const targetId = target.dataset.id;
+                const draggedId = draggedElement.id;
+                
+                const rect = target.getBoundingClientRect();
+                const y = e.clientY - rect.top;
+                
+                // Проверки: перетаскиваемая не имеет детей, целевая не имеет заметок, целевая - главная папка
+                const draggedHasChildren = Object.values(state.collections).some(c => c.parentId === draggedId);
+                const targetHasNotes = state.collectionNotes[targetId] && state.collectionNotes[targetId].length > 0;
+                const isTargetSub = !!state.collections[targetId].parentId;
+
+                // Если курсор в центре (от 25% до 75% высоты) и вложение допустимо
+                if (y > rect.height * 0.25 && y < rect.height * 0.75 && !draggedHasChildren && !targetHasNotes && !isTargetSub) {
+                    target.classList.add('drag-over-nest');
+                    draggedElement.dropAction = 'nest';
+                } else {
+                    // Иначе обычная линия сортировки
+                    target.classList.add('drag-over-indicator');
+                    draggedElement.dropAction = 'sort';
+                }
             }
             return;
         }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ В DRAGOVER ---
 
         if (draggedElement.type === 'note') {
             const item = e.target.closest('.collection-item');
@@ -2349,8 +3730,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     dom.collectionsList.addEventListener('dragleave', (e) => { 
+        // Останавливаем автоскролл при выходе мыши
+        if (!dom.collectionsList.contains(e.relatedTarget)) {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+        }
         if (draggedElement.type === 'note') {
             const item = e.target.closest('.collection-item'); 
+
             // Возвращаем выделение, когда курсор покинул папку
             if (item && !item.contains(e.relatedTarget)) { 
                 item.classList.remove('drag-hovered'); 
@@ -2401,6 +3788,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!state.collectionNotes[collectionId].includes(id)) {
                         state.collectionNotes[collectionId].push(id);
                     }
+                    // <-- ОБНОВЛЕНИЕ ЛИНИИ: Сразу перекрашиваем плитку на экране после добавления
+                    updateNoteInDOM(id);
                 });
                 updateCounters();
                 if (result.added_count > 0) {
@@ -2411,37 +3800,75 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (currentOpenCollectionId === collectionId) {
                     renderCollectionView(collectionId);
                 }
+                applyFilters();
             }
             deactivateSelectionMode();
         } 
 
+
         
         // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+        // --- Логика сортировки коллекций ---
+        // --- Логика сортировки коллекций ---
         else if (draggedElement.type === 'collection' && draggedElement.id !== dropTarget.dataset.id) {
             const draggedId = draggedElement.id;
             const targetId = dropTarget.dataset.id;
+            const action = draggedElement.dropAction || 'sort';
 
-            // Ищем новые КОНТЕЙНЕРЫ (группы), а не просто кнопки
             const draggedGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${draggedId}"]`);
             const targetGroup = dom.collectionsList.querySelector(`.collection-group[data-group-id="${targetId}"]`);
             
-            // Если пытаемся переместить в разные иерархии (родителя к детям) - отменяем
-            if (!draggedGroup || !targetGroup || draggedGroup.parentNode !== targetGroup.parentNode) {
-                dropTarget.classList.remove('drag-over-indicator');
+            if (!draggedGroup || !targetGroup) {
+                dropTarget.classList.remove('drag-over-indicator', 'drag-over-nest');
                 return;
             }
 
-            // 1. Мгновенная визуальная перестановка
-            const container = draggedGroup.parentNode;
-            const groups = Array.from(container.children);
-            if (groups.indexOf(draggedGroup) < groups.indexOf(targetGroup)) {
-                targetGroup.after(draggedGroup);
-            } else {
-                targetGroup.before(draggedGroup);
-            }
-            dropTarget.classList.remove('drag-over-indicator');
+            const draggedHasChildren = Object.values(state.collections).some(c => c.parentId === draggedId);
+            let newParentId;
 
-            // 2. Правильный сбор ID для сохранения с учетом групп
+            // 1. ЕСЛИ БРОСИЛИ В ЦЕНТР ПАПКИ (ВЛОЖЕНИЕ)
+            if (action === 'nest') {
+                newParentId = targetId;
+                const subsList = targetGroup.querySelector('.subcollections-list');
+                if (subsList) subsList.appendChild(draggedGroup);
+                // Автоматически раскрываем папку, в которую только что вложили другую
+                targetGroup.classList.add('expanded', 'has-children');
+                // Автоматически раскрываем папку, в которую только что вложили другую
+                targetGroup.classList.add('expanded', 'has-children');
+            } 
+            // 2. ЕСЛИ БРОСИЛИ НА КРАЙ (СОРТИРОВКА)
+            else {
+                newParentId = state.collections[targetId].parentId || null;
+                
+                // Защита: папку с детьми нельзя сделать подколлекцией
+                if (newParentId !== null && draggedHasChildren) {
+                    dropTarget.classList.remove('drag-over-indicator', 'drag-over-nest');
+                    return; 
+                }
+
+                if (draggedGroup.parentNode === targetGroup.parentNode) {
+                    const container = draggedGroup.parentNode;
+                    const groups = Array.from(container.children);
+                    if (groups.indexOf(draggedGroup) < groups.indexOf(targetGroup)) {
+                        targetGroup.after(draggedGroup);
+                    } else {
+                        targetGroup.before(draggedGroup);
+                    }
+                } else {
+                    targetGroup.before(draggedGroup);
+                }
+            }
+
+            dropTarget.classList.remove('drag-over-indicator', 'drag-over-nest');
+
+            const oldParentId = state.collections[draggedId].parentId || null;
+
+            // 3. ОБНОВЛЕНИЕ БАЗЫ ДАННЫХ И СОХРАНЕНИЕ
+            if (newParentId !== oldParentId) {
+                state.collections[draggedId].parentId = newParentId;
+                await eel.update_collection_parent(draggedId, newParentId)();
+            }
+
             const newOrderIds = [];
             dom.collectionsList.querySelectorAll(':scope > .collection-group').forEach(group => {
                 if (group.dataset.groupId) newOrderIds.push(group.dataset.groupId);
@@ -2450,12 +3877,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // 3. Сохранение
             const result = await eel.save_collections_order(newOrderIds)();
             if (result.success) {
                 const newCollections = {};
                 newOrderIds.forEach(id => { if (state.collections[id]) newCollections[id] = state.collections[id]; });
                 state.collections = newCollections;
+                
+                if (newParentId !== oldParentId) renderFullUI();
             } else {
                 renderFullUI(); 
             }
@@ -2496,12 +3924,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- 
 
-    dom.notesGrid.addEventListener('dragover', (e) => { if (draggedElement.type === 'note' && currentOpenCollectionId && draggedElement.source === 'collection-notes-grid') { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } });
+    dom.notesGrid.addEventListener('dragover', (e) => { if (draggedElement.type === 'note' && currentOpenCollectionId && draggedElement.source === 'collection-notes-grid') { e.preventDefault(); e.dataTransfer.dropEffect = 'move';             handleAutoScroll(e, dom.notesGrid);
+ } });
+
+    dom.notesGrid.addEventListener('dragleave', (e) => {
+        if (!dom.notesGrid.contains(e.relatedTarget)) {
+            clearInterval(autoScrollInterval);
+            autoScrollInterval = null;
+        }
+    });
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.notesGrid.addEventListener('drop', async (e) => {
+
         e.preventDefault();
         dom.notesGrid.classList.remove('drag-over');
+
 
         if (draggedElement.type === 'note' && currentOpenCollectionId && draggedElement.source === 'collection-notes-grid') {
             
@@ -2520,6 +3958,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateCounters();
             renderCollectionView(currentOpenCollectionId); // Перерисовываем панель
             deactivateSelectionMode();
+            applyFilters(); // <--- ДОБАВИТЬ СЮД
             // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
         }
     });
@@ -2527,6 +3966,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.appContainer.addEventListener('dragend', () => {
+
+        clearInterval(autoScrollInterval);
+        autoScrollInterval = null;
 
         dom.dragGhost.classList.remove('visible');
         dom.dragGhost.innerHTML = '';
@@ -2556,10 +3998,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 5. ТЩАТЕЛЬНАЯ ОЧИСТКА КОЛЛЕКЦИЙ
         document.querySelectorAll('.collection-item').forEach(item => {
-            item.classList.remove('drag-over');
-            item.classList.remove('drag-over-indicator');
-            item.classList.remove('drag-hovered'); // <-- ДОБАВИЛИ
-            // Принудительно сбрасываем стиль, если он "залип"
+            item.classList.remove('drag-over', 'drag-over-indicator', 'drag-hovered', 'drag-over-nest'); // <-- добавили drag-over-nest
             item.style.backgroundColor = ''; 
         });
 
@@ -2579,9 +4018,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!e.target.closest('.dropdown-menu') && !e.target.closest('.icon-btn')) {
             hideAllAnimatedMenus();
         }
+
+        // --- НОВАЯ ЛОГИКА: Сброс тега при клике в пустоту ---
+        // Если выбран тег, и мы кликнули не по поиску и не по панели тегов - сбрасываем фильтр
+        if (activeFilterTag && !e.target.closest('.search-container') && !e.target.closest('#tags-bar')) {
+            activeFilterTag = null;
+            dom.searchInput.value = '';
+            renderTagsBar();
+            applyFilters();
+        }
+        // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
     });
 
 // --- 👇 НОВЫЙ БЛОК: ЗВУК ПРИ НАВЕДЕНИИ НА МЕНЮ ---
+
     document.addEventListener('mouseover', (e) => {
         // Ищем ближайший родительский элемент, который является пунктом меню
         const menuItem = e.target.closest('.dropdown-menu-item');
@@ -2619,13 +4069,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 result.deleted_ids.forEach(id => {
                     delete state.notes[id];
                     delete state.noteContentsCache[id];
+                    delete state.notePreviews[id];
                     Object.keys(state.collectionNotes).forEach(cId => {
+
                         state.collectionNotes[cId] = state.collectionNotes[cId].filter(nId => nId !== id);
                     });
                     removeNoteFromDOM(id);
                 });
                 updateCounters();
                 showNotification('noteDeleted');
+                applyFilters(); // <--- ДОБАВИТЬ СЮДА
             }
             deactivateSelectionMode();
         } 
@@ -2684,7 +4137,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (target.matches('[data-theme-accent]')) {
             const newAccent = target.dataset.themeAccent;
-            if (newAccent !== state.settings.theme_accent) {
+            
+            if (newAccent === 'custom') {
+                hideAllAnimatedMenus(); // Прячем меню перед открытием окна
+                
+                const newColor = await AdvancedColorPicker.open(state.settings.custom_accent);
+                
+                    if (newColor) {
+                        state.settings.custom_accent = newColor;
+                        target.style.background = `linear-gradient(135deg, ${newColor}, #ffffff)`;
+                        target.dataset.tooltipText = ColorNamer.getName(newColor, state.settings.language);
+                        
+                        applyTheme(state.settings.theme_base, 'custom');
+
+                    await eel.save_settings({ theme_accent: 'custom', custom_accent: newColor })();
+                    showNotification('themeUpdated');
+                }
+            } else if (newAccent !== state.settings.theme_accent) {
                 applyTheme(state.settings.theme_base, newAccent);
                 await eel.save_settings({ theme_accent: newAccent })();
                 showNotification('themeUpdated');
@@ -2694,13 +4163,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (target.matches('[data-theme-text]')) {
             const newTextTheme = target.dataset.themeText;
-            if (newTextTheme !== state.settings.theme_text) {
+            
+            if (newTextTheme === 'custom') {
+                hideAllAnimatedMenus(); // Прячем меню перед открытием окна
+                
+                const newColor = await AdvancedColorPicker.open(state.settings.custom_text);
+                
+                    if (newColor) {
+                        state.settings.custom_text = newColor;
+                        target.style.background = `linear-gradient(135deg, ${newColor}, #ffffff)`;
+                        target.dataset.tooltipText = ColorNamer.getName(newColor, state.settings.language);
+                        
+                        applyTextTheme('custom');
+
+                    target.style.background = `linear-gradient(135deg, ${newColor}, #ffffff)`;
+                    
+                    applyTextTheme('custom');
+                    await eel.save_settings({ theme_text: 'custom', custom_text: newColor })();
+                    showNotification('themeUpdated');
+                }
+            } else if (newTextTheme !== state.settings.theme_text) {
                 applyTextTheme(newTextTheme);
                 await eel.save_settings({ theme_text: newTextTheme })();
                 showNotification('themeUpdated');
             }
             return;
         }
+
+
+        if (target.matches('[data-theme-text]')) {
+            const newTextTheme = target.dataset.themeText;
+            
+            if (newTextTheme === 'custom') {
+                // Если кликнули на Custom текст - открываем палитру
+                const picker = document.getElementById('custom-text-picker');
+                picker.value = state.settings.custom_text;
+                
+                picker.onchange = async (ev) => {
+                    const newColor = ev.target.value;
+                    state.settings.custom_text = newColor;
+                    target.style.background = `linear-gradient(135deg, ${newColor}, #ffffff)`;
+                    
+                    applyTextTheme('custom');
+                    await eel.save_settings({ theme_text: 'custom', custom_text: newColor })();
+                    showNotification('themeUpdated');
+                };
+                picker.click();
+            } else if (newTextTheme !== state.settings.theme_text) {
+                applyTextTheme(newTextTheme);
+                await eel.save_settings({ theme_text: newTextTheme })();
+                showNotification('themeUpdated');
+            }
+            return;
+        }
+
 
         if (target.matches('[data-theme-base]')) {
             const newBase = target.dataset.themeBase;
@@ -2737,18 +4253,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // --- КОНЕЦ ИЗМЕНЕНИЯ ---
 
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
         if (target.matches('[data-action="about-app"]')) {
-            await showCustomAlert('About app', 'Prompt Manager v2.0');
             hideAllAnimatedMenus();
+            
+            const paths = await eel.get_app_paths()();
+            
+            // HTML сжат в одну строку, чтобы избежать багов с переносом строк (pre-wrap)
+            const htmlMessage = `<div style="text-align: center; margin-bottom: 20px;"><h2 style="color: var(--accent-color); margin-bottom: 5px; font-weight:700;">Prompt Manager v2.5</h2><span style="font-size: 0.8em; color: var(--text-color-dark);">The Customization & Architecture Update</span></div><div style="font-size: 0.85em; text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); max-width: 100%; overflow: hidden;"><div style="margin-bottom: 12px;"><strong style="color: var(--text-color);">Installation Folder</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Deleted on uninstall.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.install_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.install_dir}</a></div><div style="margin-bottom: 12px;"><strong style="color: var(--text-color);">Data & Settings</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Kept safe on uninstall.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.app_data_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.app_data_dir}</a></div><div><strong style="color: var(--text-color);">Active Vault</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Contains your notes and metadata.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.notes_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.notes_dir}</a></div></div>`;
+            
+            const t = translations[state.settings.language];
+            dom.alertModal.querySelector('#alert-title').textContent = t.aboutApp || 'About App';
+            
+            // На время показа About отключаем pre-wrap у контейнера
+            const msgContainer = dom.alertModal.querySelector('#alert-message');
+            msgContainer.style.whiteSpace = 'normal';
+            msgContainer.innerHTML = htmlMessage;
+            
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+            const buttonsContainer = dom.alertModal.querySelector('#alert-buttons');
+            buttonsContainer.innerHTML = ''; 
+            
+            // 1. Создаем красивую зеленую кнопку GitHub
+            const githubBtn = document.createElement('button');
+            githubBtn.className = 'modal-btn';
+            githubBtn.textContent = 'GitHub';
+            // Используем инлайн-стили, чтобы перебить стандартные
+            githubBtn.style.backgroundColor = '#2ea043'; // Цвет GitHub
+            githubBtn.style.color = '#ffffff';
+            githubBtn.style.borderColor = 'transparent';
+            githubBtn.style.boxShadow = '0 4px 15px rgba(46, 160, 67, 0.3)';
+            githubBtn.onclick = () => {
+                window.open('https://github.com/sdfghasx/Prompt-manager', '_blank');
+            };
+            
+            // 2. Стандартная кнопка ОК
+            const okBtn = document.createElement('button');
+            okBtn.className = 'modal-btn accent';
+            okBtn.textContent = 'OK';
+            okBtn.onclick = () => { 
+                closeModalAnimated(dom.alertModal); 
+                // Возвращаем стандартное поведение текстового контейнера
+                setTimeout(() => {
+                    msgContainer.textContent = '';
+                    msgContainer.style.whiteSpace = '';
+                }, 300);
+            };
+            
+            // Добавляем обе кнопки (GitHub слева, OK справа)
+            buttonsContainer.appendChild(githubBtn);
+            buttonsContainer.appendChild(okBtn);
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+            dom.alertModal.classList.add('visible');
         }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
     });
+
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
-    function showContextMenu(e, items, center = false) {
+    function showContextMenu(e, items, center = false, keepOptionsOpen = false) {
         e.preventDefault();
         e.stopPropagation();
-        hideOtherMenus();
+        if (!keepOptionsOpen) hideOtherMenus();
+
 
         const t = translations[state.settings.language];
         dom.contextMenu.innerHTML = items.map(item => {
@@ -2879,7 +4452,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${t.addToCollection || 'Add to Collection'}
                             <span style="font-size: 0.8em; color: var(--text-color-dark);">►</span>
                         </div>
-                        <div class="dropdown-menu submenu" style="max-height: 300px; overflow-y: auto; overflow-x: hidden; min-width: 180px;">
+                        <div class="dropdown-menu submenu" style="max-height: 400px; overflow-y: auto; overflow-x: hidden; min-width: 180px;">
                             ${collectionsHtml}
                         </div>
                     </div>
@@ -2893,12 +4466,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.notesGrid.addEventListener('contextmenu', (e) => {
         if (dom.contextMenu.classList.contains('visible')) {
-            e.preventDefault();
-            hideContextMenuAnimated();
-            return;
+            // Мгновенно сбрасываем старое меню без анимации, чтобы оно перепрыгнуло
+            dom.contextMenu.classList.remove('visible');
+            dom.contextMenu.classList.remove('is-closing');
         }
 
         const tile = e.target.closest('.note-tile');
+
         if (!tile) return;
         hideTooltip();
         
@@ -2908,13 +4482,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = translations[state.settings.language];
 
         let menuItems = [
-            { label: t.select, action: 'select-note' },
-            { type: 'divider' },
             { label: t.metadata, action: 'show-metadata' },
             { type: 'divider' },
+            { label: t.quickEdit, action: 'quick-edit' }, // <-- ДОБАВЛЕНО
             { label: t.edit, action: 'edit-note' },
-            { label: t.delete, action: 'delete-note' }
+            { label: t.delete, action: 'delete-note' },
+            { type: 'divider' },
+            { label: t.select, action: 'select-note' }
         ];
+
+
 
         const submenuItem = generateCollectionsSubmenu(noteId);
         if (submenuItem) {
@@ -2930,12 +4507,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.collectionView.grid.addEventListener('contextmenu', (e) => {
         if (dom.contextMenu.classList.contains('visible')) {
-            e.preventDefault();
-            hideContextMenuAnimated();
-            return;
+            dom.contextMenu.classList.remove('visible');
+            dom.contextMenu.classList.remove('is-closing');
         }
 
         const tile = e.target.closest('.note-tile');
+
         if (!tile) return;
         hideTooltip();
 
@@ -2948,11 +4525,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let menuItems = [
             { label: t.metadata, action: 'show-metadata' },
             { type: 'divider' },
+            { label: t.quickEdit, action: 'quick-edit' }, // <-- ДОБАВЛЕНО
             { label: t.edit, action: 'edit-note' },
             { label: t.delete, action: 'delete-note' },
             { type: 'divider' },
             { label: t.removeFromCollection, action: 'remove-from-collection' }
         ];
+
 
         // 2. Генерируем всплывающее меню с коллекциями
         // Передаем currentOpenCollectionId, чтобы исключить текущую коллекцию из списка
@@ -3021,72 +4600,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     // Управление подменю коллекций
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.contextMenu.addEventListener('mouseover', (e) => {
+        // Как только мышь вернулась на любой элемент меню - снимаем блокировку закрытия
+        isInteractingWithSubmenu = false; 
+        
         const container = e.target.closest('.context-submenu-container');
         if (container) {
             const submenu = container.querySelector('.submenu');
             if (submenu) {
                 clearTimeout(submenu.hideTimer);
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
                 submenu.classList.remove('is-closing');
                 submenu.classList.add('visible');
                 
-                // Позиционируем
+                // Изначальное позиционирование (открывается вправо и вниз)
                 submenu.style.top = '-5px';
+                submenu.style.bottom = 'auto';
                 submenu.style.left = '100%';
                 submenu.style.right = 'auto';
                 
                 const rect = submenu.getBoundingClientRect();
+                
+                // Проверка по горизонтали: если не влезает вправо, открываем влево
                 if (rect.right > window.innerWidth) {
                     submenu.style.left = 'auto';
                     submenu.style.right = '100%';
                 }
+                
+                // Проверка по вертикали: если выпадает за нижний край экрана, открываем вверх
+                if (rect.bottom > window.innerHeight) {
+                    submenu.style.top = 'auto';
+                    submenu.style.bottom = '-5px'; // Заставляем список расти вверх от пункта меню
+                }
+
             }
         }
     });
 
-    dom.contextMenu.addEventListener('mouseout', (e) => {
-        const container = e.target.closest('.context-submenu-container');
-        if (container) {
-            const submenu = container.querySelector('.submenu');
-            if (submenu) {
-                // Если мы перешли на элемент внутри этого же подменю - ничего не делаем
-                if (container.contains(e.relatedTarget)) return;
-
-                clearTimeout(submenu.hideTimer);
-                submenu.hideTimer = setTimeout(() => {
-                    submenu.classList.add('is-closing');
-                    submenu.addEventListener('animationend', () => {
-                        if (submenu.classList.contains('is-closing')) {
-                            submenu.classList.remove('visible');
-                            submenu.classList.remove('is-closing');
-                        }
-                    }, { once: true });
-                }, 200); // Твои 200мс на перевод мышки
-            }
-        }
-    });
-// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
-
+// --- 👇 ЕДИНСТВЕННЫЙ ПРАВИЛЬНЫЙ ОБРАБОТЧИК ПОДМЕНЮ В CONTEXT MENU ---
     dom.contextMenu.addEventListener('mouseout', (e) => {
         const container = e.target.closest('.context-submenu-container');
         if (container) {
             // Если курсор перешел на дочерний элемент ЭТОГО ЖЕ контейнера - ничего не делаем
             if (container.contains(e.relatedTarget)) return;
             
+            // Если включена защита клика аккордеона - игнорируем уход мыши
+            if (isInteractingWithSubmenu) return;
+            
             const submenu = container.querySelector('.submenu');
             if (submenu) hideContextSubmenu(submenu);
         }
     });
-// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👆 КОНЕЦ БЛОКА ---
+
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     dom.contextMenu.addEventListener('click', async (e) => {
         const target = e.target.closest('.dropdown-menu-item');
         if (!target) return;
 
-                // --- ЛОГИКА АККОРДЕОНА В МЕНЮ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+        // --- ЛОГИКА АККОРДЕОНА В МЕНЮ ---
         if (target.classList.contains('context-collection-parent')) {
-            e.stopPropagation(); // Останавливаем закрытие меню
+            e.stopPropagation(); 
+            
+            // ВАЖНО: Блокируем автозакрытие. 
+            // Это защитит меню от закрытия, даже если оно сожмется и курсор окажется в пустоте.
+            isInteractingWithSubmenu = true;
+            
+            // Замок сам снимется через 1 секунду (этого с запасом хватит на анимацию сжатия меню
+            // и на то, чтобы пользователь перевел курсор обратно на меню или кликнул мимо)
+            setTimeout(() => {
+                isInteractingWithSubmenu = false;
+            }, 1000);
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+            
             const group = target.closest('.context-collection-group');
             const list = group.querySelector('.context-subcollections-list');
             const icon = group.querySelector('.expander-icon');
@@ -3098,12 +4690,75 @@ document.addEventListener('DOMContentLoaded', () => {
                 list.style.display = 'none';
                 icon.style.transform = 'scale(0.55)';
             }
-            return; // Прерываем выполнение, чтобы не сработал основной клик
+            return; 
         }
         // --- КОНЕЦ ЛОГИКИ АККОРДЕОНА ---
+
         
         const action = target.dataset.action;
+
         if (!action) return;
+
+        if (action === 'change-dot-color' && activeDotContext) {
+            // СОХРАНЯЕМ В ЛОКАЛЬНУЮ ПЕРЕМЕННУЮ ДО ЗАКРЫТИЯ МЕНЮ
+            const dotToChange = activeDotContext; 
+            hideAllAnimatedMenus(); // Прячем все меню перед открытием окна
+            
+            const isText = dotToChange.hasAttribute('data-theme-text');
+            const key = isText ? dotToChange.dataset.themeText : dotToChange.dataset.themeAccent;
+
+            const prefix = isText ? 'text_' : 'accent_';
+            const defaultColor = isText ? textThemes[key].color : accentThemes[key].color;
+            
+            const overrides = state.settings.color_overrides || {};
+            const currentColor = overrides[`${prefix}${key}`] || defaultColor;
+
+            const newColor = await AdvancedColorPicker.open(currentColor);
+            if (newColor) {
+                state.settings.color_overrides = overrides;
+                state.settings.color_overrides[`${prefix}${key}`] = newColor;
+                dotToChange.style.backgroundColor = newColor; // ИСПОЛЬЗУЕМ СОХРАНЕННУЮ
+                dotToChange.dataset.tooltipText = ColorNamer.getName(newColor, state.settings.language);
+                
+                await eel.save_settings({ color_overrides: state.settings.color_overrides })();
+
+                
+                if (!isText && state.settings.theme_accent === key) applyTheme(state.settings.theme_base, key);
+                if (isText && state.settings.theme_text === key) applyTextTheme(key);
+            }
+            activeDotContext = null;
+            return;
+        }
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+        else if (action === 'reset-dot-color' && activeDotContext) {
+            // СОХРАНЯЕМ В ЛОКАЛЬНУЮ ПЕРЕМЕННУЮ ДО ЗАКРЫТИЯ МЕНЮ (как и в change-dot-color)
+            const dotToReset = activeDotContext;
+            
+            // Теперь можно безопасно скрывать меню
+            hideContextMenuAnimated();
+            
+            const isText = dotToReset.hasAttribute('data-theme-text');
+            const key = isText ? dotToReset.dataset.themeText : dotToReset.dataset.themeAccent;
+            const prefix = isText ? 'text_' : 'accent_';
+            const defaultColor = isText ? textThemes[key].color : accentThemes[key].color;
+
+            if (state.settings.color_overrides) {
+                delete state.settings.color_overrides[`${prefix}${key}`];
+                await eel.save_settings({ color_overrides: state.settings.color_overrides })();
+            }
+            
+            dotToReset.style.backgroundColor = defaultColor;
+            dotToReset.dataset.tooltipText = ColorNamer.getName(defaultColor, state.settings.language);
+
+            if (!isText && state.settings.theme_accent === key) applyTheme(state.settings.theme_base, key);
+            if (isText && state.settings.theme_text === key) applyTextTheme(key);
+            
+            activeDotContext = null;
+            return;
+        }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
         
         const noteId = dom.contextMenu.dataset.noteId;
         const collId = dom.contextMenu.dataset.collId;
@@ -3125,12 +4780,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     showNotification(t.notesCopiedToVault(result.copied_count, targetVaultName));
                 }
             } else {
-                await showCustomAlert('Error', result.message);
+                await showCustomAlert('errorTitle', getErrorMessage(result));
             }
             
             deactivateSelectionMode();
             return;
         }
+
 
         if (action.startsWith('batch-move-to-')) {
             const targetVaultName = action.replace('batch-move-to-', '');
@@ -3142,14 +4798,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (result.success) {
                 showNotification(t.notesMovedToVault(result.moved_count, targetVaultName));
+                deactivateSelectionMode();
                 setTimeout(() => reload_app(), 1200);
             } else {
-                await showCustomAlert('Error', result.message);
+                await showCustomAlert('errorTitle', getErrorMessage(result));
+                // НЕ снимаем выделение при ошибке, даем пользователю шанс повторить!
             }
-            
-            deactivateSelectionMode();
             return;
+
         }
+
         
         if (action.startsWith('batch-add-to-')) {
             const collectionId = action.replace('batch-add-to-', '');
@@ -3164,26 +4822,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 updateCounters();
                 showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
+                applyFilters(); // <--- ДОБАВИТЬ СЮДА
+                
             }
             deactivateSelectionMode();
             return;
         }
         
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
         if (action === 'select-note') {
             activateSelectionMode(noteId);
             return;
         }
 
-        if (action === 'edit-note') {
+        if (action === 'quick-edit') {
+            await openQuickEditModal(noteId);
+        }
+        else if (action === 'edit-note') {
             await openNoteModal(noteId);
         }
         else if (action === 'delete-note') {
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
             if (await showCustomConfirm('deleteNoteTitle', t.deleteNoteMessage, 'deleteAction', 'cancel', true)) {
                 const result = await eel.delete_note(noteId)();
                 if (result.success) {
                     delete state.notes[result.deleted_id];
                     delete state.noteContentsCache[result.deleted_id];
+                    delete state.notePreviews[result.deleted_id];
                     Object.keys(state.collectionNotes).forEach(cId => {
+
                         state.collectionNotes[cId] = state.collectionNotes[cId].filter(nId => nId !== result.deleted_id);
                     });
                     
@@ -3193,6 +4861,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         renderCollectionView(currentOpenCollectionId);
                     }
                     showNotification('noteDeleted');
+                    applyFilters(); // <--- ДОБАВИТЬ СЮДА
+                    
                 }
             }
         }
@@ -3207,6 +4877,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNotification('noteAddedToCollection');
                 updateCounters();
                 if (currentOpenCollectionId === collectionId) renderCollectionView(collectionId);
+                applyFilters(); // <--- ДОБАВИТЬ СЮДА
+
             }
         }
         else if (action === 'remove-from-collection') {
@@ -3216,6 +4888,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderCollectionView(collId);
                 updateCounters();
                 showNotification('removeFromCollection');
+                applyFilters(); // <--- ДОБАВИТЬ СЮДА
+                
             }
         }
         else if (action === 'create-subcollection') {
@@ -3228,22 +4902,13 @@ document.addEventListener('DOMContentLoaded', () => {
             openCollectionModal(); // Открываем стандартное окно ввода имени
         }
 
-        else if (action === 'rename-collection') {
-            
-            const newName = await showCustomPrompt('rename', t.enterNewName, state.collections[collId].name);
-            if (newName && newName !== state.collections[collId].name) {
-                const result = await eel.rename_collection(collId, newName)();
-                if (result) {
-                    state.collections[collId] = result.data;
-                    const item = dom.collectionsList.querySelector(`.collection-item[data-id="${collId}"]`);
-                    if (item) {
-                        item.querySelector('span[data-name]').textContent = newName;
-                        item.querySelector('span[data-name]').dataset.name = newName;
-                    }
-                }
-            }
+        else if (action === 'edit-collection') {
+            // Открываем модалку для редактирования
+            openCollectionModal(collId);
         }
+
         else if (action === 'delete-collection') {
+
             if (await showCustomConfirm('deleteCollectionTitle', t.deleteCollectionMessage(state.collections[collId].name), 'deleteAction', 'cancel', true)) {
                 const result = await eel.delete_collection(collId)();
                 if (result.success) {
@@ -3267,12 +4932,60 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderFullUI(); // Проще перерисовать дерево целиком
                     updateCounters();
                     showNotification('collectionDeleted');
+                    applyFilters(); // Обновляем список нераспределенных
                 }
             }
         }
     });
+
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+// --- 👇 НАЧАЛО НОВОГО БЛОКА ---
+    // --- СИСТЕМА ПРОВЕРКИ ОБНОВЛЕНИЙ ---
+    async function checkForUpdates() {
+        try {
+            // Делаем запрос к публичному API GitHub (не требует авторизации)
+            // ЗАМЕНИ НА СВОЙ ЮЗЕРНЕЙМ И РЕПОЗИТОРИЙ, ЕСЛИ ОНИ ДРУГИЕ!
+            const repoUrl = "sdfghasx/Prompt-manager"; 
+            const response = await fetch(`https://api.github.com/repos/${repoUrl}/releases/latest`);
+            
+            if (!response.ok) return; // Если нет интернета или API недоступен - тихо выходим
+            
+            const data = await response.json();
+            const latestVersion = data.tag_name; // Например "v2.6"
+            
+            // Если версии не совпадают (простейшая проверка)
+            if (latestVersion && latestVersion !== APP_VERSION) {
+                showUpdateIndicator(latestVersion, data.html_url);
+            }
+        } catch (e) {
+            console.log("Update check failed (offline mode):", e);
+        }
+    }
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    function showUpdateIndicator(latestVersion, releaseUrl) {
+        const t = translations[state.settings.language];
+        
+        // 1. Рисуем красную точку на кнопке опций
+        dom.optionsBtn.style.position = 'relative';
+        dom.optionsBtn.innerHTML += `<span style="position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; background-color: var(--accent-color-danger); border-radius: 50%; box-shadow: 0 0 5px var(--accent-color-danger);"></span>`;
+        
+        // 2. Добавляем яркую кнопку с использованием data-translate, чтобы она переводилась на лету
+        const updateHtml = `
+            <div class="dropdown-menu-item" style="background: rgba(var(--accent-color-rgb), 0.15); color: var(--accent-color); font-weight: 700; justify-content: center; margin-bottom: 5px;" onclick="window.open('${releaseUrl}', '_blank')">
+                <span data-translate="updateAvailable">${t.updateAvailable || 'Update Available'}</span>&nbsp;(${latestVersion})
+            </div>
+            <div class="dropdown-divider"></div>
+        `;
+        
+        // Вставляем кнопку в самое начало меню опций
+        dom.optionsMenu.insertAdjacentHTML('afterbegin', updateHtml);
+    }
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+// --- 👆 КОНЕЦ НОВОГО БЛОКА ---
 
 
     // --- 7. Инициализация приложения ---
@@ -3374,13 +5087,22 @@ document.addEventListener('DOMContentLoaded', () => {
             dom.accentColorsContainer = document.getElementById('accent-colors-container');
             const textColorsContainer = document.getElementById('text-colors-container');
             
+            const overrides = state.settings.color_overrides || {};
+            
             // Генерируем кнопки для акцентного цвета
             for (const [key, value] of Object.entries(accentThemes)) {
                 const item = document.createElement('div');
                 item.className = 'theme-dot';
                 item.dataset.themeAccent = key;
-                item.style.backgroundColor = value.color;
-                item.title = value.name;
+                item.dataset.tooltipText = value.name; // Убрали системную подсказку, добавили свою
+
+                
+                if (key === 'custom') {
+                    item.style.background = `linear-gradient(135deg, ${state.settings.custom_accent}, #ffffff)`;
+                    item.dataset.isCustom = "true";
+                } else {
+                    item.style.backgroundColor = overrides[`accent_${key}`] || value.color;
+                }
                 dom.accentColorsContainer.appendChild(item);
             }
 
@@ -3389,18 +5111,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 const item = document.createElement('div');
                 item.className = 'theme-dot';
                 item.dataset.themeText = key;
-                item.style.backgroundColor = value.color;
-                item.title = value.name;
+                item.dataset.tooltipText = value.name; // Убрали системную подсказку, добавили свою
+
+
+                if (key === 'custom') {
+                    item.style.background = `linear-gradient(135deg, ${state.settings.custom_text}, #ffffff)`;
+                    item.dataset.isCustom = "true";
+                } else {
+                    item.style.backgroundColor = overrides[`text_${key}`] || value.color;
+                }
                 textColorsContainer.appendChild(item);
             }
+
+
             
             // Применяем все загруженные настройки
             applyTranslations(state.settings.language);
             applyTheme(state.settings.theme_base, state.settings.theme_accent);
             applyTextTheme(state.settings.theme_text || 'default');
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
             applyVisualStyle(state.settings.current_style || 'default');
             
+            // Восстанавливаем сохраненные виды для обеих сеток
+
+            applyViewMode(state.settings.view_mode || 'grid', dom.notesGrid, dom.viewModeIcon);
+            applyViewMode(state.settings.collection_view_mode || 'grid', dom.collectionView.grid, dom.collViewModeIcon);
+            
             // Отрисовываем основной интерфейс
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
             renderFullUI();
             updateCounters();
 
@@ -3424,13 +5163,123 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 800);
             }
 
+            setTimeout(checkForUpdates, 3000);
+            
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
         } catch (error) {
             console.error("Fatal: Failed to initialize app.", error);
-            alert('Initialization Error: Could not load application data. The application will now close.');
-            window.close();
+            const fallbackT = translations[state.settings.language] || translations.en;
+            
+            // Вызываем наш красивый экран смерти вместо alert()
+            const crashScreen = document.getElementById('fatal-error-overlay');
+            if (crashScreen) {
+                // Меняем текст на ошибку инициализации
+                crashScreen.querySelector('h1').textContent = "Initialization Error";
+                crashScreen.querySelector('p').textContent = fallbackT.fatalInitError || "Could not load application data.";
+                crashScreen.classList.add('visible');
+            }
         }
     }
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+// --- 👇 ВСТАВИТЬ ПЕРЕД initializeApp(); ---
+    let activeFilterTag = null;
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+    function renderTagsBar() {
+        const tagsListContainer = document.getElementById('tags-list-container');
+        const tagsBarMenu = document.getElementById('tags-bar');
+        if (!tagsListContainer || !tagsBarMenu) return;
+
+        // Получаем текущее значение строки поиска
+        const searchValue = dom.searchInput.value.toLowerCase().trim();
+        
+        // НОВАЯ ЛОГИКА: Прячем панель, если вводим текст без решетки
+        if (searchValue.length > 0 && !searchValue.startsWith('#')) {
+            tagsBarMenu.classList.add('force-hide');
+            return;
+        } else {
+            tagsBarMenu.classList.remove('force-hide');
+        }
+
+        // Какую часть тега мы ищем (если ввели #py, ищем "py")
+        const searchTagInput = searchValue.startsWith('#') ? searchValue.substring(1).trim() : '';
+
+        const tagCounts = {};
+        Object.values(state.notes).forEach(note => {
+            if (note.tags && note.tags.trim() !== '') {
+                note.tags.split(',').map(t => t.trim().toLowerCase()).filter(t => t).forEach(tag => {
+                    tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                });
+            }
+        });
+
+        // НОВАЯ ЛОГИКА: Сначала фильтруем по совпадению, потом сортируем по популярности
+        const filteredTags = Object.entries(tagCounts)
+            .filter(([tag]) => tag.includes(searchTagInput))
+            .sort((a, b) => {
+                // Если тег начинается с введенных букв - он в приоритете
+                const aStartsWith = a[0].startsWith(searchTagInput);
+                const bStartsWith = b[0].startsWith(searchTagInput);
+                if (aStartsWith && !bStartsWith) return -1;
+                if (!aStartsWith && bStartsWith) return 1;
+                // Иначе сортируем по популярности (количеству заметок)
+                return b[1] - a[1];
+            })
+            .slice(0, 15);
+
+        if (filteredTags.length === 0) {
+            tagsListContainer.innerHTML = '<div style="color: var(--text-color-dark); font-size: 0.85em; padding-left: 4px;">No tags found...</div>';
+        } else {
+            tagsListContainer.innerHTML = filteredTags.map(([tag, count]) => `
+                <span class="tag-pill ${activeFilterTag === tag ? 'active' : ''}" data-tag="${tag}">
+                    #${tag} <span>${count}</span>
+                </span>
+            `).join('');
+        }
+
+        // Оставляем класс для удержания панели, если тег был нажат мышкой
+        if (activeFilterTag) {
+            tagsBarMenu.classList.add('has-active-tag');
+        } else {
+            tagsBarMenu.classList.remove('has-active-tag');
+        }
+    }
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+// --- 👇 ВСТАВИТЬ ПЕРЕД initializeApp(); ---
+    // Обработка кликов по тегам-бейджикам (ПЕРЕПИСАНО БЕЗОПАСНО)
+    document.addEventListener('click', (e) => {
+        const tagPill = e.target.closest('.tag-pill');
+        if (!tagPill) return;
+
+        e.stopPropagation(); 
+        const clickedTag = tagPill.dataset.tag;
+        
+        if (activeFilterTag === clickedTag) {
+            activeFilterTag = null;
+            dom.searchInput.value = ''; 
+        } else {
+            activeFilterTag = clickedTag;
+            dom.searchInput.value = `#${clickedTag}`;
+        }
+        
+        renderTagsBar(); // Обновляем цвет активного тега
+        applyFilters();
+    });
+
+    dom.searchInput.addEventListener('input', () => {
+        if (activeFilterTag && !dom.searchInput.value.includes(`#${activeFilterTag}`)) {
+            activeFilterTag = null;
+            renderTagsBar();
+        }
+    });
+// --- 👆 КОНЕЦ ВСТАВКИ ---
+
 
     initializeApp();
 });
@@ -3440,3 +5289,156 @@ eel.expose(reload_app, 'reload_app');
 function reload_app() {
     location.reload();
 }
+
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// --- СИСТЕМА BUG REPORT И ПЕРЕХВАТ ПАДЕНИЙ ---
+
+// Глобальная переменная для хранения последней ошибки
+let lastFatalError = "Connection to local Python server was lost.";
+
+function showFatalErrorScreen(errorMessage) {
+    const crashScreen = document.getElementById('fatal-error-overlay');
+    if (!crashScreen) return;
+    
+    lastFatalError = errorMessage;
+    
+    const msgElement = document.getElementById('fatal-error-message');
+    if (msgElement) msgElement.textContent = errorMessage;
+    
+    crashScreen.classList.add('visible');
+}
+
+// 1. Перехват обрыва связи с Eel
+let checkSocketInterval = setInterval(() => {
+    if (window.eel && window.eel._websocket) {
+        clearInterval(checkSocketInterval);
+        
+        window.eel._websocket.onclose = function () {
+            showFatalErrorScreen("WebSocket Connection Lost. The local Python server might have crashed.");
+        };
+    }
+}, 50);
+
+// 2. Глобальный перехват непредсказуемых JS-ошибок (краш фронтенда)
+window.addEventListener('error', function(event) {
+    // Игнорируем мелкие ошибки загрузки картинок
+    if (event.target && (event.target.tagName === 'IMG' || event.target.tagName === 'LINK')) return;
+    
+    showFatalErrorScreen(`Frontend Error: ${event.message} at ${event.filename}:${event.lineno}`);
+});
+
+// НОВЫЙ БЛОК: Перехват ошибок от сервера Eel (Promise rejections)
+window.addEventListener('unhandledrejection', function(event) {
+    const reason = event.reason;
+    // Проверяем, похож ли объект на стандартную ошибку от Eel
+    if (reason && reason.errorText && reason.errorTraceback) {
+        event.preventDefault(); // Предотвращаем вывод в системную консоль
+        
+        // Очищаем трейсбэк от личных путей (на всякий случай, если Python-декоратор пропустил)
+        let cleanTraceback = reason.errorTraceback;
+        if (cleanTraceback.includes('Users\\')) {
+            // Простейшая очистка пути до папки пользователя
+            cleanTraceback = cleanTraceback.replace(/C:\\Users\\[^\\]+\\/gi, '[USER_DIR]\\');
+        }
+
+        showFatalErrorScreen(`Backend Crash:\n\n${cleanTraceback}`);
+    } else if (reason instanceof Error) {
+        // Обычная JS ошибка в промисе
+        showFatalErrorScreen(`Frontend Promise Error: ${reason.message}\n${reason.stack}`);
+    }
+});
+
+// --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+// 3. Глобальная функция копирования (вызывается напрямую из HTML)
+
+window.copyFatalErrorLog = function() {
+    const appVersion = "v2.5";
+    const userAgent = navigator.userAgent;
+    
+    let currentLang = 'unknown';
+    try {
+        if (typeof state !== 'undefined' && state.settings) {
+            currentLang = state.settings.language || 'unknown';
+        }
+    } catch (e) {
+        console.warn("Could not read state for bug report.");
+    }
+    
+    const report = `
+### Bug Report - Prompt Manager ${appVersion}
+
+**Error Details:**
+\`\`\`text
+${lastFatalError}
+\`\`\`
+
+**Environment Context:**
+- **Language:** ${currentLang}
+- **User Agent:** ${userAgent}
+- **Time:** ${new Date().toISOString()}
+
+
+**Steps to reproduce:**
+1. [Please describe what you were doing right before the crash]
+    `.trim();
+
+    // Запасной план копирования
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(report).then(transformButtonToLink).catch(fallbackCopy);
+    } else {
+        fallbackCopy();
+    }
+
+    function fallbackCopy() {
+        const textArea = document.createElement("textarea");
+        textArea.value = report;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            transformButtonToLink();
+        } catch (err) {
+            console.error('Fallback copy failed', err);
+            alert("Copy failed. Please open console (F12).");
+        }
+        textArea.remove();
+    }
+
+    // НОВАЯ ЛОГИКА: Превращаем кнопку копирования в кнопку перехода
+    function transformButtonToLink() {
+        const msgObj = document.getElementById('bug-report-copied-msg');
+        if (msgObj) {
+            msgObj.textContent = "Copied to clipboard!";
+            msgObj.style.opacity = '1';
+            setTimeout(() => { msgObj.style.opacity = '0'; }, 3000);
+        }
+
+        const btn = document.getElementById('copy-bug-report-btn');
+
+        if (btn) {
+            // Меняем текст и стиль кнопки
+            btn.textContent = "Open GitHub Issues";
+            btn.style.backgroundColor = "#2ea043"; // Зеленый цвет GitHub
+            btn.style.boxShadow = "0 4px 15px rgba(46, 160, 67, 0.4)";
+            
+            // Снимаем старый обработчик (он был прописан в HTML через onclick)
+            btn.onclick = null;
+            
+            // Вешаем новый обработчик, который откроет ссылку с АВТОЗАПОЛНЕНИЕМ
+            btn.onclick = () => {
+                // Кодируем наш сформированный отчет в формат URL
+                const encodedBody = encodeURIComponent(report);
+
+                const githubIssueUrl = `https://github.com/sdfghasx/Prompt-manager/issues/new?title=[Bug]%20Crash%20Report&body=${encodedBody}`;
+                
+                // Открываем браузер
+                window.open(githubIssueUrl, '_blank');
+            };
+        }
+    }
+};
+// --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---

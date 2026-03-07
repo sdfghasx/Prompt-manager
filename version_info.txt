@@ -1,0 +1,29 @@
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(2, 5, 0, 0),
+    prodvers=(2, 5, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo(
+      [
+        StringTable(
+          '040904B0',
+          [StringStruct('CompanyName', 'sdfghasx'),
+           StringStruct('FileDescription', 'Prompt Manager App'),
+           StringStruct('FileVersion', '2.5.0'),
+           StringStruct('InternalName', 'PromptManager'),
+           StringStruct('LegalCopyright', 'Copyright (c) 2024 Your Name'),
+           StringStruct('OriginalFilename', 'PromptManager.exe'),
+           StringStruct('ProductName', 'Prompt Manager'),
+           StringStruct('ProductVersion', '2.5.0')])
+      ]
+    ),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)

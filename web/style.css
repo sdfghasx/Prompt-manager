@@ -92,10 +92,11 @@ body[data-theme-text="sky"] {
     --note-text-color: #86a3b4;
 }
 
-body[data-theme-text="mint"] {
-    --note-title-color: #c4f1d4;
-    --note-text-color: #8fb19a;
+body[data-theme-text="lavender"] {
+    --note-title-color: #e2cbf0;
+    --note-text-color: #a78cb8;
 }
+
 
 body[data-theme-text="sand"] {
     --note-title-color: #f3eac2;
@@ -143,11 +144,14 @@ input, textarea {
 .icon {
     width: var(--icon-size);
     height: var(--icon-size);
-    stroke: var(--text-color-dark);
+    /* Заменяем жесткий stroke на currentColor, чтобы иконку можно было перекрасить через инлайн-стиль color */
+    stroke: currentColor;
+    color: var(--text-color-dark); /* Базовый цвет, если инлайн-цвет не задан */
     flex-shrink: 0;
 }
 
 /* --- Структура приложения --- */
+
 .app-container {
     display: flex;
     height: 100%;
@@ -197,7 +201,10 @@ input, textarea {
     flex-shrink: 0;
     background-color: transparent;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative; /* <-- ДОБАВЛЕНО: Создаем слой */
+    z-index: 100; /* <-- ДОБАВЛЕНО: Поднимаем всю панель и выпадающие меню выше контента */
 }
+
 
 .content-area {
     display: flex;
@@ -648,18 +655,12 @@ body[data-theme-base="light"] .icon-btn img {
     box-shadow: inset 0 0 0 2px var(--accent-color);
 }
 
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 #collection-view-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    color: var(--text-color);
-    border-bottom: none;
-    background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    background-size: 100% 1px;
-    background-position: bottom;
-    background-repeat: no-repeat;
+    font-size: 1.2em; font-weight: 600; color: var(--text-color);
 }
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
 
 #collection-view-panel .empty-message {
     text-align: center;
@@ -668,22 +669,69 @@ body[data-theme-base="light"] .icon-btn img {
     font-weight: 500;
 }
 
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 #notes-grid {
-    position: relative;
-    flex-grow: 1;
-    padding: 32px;
-    transition: margin-left 0.3s var(--smooth);
-    margin-left: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    position: relative; flex-grow: 1; 
+    /* Увеличили верхний padding, чтобы прыгающая карточка не обрезалась */
+    padding: 40px 32px 32px 32px; 
+    transition: margin-left 0.3s var(--smooth); margin-left: 0;
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
     gap: 24px;
-    align-content: flex-start;
-    overflow-y: auto;
+    align-content: flex-start; overflow-y: auto;
+    
+    /* Магия: размываем верхний и нижний края, чтобы карточки плавно появлялись при скролле */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+#notes-grid.shifted { margin-left: 360px; }
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+/* КОМПАКТНЫЙ РЕЖИМ (COMPACT GRID) */
+#notes-grid.list-view {
+    /* Оставляем сетку (колонки), но делаем их чуть шире, чтобы текст влез в строку */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+    gap: 16px; /* Чуть уменьшаем отступы между компактными плитками */
+    padding: 32px; /* Стандартные отступы по краям */
 }
 
-#notes-grid.shifted {
-    margin-left: 360px;
+/* Стили сплющенной карточки */
+#notes-grid.list-view .note-tile {
+    height: 70px; /* Делаем её низкой */
+    padding: 12px 20px;
+    flex-direction: row; /* Заголовок и текст выстраиваются в ряд */
+    align-items: center; /* Центрируем по вертикали */
+    gap: 15px;
 }
+
+/* Эффект верхнего света на компактной карточке нужно немного опустить */
+#notes-grid.list-view .note-tile::before {
+    display: none; /* Убираем блик, чтобы не перегружать тонкую рамку */
+}
+
+#notes-grid.list-view .note-title {
+    flex-shrink: 0; /* Заголовок не сжимается */
+    width: 35%; /* Отдаем заголовку 35% ширины плитки */
+    font-size: 1em;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+#notes-grid.list-view .note-title::after {
+    display: none; /* Убираем градиентную линию под заголовком */
+}
+
+#notes-grid.list-view .note-text {
+    flex-grow: 1;
+    font-size: 0.8em;
+    -webkit-line-clamp: 1; /* Ограничиваем текст строго ОДНОЙ строкой */
+    white-space: nowrap; /* Запрещаем перенос строк */
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
 
 #notes-grid.drag-over {
     background-color: rgba(var(--accent-color-rgb), 0.02);
@@ -692,18 +740,21 @@ body[data-theme-base="light"] .icon-btn img {
     animation: none;
 }
 
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 #collection-notes-grid {
-    flex-grow: 1;
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-    align-content: flex-start;
-    overflow-y: auto;
-    opacity: 0;
-    transform: translateY(20px);
+    flex-grow: 1; 
+    /* Добавили отступы сверху и снизу для маски и подпрыгиваний */
+    padding: 15px 0; 
+    display: grid; grid-template-columns: 1fr; gap: 16px;
+    align-content: flex-start; overflow-y: auto;
+    opacity: 0; transform: translateY(20px);
     transition: transform 0.4s var(--spring) 0.05s, opacity 0.3s ease 0.05s;
+    
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
 }
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
 
 #collection-notes-grid.is-shown {
     opacity: 1;
@@ -767,16 +818,47 @@ body[data-theme-base="light"] .icon-btn img {
     padding-bottom: 8px;
 }
 
+/* Удаляем старый псевдоэлемент, так как теперь линия - это реальный <div> */
 .note-title::after {
-    content: '';
-    display: block;
+    display: none !important;
+}
+
+/* Стили для нашей новой физической линии */
+.note-custom-line {
     height: 1px;
     min-height: 1px;
-    background: linear-gradient(90deg, var(--accent-color), transparent);
-    transform: none;
+    width: 100%;
     margin-top: 8px;
+    margin-bottom: 8px; /* Чтобы текст не прилипал к линии снизу */
     opacity: 0.7;
+    /* Убираем растягивание для List View (там линия не нужна) */
+    flex-shrink: 0; 
 }
+
+/* Резервный цвет (нейтрально-белый), если у папки нет своего кастомного цвета */
+.note-custom-line.default-line {
+    /* Полупрозрачный белый (или цвет текста в светлой теме), затухающий вправо */
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.4), transparent);
+}
+
+/* Для светлой темы делаем линию темной */
+body[data-theme-base="light"] .note-custom-line.default-line {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent);
+}
+
+/* Адаптация: Скрываем линию в компактном режиме List View */
+#notes-grid.list-view .note-custom-line,
+
+#collection-notes-grid.list-view .note-custom-line {
+    display: none;
+}
+
+/* Фикс: У заголовка в сетке теперь убираем нижний отступ, так как его дает линия */
+.note-title {
+    padding-bottom: 0;
+}
+
+
 
 .note-text {
     font-size: var(--note-preview-font-size);
@@ -814,37 +896,24 @@ body[data-theme-base="light"] .icon-btn img {
 }
 
 /* --- Модальные окна (VisionOS Blur) --- */
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
+    display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+    justify-content: center; align-items: center; pointer-events: none;
 }
+/* УСКОРЕНО: появление фона 0.2s */
+.modal.visible { display: flex; animation: modal-bg-in 0.2s ease-out forwards; pointer-events: auto; }
 
-.modal.visible {
-    display: flex;
-    animation: modal-bg-in 0.4s ease-out forwards;
-    pointer-events: auto;
-}
+/* УСКОРЕНО: появление окна 0.25s (было 0.5s) */
+.modal.visible:not(.is-closing) .modal-content { animation: modal-spring-in 0.25s var(--spring) forwards; }
 
-.modal.visible:not(.is-closing) .modal-content {
-    animation: modal-spring-in 0.5s var(--spring) forwards;
-}
+/* УСКОРЕНО: исчезновение фона 0.15s (было 0.3s) */
+.modal.is-closing { animation: modal-bg-out 0.15s ease-out forwards; pointer-events: none; }
 
-.modal.is-closing {
-    animation: modal-bg-out 0.3s ease-out forwards;
-    pointer-events: none;
-}
+/* УСКОРЕНО: исчезновение окна 0.15s (было 0.3s) */
+.modal.is-closing .modal-content { animation: modal-spring-out 0.15s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards; }
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 
-.modal.is-closing .modal-content {
-    animation: modal-spring-out 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
-}
 
 .modal-content {
     background-color: rgba(30, 30, 35, 0.65);
@@ -897,9 +966,15 @@ body[data-theme-base="light"] .icon-btn img {
     outline: none;
 }
 
-.modal-content textarea {
+.modal-content #note-desc-input {
+    min-height: 60px;
+    resize: vertical;
+    margin-top: 5px;
+}
+.modal-content #note-content-input {
     min-height: 200px;
     resize: vertical;
+    margin-top: 5px;
 }
 
 .modal-buttons {
@@ -1045,26 +1120,45 @@ body[data-theme-base="light"] .icon-btn img {
     letter-spacing: 0.05em;
 }
 
-.dropdown-submenu-container {
-    position: relative;
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+.dropdown-submenu-container { position: relative; }
+
+.dropdown-submenu-container .submenu { 
+    display: none; 
+    position: absolute; 
+    top: -8px; 
+    right: 100%; 
+    margin-right: 8px; 
+    
+    /* ФИКС: Ограничиваем максимальную высоту, чтобы меню не прыгало по экрану */
+    max-height: 45vh; /* Меню займет не больше 45% от высоты экрана */
+    overflow-y: auto; /* Включаем внутренний скролл, если папок слишком много */
+    overflow-x: hidden;
 }
 
-.dropdown-submenu-container .submenu {
-    display: none;
+.dropdown-submenu-container .submenu.visible { display: block; animation: submenu-fade-in 0.3s var(--spring) forwards; }
+.dropdown-submenu-container .submenu.is-closing { animation: submenu-fade-out 0.15s ease-out forwards; }
+
+/* Кастомный скроллбар для подменю (чтобы выглядел аккуратно) */
+.dropdown-submenu-container .submenu::-webkit-scrollbar { width: 4px; }
+.dropdown-submenu-container .submenu::-webkit-scrollbar-track { background: transparent; margin: 4px 0; }
+.dropdown-submenu-container .submenu::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.2); border-radius: 4px; }
+.dropdown-submenu-container .submenu::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.4); }
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+/* --- 👇 НОВЫЙ БЛОК: Невидимый мост для подменю --- */
+/* Создаем невидимую зону вокруг подменю, чтобы мышь не соскальзывала при переходе */
+.dropdown-submenu-container .submenu::before {
+    content: '';
     position: absolute;
-    top: -8px;
-    right: 100%;
-    margin-right: 8px;
+    top: -20px;
+    bottom: -20px;
+    left: -20px;
+    right: -20px;
+    z-index: -1;
 }
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
 
-.dropdown-submenu-container .submenu.visible {
-    display: block;
-    animation: submenu-fade-in 0.3s var(--spring) forwards;
-}
-
-.dropdown-submenu-container .submenu.is-closing {
-    animation: submenu-fade-out 0.15s ease-out forwards;
-}
 
 /* Темизация точки */
 #accent-colors-container, #text-colors-container {
@@ -1102,59 +1196,50 @@ body[data-theme-base="light"] .icon-btn img {
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
-/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+/* --- Контейнер для уведомлений --- */
 #clipboard-notification {
     position: fixed;
-    /* Центрируем по горизонтали: ставим left: 50% и сдвигаем назад на половину своей ширины */
     left: 50%;
-    transform: translateX(-50%) translateY(100px); /* Изначально спрятано внизу */
-    bottom: 30px; /* Отступ от нижнего края */
-    
+    transform: translateX(-50%);
+    bottom: 30px;
+    display: flex;
+    flex-direction: column; /* Выстраиваем друг под другом */
+    justify-content: flex-end; /* Прижимаем к низу */
+    align-items: center;
+    gap: 10px; /* Расстояние между уведомлениями */
+    z-index: 2000;
+    pointer-events: none; /* Пропускаем клики сквозь контейнер */
+}
+
+/* --- Сама плашка уведомления --- */
+.notification-toast {
     background-color: var(--sidebar-bg);
     color: var(--text-color);
     padding: 12px 24px;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid var(--border-color);
-    box-shadow: 0 5px 30px rgba(var(--accent-color-rgb), 0.4);
-    z-index: 2000;
-
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Анимация ПОЯВЛЕНИЯ (снизу вверх) */
-#clipboard-notification.show {
+    box-shadow: 0 10px 30px rgba(var(--accent-color-rgb), 0.3);
     pointer-events: auto;
-    animation: slide-up-center 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+    backdrop-filter: blur(20px);
+    
+    /* Анимация появления */
+    animation: toast-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
 }
 
-/* Анимация СКРЫТИЯ (вниз) */
-#clipboard-notification.hide {
-    animation: slide-down-center 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+/* Класс для плавного исчезновения */
+.notification-toast.hiding {
+    animation: toast-out 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
 }
 
-@keyframes slide-up-center {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(30px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@keyframes slide-down-center {
-    from {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(-50%) translateY(50px);
-    }
+@keyframes toast-out {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to { opacity: 0; transform: translateY(20px) scale(0.9); }
 }
-/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 
 /* Тултипы */
 #note-tooltip {
@@ -1248,7 +1333,7 @@ body.is-dragging-note #drag-delete-zone, body.is-dragging-collection #drag-delet
 }
 
 .collection-item.drag-over .icon {
-    filter: brightness(200%);
+    color: var(--text-on-accent) !important; /* Перекрашиваем SVG в белый */
 }
 
 .collection-item.drag-hovered {
@@ -1258,9 +1343,11 @@ body.is-dragging-note #drag-delete-zone, body.is-dragging-collection #drag-delet
     box-shadow: none !important;
 }
 
+/* При наведении просто возвращаем стандартное поведение */
 .collection-item.drag-hovered .icon {
-    filter: none !important;
+    color: inherit;
 }
+
 
 #drag-ghost {
     position: fixed;
@@ -1274,28 +1361,136 @@ body.is-dragging-note #drag-delete-zone, body.is-dragging-collection #drag-delet
     opacity: 1;
 }
 
-.ghost-tile {
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+#drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.15s;
+    /* Убираем жесткую привязку ширины, чтобы он подстраивался под содержимое */
+}
+
+#drag-ghost.visible {
+    opacity: 1;
+}
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+.ghost-mini-tile {
+    width: 220px; 
+    /* СНИЗИЛИ базовую прозрачность фона самой карточки (было 0.75, стало 0.5) */
+    background-color: rgba(30, 30, 35, 0.5); 
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid var(--accent-color); 
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transform: rotate(3deg);
+    
+    /* СИЛЬНЫЙ ГРАДИЕНТ: начинает таять уже с 30% высоты и уходит в полную прозрачность */
+    -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 95%);
+    mask-image: linear-gradient(to bottom, black 30%, transparent 95%);
+}
+
+.ghost-layer-2, .ghost-layer-3 {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+/* Второй слой стопки */
+.ghost-layer-2 {
     position: absolute;
-    width: 200px;
-    height: 110px;
-    background-color: rgba(30, 30, 35, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-top: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    backdrop-filter: var(--glass-blur);
-    opacity: 0.85;
+    top: 6px;
+    left: 6px;
+    transform: rotate(6deg) !important; 
+    opacity: 0.6; /* СНИЗИЛИ (было 0.85) */
+    z-index: -1;
 }
 
-.ghost-tile:nth-child(2) {
-    transform: translate(8px, 8px) rotate(4deg);
-    opacity: 0.6;
+/* Третий слой стопки */
+.ghost-layer-3 {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    transform: rotate(9deg) !important;
+    opacity: 0.4; /* СНИЗИЛИ (было 0.7) */
+    z-index: -2;
 }
 
-.ghost-tile:nth-child(3) {
-    transform: translate(16px, 16px) rotate(8deg);
-    opacity: 0.4;
+.ghost-layer-2 .note-title, .ghost-layer-2 .note-text,
+.ghost-layer-3 .note-title, .ghost-layer-3 .note-text {
+    opacity: 0;
 }
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+
+/* Снимаем градиентную маску с нижних слоев стопки, чтобы они не растворялись в пустоту */
+.ghost-layer-2, .ghost-layer-3 {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+/* Второй слой стопки */
+.ghost-layer-2 {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    transform: rotate(6deg) !important; 
+    opacity: 0.85; /* Магия 2: Сделали ЯРЧЕ (было 0.6) */
+    z-index: -1;
+}
+
+/* Третий слой стопки */
+.ghost-layer-3 {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    transform: rotate(9deg) !important;
+    opacity: 0.7; /* Магия 2: Сделали ЗНАЧИТЕЛЬНО ЯРЧЕ (было 0.3) */
+    z-index: -2;
+}
+
+/* Прячем текст на нижних слоях (без изменений) */
+.ghost-layer-2 .note-title, .ghost-layer-2 .note-text,
+.ghost-layer-3 .note-title, .ghost-layer-3 .note-text {
+    opacity: 0;
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+
+/* Очищаем содержимое текста на нижних слоях, чтобы не создавать кашу из букв */
+.ghost-layer-2 .note-title, .ghost-layer-2 .note-text,
+.ghost-layer-3 .note-title, .ghost-layer-3 .note-text {
+    opacity: 0;
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+
+/* Счетчик для пакетного выделения (оставляем, если тянут несколько) */
+.ghost-counter {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: var(--accent-color-danger); /* Делаем красным для контраста */
+    color: white;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    z-index: 2;
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+
 
 .ghost-counter {
     position: absolute;
@@ -1385,25 +1580,45 @@ body.is-dragging-note #drag-delete-zone, body.is-dragging-collection #drag-delet
 }
 
 /* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+/* Элемент, который мы тащим в данный момент */
 .note-tile.dragging, .collection-item.dragging { 
-    opacity: 0.4; 
-    transform: scale(0.95); 
-    transition: none !important; /* Отключаем плавность, элемент должен браться мгновенно */
+    opacity: 0.5; 
+    /* УБИРАЕМ transform: scale(0.95), чтобы размер не прыгал */
+    transform: none !important; 
+    transition: none !important; 
+    /* УДАЛИЛИ pointer-events: none !important; (ОН ЛОМАЛ DRAG AND DROP) */
 }
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 
+
+/* Линия сортировки папок */
 .collection-item.drag-over-indicator { 
-    /* Используем внутреннюю тень (inset) вместо border, чтобы не ломать физические размеры сетки */
     box-shadow: inset 0 3px 0 0 var(--accent-color) !important; 
     border-top: none !important;
-    transition: none !important; /* Отключаем анимацию при сортировке */
+    transform: none !important; /* Блокируем любые смещения */
+    transition: none !important; 
 }
 
+/* Линия сортировки заметок (Или если используем Live Reorder - просто отключаем эффекты) */
 #collection-notes-grid .note-tile.drag-over-indicator { 
     box-shadow: inset 0 4px 0 0 var(--accent-color) !important; 
     border-top: none !important;
-    transform: none !important; /* Отключаем увеличение, чтобы карточка не "убегала" от курсора */
+    transform: none !important; 
     transition: none !important; 
 }
+
+/* Глобальная защита от прыжков для всех заметок во время D&D */
+body.is-dragging-note .note-tile {
+    /* Когда мы что-то тащим, запрещаем остальным плиткам увеличиваться при случайном наведении */
+    transform: none !important;
+    transition: none !important;
+}
+body.is-dragging-collection .collection-item {
+    transform: none !important;
+    transition: none !important;
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
 /* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 
 .text-icon-btn span {
@@ -1779,26 +1994,34 @@ body.is-dragging-note #drag-delete-zone, body.is-dragging-collection #drag-delet
     opacity: 1;
 }
 
-.empty-state-container {
+/* --- НОВЫЙ НЕУБИВАЕМЫЙ EMPTY STATE --- */
+#empty-state-overlay {
     display: none;
-    position: absolute;
-    top: 40%;
+    position: absolute; /* Позиционируется относительно .content-area */
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
     color: var(--text-color-dark);
+    z-index: 5;
+    pointer-events: none; /* Чтобы не мешал кликать */
 }
 
-#notes-grid.is-empty .empty-state-container {
-    display: block;
-    animation: fade-in-down 0.8s ease-out;
+/* Показываем оверлей только если у BODY есть класс no-notes-present */
+body.no-notes-present #empty-state-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fade-in-down 0.5s var(--spring);
 }
 
-.empty-state-container p {
+#empty-state-overlay p {
     font-size: 1.1em;
     max-width: 300px;
     line-height: 1.6;
+    margin: 0;
 }
+
 
 /* Кастомный тонкий скроллбар */
 ::-webkit-scrollbar {
@@ -1879,3 +2102,487 @@ body.is-dragging-note #drag-delete-zone, body.is-dragging-collection #drag-delet
     }
 }
 /* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+.collection-item.drag-over-nest {
+    background-color: rgba(var(--accent-color-rgb), 0.15) !important;
+    box-shadow: inset 0 0 0 2px var(--accent-color) !important;
+    transition: none !important;
+}
+
+/* --- 👇 НОВЫЙ БЛОК: Невидимый мост для подменю --- */
+.dropdown-submenu-container .submenu::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    bottom: -20px;
+    left: -20px;
+    right: -20px;
+    z-index: -1;
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- Стили для окна Color Picker --- */
+.cp-slider {
+    width: 100%; height: 15px; border-radius: 10px; appearance: none; outline: none;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); cursor: ew-resize;
+}
+.hue-slider {
+    background: linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%) !important;
+}
+.cp-grid-dot {
+    width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 2px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.cp-grid-dot:hover { transform: scale(1.2); border-color: white; z-index: 2; }
+
+
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+/* Чистое неоновое свечение (без радуги и псевдоэлементов) */
+.cp-grid-dot.selected-dot {
+    transform: scale(1.2);
+    /* Тонкая белая рамка внутри свечения для контраста */
+    border-color: rgba(255, 255, 255, 0.9);
+    
+    /* Тройная тень: 1. объем вниз, 2. цветная обводка, 3. плавный градиент в фон */
+    box-shadow: 
+        0 4px 10px rgba(0, 0, 0, 0.6),
+        0 0 0 2px var(--accent-color),
+        0 0 15px 4px rgba(var(--accent-color-rgb), 0.6);
+        
+    z-index: 3;
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+
+
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+/* Обводка выбранного цвета (Эффект неонового свечения / Halo) */
+
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+/* Размытие краев (мягкий скролл) для сетки цветов */
+#cp-grid-container {
+    overflow-y: auto;
+    
+    /* Накладываем градиентную маску: сверху и снизу полная прозрачность, в центре - 100% видимость */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+}
+
+/* Скроллбар теперь вешаем на новый контейнер */
+#cp-grid-container::-webkit-scrollbar { width: 4px; }
+#cp-grid-container::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
+
+
+/* --- 👇 НОВЫЙ БЛОК: Размытие краев (мягкий скролл) для сетки цветов --- */
+#cp-grid-container {
+    /* Накладываем маску на внешний контейнер, который скроллится */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+    
+    /* Отступы для прокрутки */
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+}
+
+#cp-grid-container::-webkit-scrollbar { width: 4px; }
+#cp-grid-container::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+
+/* Убираем старый скроллбар с внутренней сетки, чтобы не было конфликта */
+#cp-grid::-webkit-scrollbar { display: none; }
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 НОВЫЙ БЛОК: ЭКРАН СМЕРТИ (СЕРВЕР УПАЛ) --- */
+#fatal-error-overlay {
+    display: none;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 15, 18, 0.95);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    z-index: 99999;
+    flex-direction: column; align-items: center; justify-content: center;
+    color: white; text-align: center; padding: 20px;
+}
+#fatal-error-overlay.visible {
+    display: flex;
+    animation: fade-in-down 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+}
+#fatal-error-overlay h1 { font-size: 2em; margin-bottom: 10px; color: var(--accent-color-danger); }
+#fatal-error-overlay p { color: rgba(255,255,255,0.6); max-width: 400px; line-height: 1.6; }
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 ВСТАВИТЬ В КОНЕЦ ФАЙЛА style.css --- */
+/* КОМПАКТНЫЙ РЕЖИМ ДЛЯ ПАНЕЛИ КОЛЛЕКЦИИ */
+#collection-notes-grid.list-view {
+    gap: 8px; /* Карточки ближе друг к другу */
+}
+
+#collection-notes-grid.list-view .note-tile {
+    height: 50px; /* Очень компактные полоски */
+    padding: 8px 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+#collection-notes-grid.list-view .note-title {
+    flex-shrink: 0;
+    width: 40%; /* Заголовок занимает 40% ширины */
+    font-size: 0.9em;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+#collection-notes-grid.list-view .note-title::after {
+    display: none; /* Убираем черту */
+}
+
+#collection-notes-grid.list-view .note-text {
+    flex-grow: 1;
+    font-size: 0.75em;
+    -webkit-line-clamp: 1;
+    white-space: nowrap;
+}
+/* --- 👆 КОНЕЦ ВСТАВКИ --- */
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+.quick-actions-bar {
+    position: absolute;
+    top: 10px;    /* <-- ПОСТАВИЛИ НАВЕРХ */
+    right: 16px;
+    display: flex;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(-10px); /* Выплывают сверху вниз */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+    z-index: 5;
+    
+}
+body[data-theme-base="light"] .quick-actions-bar {
+    background: rgba(255,255,255,0.6);
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+
+.note-tile:hover .quick-actions-bar {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+/* Базовые настройки для кнопок-трафаретов */
+.qa-btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    margin: -8px; 
+    
+    /* Задаем базовый цвет иконок: белый для темной, черный для светлой */
+    background-color: white; 
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.15), opacity 0.2s ease, background-color 0.2s ease;
+    
+    /* Настройки трафарета */
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 14px 14px;
+    mask-size: 14px 14px;
+}
+
+body[data-theme-base="light"] .qa-btn { 
+    background-color: black; 
+}
+
+/* При наведении кнопка увеличивается, становится непрозрачной и меняет цвет на акцентный! */
+.qa-btn:hover {
+    transform: scale(1.2);
+    opacity: 1;
+    background-color: var(--accent-color);
+}
+
+/* Иконка Карандаша (Трафарет) */
+.qa-btn.qa-edit {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'%3E%3C/path%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Иконка Корзины (Трафарет) */
+.qa-btn.qa-delete {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 6 5 6 21 6'%3E%3C/polyline%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'%3E%3C/path%3E%3Cline x1='10' y1='11' x2='10' y2='17'%3E%3C/line%3E%3Cline x1='14' y1='11' x2='14' y2='17'%3E%3C/line%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3 6 5 6 21 6'%3E%3C/polyline%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'%3E%3C/path%3E%3Cline x1='10' y1='11' x2='10' y2='17'%3E%3C/line%3E%3Cline x1='14' y1='11' x2='14' y2='17'%3E%3C/line%3E%3C/svg%3E");
+}
+/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+
+/* Самый простой карандаш (просто диагональный контур) */
+
+body[data-theme-base="light"] .qa-btn.qa-edit { 
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z'%3E%3C/path%3E%3C/svg%3E"); 
+}
+
+/* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
+/* Корзина (переводим на маску для динамической покраски) */
+
+
+body[data-theme-base="light"] .qa-btn.qa-delete { 
+    background-color: black; /* Базовый цвет в светлой теме */
+}
+
+/* При наведении корзина заливается текущим акцентным цветом! */
+
+/* --- 👇 НОВЫЙ БЛОК: ВСПЛЫВАЮЩИЕ ТЕГИ В ПОИСКЕ (СУПЕР МИНИМАЛИЗМ) --- */
+#tags-bar {
+    display: block; 
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 260px;
+    padding: 0; /* Полностью убираем отступы контейнера */
+    background: transparent !important; /* Убиваем фон контейнера */
+    border: none !important; /* Убиваем рамку контейнера */
+    box-shadow: none !important; /* Убиваем тень контейнера */
+    backdrop-filter: none !important; /* Убиваем стекло контейнера */
+    -webkit-backdrop-filter: none !important;
+    z-index: 1000;
+    
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.98);
+    transform-origin: top right;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.search-container:focus-within #tags-bar,
+#tags-bar:hover,
+#tags-bar.has-active-tag {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+/* НОВОЕ ПРАВИЛО: Принудительное скрытие, если ищем по названию (нет решетки) */
+#tags-bar.force-hide {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-8px) scale(0.98) !important;
+    pointer-events: none !important;
+}
+
+
+/* Капсулы (Pills) - парят в пустоте */
+.tag-pill {
+    background: transparent !important; /* Без заливки */
+    color: var(--text-color-dark);
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Контур капсулы */
+    padding: 1px 8px; /* Сделали капсулу максимально тонкой */
+    border-radius: 100px; /* Идеально круглые края (капсула) */
+    font-size: 0.7em; /* Слегка уменьшили шрифт для идеального баланса */
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    /* Легкий блюр только под самой капсулой, чтобы текст читался поверх контента */
+    backdrop-filter: blur(5px); 
+    -webkit-backdrop-filter: blur(5px);
+}
+
+
+body[data-theme-base="light"] .tag-pill {
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+.tag-pill span {
+    opacity: 0.4 !important;
+    font-weight: 400;
+    font-size: 0.9em; 
+    margin-left: 4px;
+}
+
+/* При наведении */
+.tag-pill:hover {
+    color: var(--text-color);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px); /* Слегка приподнимаем капсулу */
+}
+
+body[data-theme-base="light"] .tag-pill:hover {
+    color: var(--text-color);
+    border-color: rgba(0, 0, 0, 0.4);
+}
+
+/* При активации */
+.tag-pill.active {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(var(--accent-color-rgb), 0.2); /* Легкое свечение вокруг капсулы */
+}
+
+.tag-pill.active span {
+    color: var(--accent-color);
+    opacity: 0.7 !important;
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 НОВЫЙ БЛОК: АВТОДОПОЛНЕНИЕ ТЕГОВ --- */
+#tags-autocomplete-panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: rgba(30, 30, 35, 0.95); /* Чуть темнее для контраста */
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    
+    /* Скрыто по умолчанию */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#tags-autocomplete-panel.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.autocomplete-item {
+    padding: 8px 12px;
+    color: var(--text-color);
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.autocomplete-item:hover, .autocomplete-item.selected {
+    background-color: var(--accent-color);
+    color: var(--text-on-accent);
+}
+
+/* Кастомный тонкий скроллбар для панельки */
+#tags-autocomplete-panel::-webkit-scrollbar { width: 4px; }
+#tags-autocomplete-panel::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 НОВЫЙ БЛОК: СЕТКА ИКОНОК В МОДАЛКЕ --- */
+.hidden-grid {
+    display: none !important;
+}
+
+.collection-icon-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s var(--spring);
+    color: var(--text-color-dark);
+}
+
+.collection-icon-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s var(--spring);
+    color: var(--text-color-dark);
+    flex-shrink: 0; /* <-- ВАЖНО: Запрещаем сплющивание при горизонтальном скролле */
+}
+
+.collection-icon-option svg {
+    min-width: 24px;
+    min-height: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+#collection-icon-btn svg {
+    width: 24px;
+    height: 24px;
+    color: var(--text-color);
+}
+
+/* Оболочка, которая держит жесткую структуру */
+#collection-icon-wrapper {
+    /* скрытие переключается классом hidden-grid */
+}
+
+/* Внутренний контейнер со скроллом и растворением контента */
+#collection-icon-grid::-webkit-scrollbar { 
+    display: none; 
+}
+#collection-icon-grid {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    
+    /* Маска применяется только к иконкам, не затрагивая рамку и фон wrapper-а */
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, black 15px, black calc(100% - 15px), transparent 100%);
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+
+
+
+
+.collection-icon-option:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+}
+
+.collection-icon-option.selected {
+    background-color: rgba(var(--accent-color-rgb), 0.15);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+/* Кастомный скроллбар для сетки */
+#collection-icon-grid::-webkit-scrollbar { width: 4px; }
+#collection-icon-grid::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 НОВЫЙ БЛОК: СЛОИ ДЛЯ ПАЛИТРЫ И ЦВЕТОВ --- */
+/* Делаем так, чтобы окно палитры всегда было поверх других модалок */
+#color-picker-modal {
+    z-index: 3000 !important; 
+    /* Убираем сильное размытие фона именно у палитры, чтобы нижнее окно было видно четко */
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(2px) !important; 
+    -webkit-backdrop-filter: blur(2px) !important;
+}
+
+#collection-color-btn:hover {
+    transform: scale(1.15);
+    border-color: #fff;
+}
+
+/* Сужаем SVG-дефис, чтобы он выглядел как аккуратный маркер списка */
+.icon.icon-dash {
+    width: 14px !important;
+    margin-right: -4px; /* Придвигаем текст поближе */
+    opacity: 0.6; /* Делаем дефис чуть тусклее */
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
