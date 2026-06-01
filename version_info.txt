@@ -16,12 +16,12 @@ VSVersionInfo(
           '040904B0',
           [StringStruct('CompanyName', 'sdfghasx'),
            StringStruct('FileDescription', 'Prompt Manager App'),
-           StringStruct('FileVersion', '2.5.0'),
+           StringStruct('FileVersion', '3.0.0'),
            StringStruct('InternalName', 'PromptManager'),
            StringStruct('LegalCopyright', 'Copyright (c) 2024 Your Name'),
            StringStruct('OriginalFilename', 'PromptManager.exe'),
            StringStruct('ProductName', 'Prompt Manager'),
-           StringStruct('ProductVersion', '2.5.0')])
+           StringStruct('ProductVersion', '3.0.0')])
       ]
     ),
     VarFileInfo([VarStruct('Translation', [1033, 1200])])

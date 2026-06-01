@@ -1,7 +1,12 @@
 // Текущая версия приложения (ОБЯЗАТЕЛЬНО ОБНОВЛЯТЬ ПРИ КАЖДОМ РЕЛИЗЕ!)
-const APP_VERSION = "v2.5";
+const APP_VERSION = "v3.0";
+
+// Экспортируем глобальные переменные для других скриптов
+window.state = null;
+window.translations = null;
 
 // --- 👇 НОВЫЙ БЛОК: СЛОВАРЬ SVG ИКОНОК (В САМОМ ВЕРХУ - ГЛОБАЛЬНО) ---
+
 const svgs = {
     // 📁 Базовые: Папки, Архивы, Коробки
     folder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>`,
@@ -65,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. Глобальное состояние приложения ---
 
     let state = {
-
         notes: {},
         collections: {},
         collectionNotes: {},
@@ -74,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
         vaults: [],
         settings: { current_vault: '', language: 'en', theme_base: 'dark', theme_accent: 'blue' }
     };
+    window.state = state; // <-- ДОБАВЛЕНО
+
 
     let initialNoteTitle = '';
     let initialNoteContent = '';
@@ -167,8 +173,10 @@ document.addEventListener('DOMContentLoaded', () => {
             panel: document.getElementById('collection-view-panel'),
             title: document.getElementById('collection-view-title'),
             grid: document.getElementById('collection-notes-grid'),
-            curtain: document.getElementById('collection-view-curtain')
+            curtain: document.getElementById('collection-view-curtain'),
+            searchInput: document.getElementById('coll-search-input') // <-- ДОБАВЛЕНО
         },
+
         
         themeSubmenuContainer: document.getElementById('theme-submenu-container'),
         languageSubmenuContainer: document.getElementById('language-submenu-container'),
@@ -248,10 +256,13 @@ document.addEventListener('DOMContentLoaded', () => {
             noteNamePlaceholder: 'Prompt Name', 
             noteContentPlaceholder: 'Enter your prompt text here...', 
             collectionNamePlaceholder: 'Collection Name', 
-            ok: 'OK', 
+            ok: 'Yes', 
+            ok_btn: 'OK',
+            copy: 'Copy',
             cancel: 'Cancel', 
             copied: 'Copied to clipboard',
             noteDeleted: 'Note deleted',
+
             noteAddedToCollection: 'Note added to collection', 
             removeFromCollection: 'Remove note from collection',
             dropToDelete: 'Drop to delete', 
@@ -330,7 +341,21 @@ document.addEventListener('DOMContentLoaded', () => {
             exportFailed: 'Failed to export vault:\n',
             fatalInitError: 'Initialization Error: Could not load application data. The application will now close.',
             
+            emptyStateMessage: 'No prompts yet. Click "New" to create your first one!',
+            noSearchResults: 'No prompts match your search.',
+            collSearchPlaceholder: 'Search in collection...',
+
+            deepSearchTooltip: 'Deep Search (Content)',
+            
+            moveDataTitle: 'Notes Directory',
+
+
+            moveDataMessage: 'Do you want to copy all your existing vaults and notes to the new folder?\n\nIf you select "Start Fresh", the new folder will be empty.',
+            moveDataBtn: 'Copy Data',
+            startFreshBtn: 'Start Fresh',
+
             // Темы и Цвета
+
             themeDefault: 'Default',
             themePurple: 'Purple',
             themeOrange: 'Orange',
@@ -356,8 +381,70 @@ document.addEventListener('DOMContentLoaded', () => {
             err_import_cancelled: 'Import cancelled.',
             err_missing_args: 'Missing note IDs or target vault.',
             err_target_vault_not_found: (name) => `Target vault "${name}" not found.`,
-            err_dir_cancelled: 'Directory selection cancelled.'
+            err_dir_cancelled: 'Directory selection cancelled.',
+
+            // Облачная синхронизация
+            cloudSyncTitle: 'Cloud Sync...',
+            restoreFromCloud: '⬇ Restore from Cloud',
+            loading: 'Loading...',
+            noVaultsFound: 'No vaults found',
+            notConnected: 'Not connected',
+            cloudSyncOff: 'Cloud Sync: Off',
+            syncConflictTitle: '☁️ Sync Conflict Detected',
+            syncConflictMsg: 'You have <b>local notes</b>, but a backup also exists in the <b>Cloud</b>.<br><br>Which version do you want to keep? The other version will be permanently overwritten.',
+            keepBothBtn: '🗂 Keep Both (Rename Local)',
+            overwriteBtn: '⬇ Overwrite Local Notes',
+            overwriteWarning: 'FINAL WARNING: This will permanently delete your current local notes in this vault and replace them with the cloud backup. Are you sure?',
+            keysRequired: 'Endpoint, Bucket and Access Key are required!',
+            
+            // UI Окна синхронизации
+            syncModalTitle: 'Cloud Sync (S3)',
+            syncModalDesc: 'Configure remote storage to automatically sync your vaults.',
+            syncEndpointLabel: 'Endpoint URL (e.g. Cloudflare R2 / AWS)',
+            syncBucketLabel: 'Bucket Name',
+            syncAccessKeyLabel: 'Access Key ID',
+            syncSecretKeyLabel: 'Secret Access Key',
+            syncPasswordLabel: 'Encryption Password <span style="color: #30D158;">(Optional)</span>',
+            syncPasswordWarning: 'Leave empty for unencrypted backup. If set, losing it means losing data.',
+            syncDisableBtn: 'Disable Sync',
+            syncSaveBtn: 'Save & Connect',
+            syncEndpointPh: 'https://<account_id>.r2.cloudflarestorage.com',
+            syncBucketPh: 'prompt-manager-sync',
+            syncAccessPh: 'Key ID',
+            syncSecretPh: 'Secret Key',
+            syncPasswordPh: 'Leave empty for unencrypted backup',
+            hwBackBtn: "Got it, let's setup!",
+
+            // Инструкция Cloud Sync
+
+            howItWorksBtn: '❔ How it works',
+            hwTitle: 'How Cloud Sync Works',
+            hwStep1Title: '1. How it works',
+            hwStep1Desc: 'Prompt Manager packs your current Vault into a single archive and sends it to the cloud. When you open the app on another computer, it automatically detects the newer version, downloads it, and restores your workspace.',
+            hwStep2Title: '<span style="color: var(--accent-color-danger);">2. Encryption Warning (E2EE)</span>',
+            hwStep2Desc: 'If you set a password, your archive is encrypted locally BEFORE being sent to the internet. Nobody (not even your cloud provider) can read your prompts. <b style="color: var(--accent-color-danger);">BUT if you forget this password, your data CANNOT be recovered.</b>',
+            hwStep3Title: '3. Choose a Provider',
+
+            hwStep3Desc: 'You need an S3-compatible cloud storage. Choose one of the recommended free options below to get your keys:',
+            
+            // Провайдеры
+            provFilebaseTag: 'Easiest, No credit card, 5GB Free',
+            provFilebaseText: '<span style="color: #30D158;">+ No credit card required</span><br><span style="color: var(--accent-color-danger);">- Files may be deleted if untouched for 6 months</span><br><br>1. Go to <a href="https://filebase.com/" target="_blank">filebase.com</a> and sign up.<br>2. Go to <b>Buckets</b> and click <b>Create Bucket</b> (Network: IPFS).<br>3. Copy the Bucket name.<br>4. Go to <b>Access Keys</b> to copy your Key and Secret.<br>5. Endpoint URL is always <code>https://s3.filebase.com</code>',
+            
+            provR2Tag: 'Fastest, Needs card, 10GB Free',
+            provR2Text: '<span style="color: #30D158;">+ Lightning fast, Zero egress fees</span><br><span style="color: var(--accent-color-danger);">- Requires linking a credit card or PayPal</span><br><br>1. Go to <a href="https://dash.cloudflare.com/" target="_blank">Cloudflare</a>.<br>2. Select <b>R2</b> from the left menu and create a Bucket.<br>3. Click <b>Manage R2 API Tokens</b> (top right) and create a token with Read/Write access.<br>4. Cloudflare will show you the Endpoint URL, Access Key, and Secret.',
+
+            provStorjTag: 'Decentralized, No card, 25GB Free',
+            provStorjText: '<span style="color: #30D158;">+ Extremely secure, huge free tier</span><br><span style="color: var(--accent-color-danger);">- Complex setup</span><br><br>1. Go to <a href="https://www.storj.io/" target="_blank">storj.io</a>.<br>2. Create a Project and an Access Grant.<br>3. <b>Crucial:</b> Select "Generate S3 Credentials" (not native token).<br>4. Copy the provided Endpoint, Access Key, and Secret.',
+
+            provYandexTag: 'Russian ecosystem, 1st month free',
+            provYandexText: '<span style="color: #30D158;">+ Fast for CIS region</span><br><span style="color: var(--accent-color-danger);">- Paid after trial, complex UI</span><br><br>1. Go to <a href="https://cloud.yandex.ru/services/storage" target="_blank">Yandex Object Storage</a>.<br>2. Create a Service Account (Сервисный аккаунт).<br>3. Assign the "storage.editor" role to it.<br>4. Create a "Static Access Key" to get your Key and Secret.<br>5. Endpoint is <code>https://storage.yandexcloud.net</code>',
+            
+            hwStep4Desc: '<b>Privacy First:</b> We do not have our own servers. Your data flies directly from your computer to your personal cloud bucket.'
         },
+
+
+
         ru: {
             changeStyle: 'Сменить стиль', 
             styleUpdated: 'Стиль обновлен', 
@@ -382,11 +469,13 @@ document.addEventListener('DOMContentLoaded', () => {
             resetColor: 'Сбросить по умолчанию',
             collectionNamePlaceholder: 'Название коллекции', 
             ok: 'Да', 
+            ok_btn: 'ОК',
             cancel: 'Отмена', 
             copied: 'Скопировано в буфер',
+            copy: 'Копировать',
             noteDeleted: 'Записка удалена',
             noteAddedToCollection: 'Заметка добавлена в коллекцию', 
-            removeFromCollection: 'Убрать заметку из коллекции',
+            removeFromCollection: 'Заметка убрана из коллекции',
             dropToDelete: 'Drop to delete',
             emptyCollection: 'В этой коллекции нет записок.', 
             addVault: 'Добавить хранилище', 
@@ -463,7 +552,19 @@ document.addEventListener('DOMContentLoaded', () => {
             exportFailed: 'Не удалось экспортировать хранилище:\n',
             fatalInitError: 'Ошибка инициализации: Не удалось загрузить данные приложения. Программа будет закрыта.',
             
+            noSearchResults: 'По вашему запросу ничего не найдено.', // <-- НОВОЕ
+            collSearchPlaceholder: 'Поиск в коллекции...',
+            deepSearchTooltip: 'Глубокий поиск (по тексту)',
+            
+            moveDataTitle: 'Перенос данных',
+
+
+            moveDataMessage: 'Хотите безопасно скопировать все текущие хранилища и заметки в новую папку?\n\nЕсли вы выберете "Начать с нуля", новая папка будет пустой.',
+            moveDataBtn: 'Скопировать',
+            startFreshBtn: 'Начать с нуля',
+
             // Темы и Цвета
+
             themeDefault: 'По умолчанию',
             themePurple: 'Фиолетовый',
             themeOrange: 'Оранжевый',
@@ -489,10 +590,72 @@ document.addEventListener('DOMContentLoaded', () => {
             err_import_cancelled: 'Импорт отменен.',
             err_missing_args: 'Отсутствуют ID заметок или целевое хранилище.',
             err_target_vault_not_found: (name) => `Целевое хранилище "${name}" не найдено.`,
-            err_dir_cancelled: 'Выбор папки отменен.'
+            err_dir_cancelled: 'Выбор папки отменен.',
+
+            // Облачная синхронизация
+            cloudSyncTitle: 'Синхронизация...',
+            restoreFromCloud: '⬇ Восстановить из облака',
+            loading: 'Подключение...',
+            noVaultsFound: 'Хранилища не найдены',
+            notConnected: 'Не подключено',
+            cloudSyncOff: 'Синхронизация: Выкл',
+            syncConflictTitle: '☁️ Конфликт синхронизации',
+            syncConflictMsg: 'У вас есть <b>локальные заметки в этом хранилище</b>, но в <b>Облаке</b> также существует резервная копия этого хранилища.<br><br>Какую версию хранилища вы хотите сохранить? Локальные заметки которые находятся в нынешнем, будут безвозвратно удалены.',
+            keepBothBtn: '🗂 Сохранить оба (Переименовать нынешнее)',
+            overwriteBtn: '⬇ Перезаписать локальные',
+            overwriteWarning: 'ВНИМАНИЕ: Текущие локальные заметки в этом хранилище будут УДАЛЕНЫ НАВСЕГДА и заменены резервной копией из облака. Вы уверены?',
+            keysRequired: 'Endpoint, Bucket и Access Key обязательны для заполнения!',
+            
+            // UI Окна синхронизации
+            syncModalTitle: 'Облако S3',
+            syncModalDesc: 'Подключите удаленное хранилище (AWS, Cloudflare) для автоматической синхронизации заметок.',
+            syncEndpointLabel: 'URL-адрес (Endpoint)',
+            syncBucketLabel: 'Имя бакета (Bucket Name)',
+            syncAccessKeyLabel: 'Публичный ключ (Access Key)',
+            syncSecretKeyLabel: 'Секретный ключ (Secret Key)',
+            syncPasswordLabel: 'Пароль шифрования <span style="color: #30D158;">(Необязательно)</span>',
+            syncPasswordWarning: 'Оставьте пустым для обычного бэкапа. Забытый пароль приведет к потере данных.',
+            syncDisableBtn: 'Отключить',
+            syncSaveBtn: 'Сохранить и подключиться',
+            syncEndpointPh: 'https://<аккаунт>.r2.cloudflarestorage.com',
+            syncBucketPh: 'my-prompt-sync',
+            syncAccessPh: 'Ключ',
+            syncSecretPh: 'Секретный ключ',
+            syncPasswordPh: 'Оставьте пустым для открытого бэкапа',
+            hwBackBtn: 'Понятно, давайте настроим!',
+
+            // Инструкция Cloud Sync
+
+            howItWorksBtn: '❔ Как это работает',
+            hwTitle: 'Настройка синхронизации',
+            hwStep1Title: '1. Как работает функция',
+            hwStep1Desc: 'Prompt Manager упаковывает ваше текущее Хранилище в архив и отправляет в облако. При открытии программы на другом компьютере, она автоматически находит свежий бэкап, скачивает его и восстанавливает ваше рабочее пространство.',
+            hwStep2Title: '<span style="color: var(--accent-color-danger);">2. Опасность шифрования (E2EE)</span>',
+            hwStep2Desc: 'Если вы зададите пароль, архив будет зашифрован на вашем ПК ДО отправки в интернет. Никто (даже само облако) не сможет прочитать ваши промпты. <b style="color: var(--accent-color-danger);">НО если вы забудете этот пароль, данные восстановить будет НЕВОЗМОЖНО.</b>',
+            hwStep3Title: '3. Выбор провайдера',
+            hwStep3Desc: 'Вам нужно S3-совместимое облако. Выберите один из бесплатных вариантов ниже, чтобы получить ключи:',
+            
+            provFilebaseTag: 'Самый простой, Без карты, 5ГБ',
+            provFilebaseText: '<span style="color: #30D158;">+ Не нужна банковская карта</span><br><span style="color: var(--accent-color-danger);">- Файлы могут быть удалены при неактивности > 6 мес.</span><br><br>1. Зайдите на <a href="https://filebase.com/" target="_blank">filebase.com</a> и зарегистрируйтесь.<br>2. В разделе <b>Buckets</b> создайте бакет (Network: IPFS).<br>3. Скопируйте придуманное имя бакета (Bucket Name).<br>4. В разделе <b>Access Keys</b> скопируйте Key и Secret.<br>5. Endpoint URL всегда: <code>https://s3.filebase.com</code>',
+
+            
+            provR2Tag: 'Самый быстрый, Нужна карта, 10ГБ',
+            provR2Text: '<span style="color: #30D158;">+ Молниеносная скорость, нет комиссии за трафик</span><br><span style="color: var(--accent-color-danger);">- Требует привязки карты или PayPal</span><br><br>1. Зайдите на <a href="https://dash.cloudflare.com/" target="_blank">Cloudflare</a>.<br>2. Выберите <b>R2</b> слева и создайте Bucket.<br>3. Нажмите <b>Manage R2 API Tokens</b> (справа вверху) и создайте токен с правами Read/Write.<br>4. Cloudflare покажет вам Endpoint URL, Access Key и Secret.',
+
+            provStorjTag: 'Децентрализован, Без карты, 25ГБ',
+            provStorjText: '<span style="color: #30D158;">+ Высокая секьюрность, огромный объем</span><br><span style="color: var(--accent-color-danger);">- Неочевидный интерфейс</span><br><br>1. Зайдите на <a href="https://www.storj.io/" target="_blank">storj.io</a>.<br>2. Создайте Project и нажмите Access Grant.<br>3. <b>Важно:</b> Выберите "Generate S3 Credentials".<br>4. Скопируйте Endpoint, Access Key и Secret.',
+
+            provYandexTag: 'Экосистема РФ, Платный',
+            provYandexText: '<span style="color: #30D158;">+ Быстро работает в СНГ</span><br><span style="color: var(--accent-color-danger);">- Требует карту, платный тариф</span><br><br>1. Зайдите в <a href="https://cloud.yandex.ru/services/storage" target="_blank">Yandex Object Storage</a>.<br>2. Создайте Сервисный Аккаунт.<br>3. Дайте ему роль "storage.editor".<br>4. Создайте "Статический ключ доступа" (Static Access Key).<br>5. Endpoint всегда: <code>https://storage.yandexcloud.net</code>',
+            
+            hwStep4Desc: '<b>Абсолютная приватность:</b> У нас нет своих серверов. Ваши данные летят напрямую с вашего устройства в ваш личный облачный бакет.'
         }
     };
+    window.translations = translations;
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
+
 
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -723,16 +886,55 @@ document.addEventListener('DOMContentLoaded', () => {
         let dateHtml = `<div style="font-size: 0.9em; color: var(--text-color);">${createdDate}<i style="font-size: 0.9em; color: var(--text-color-dark);">${modifiedDateHtml}</i></div>`;
 
 
-        // --- Блок 2: Поиск коллекций (НОВЫЙ) ---
+         // --- Блок 2: Поиск коллекций (НОВЫЙ) ---
         const noteCollections = Object.keys(state.collectionNotes).filter(collId => 
             state.collectionNotes[collId].includes(noteId)
         );
         
         let collectionsHtml = '';
         if (noteCollections.length > 0) {
-            const listHtml = noteCollections.map(collId => `<span style="display: block; color: var(--text-color-dark); padding-left: 8px;">- ${state.collections[collId].name}</span>`).join('');
-            collectionsHtml = `<div class="dropdown-divider"></div><div style="font-size: 0.9em; color: var(--text-color);">In collections:<div style="margin-top: 4px;">${listHtml}</div></div>`;
+            // 1. Строим единое дерево, чтобы избежать дублирования родительских папок
+            const tree = {};
+            noteCollections.forEach(collId => {
+                let pathNames = [];
+                let currentId = collId;
+                while (currentId && state.collections[currentId]) {
+                    pathNames.unshift(escapeHTML(state.collections[currentId].name));
+                    currentId = state.collections[currentId].parentId;
+                }
+                let currentLevel = tree;
+                pathNames.forEach(name => {
+                    if (!currentLevel[name]) currentLevel[name] = {};
+                    currentLevel = currentLevel[name];
+                });
+            });
+
+            // 2. Рекурсивно рендерим дерево в HTML
+            const renderTree = (node, depth = 0) => {
+                let html = '';
+                for (const [name, children] of Object.entries(node)) {
+                    if (depth === 0) {
+                        // Микроскопический треугольник для корня
+                        html += `<div style="color: var(--text-color-dark); padding-left: 8px; margin-top: 4px;"><span style="font-size: 0.45em; display: inline-block; transform: translateY(-3px); opacity: 0.6; margin-right: 5px;">▼</span>${name}</div>`;
+                    } else {
+                        // Дефис для подпапок
+                        const indent = 8 + (depth * 14);
+                        html += `<div style="color: var(--text-color-dark); padding-left: ${indent}px; font-size: 0.95em;"><span style="opacity: 0.5; margin-right: 2px;">-</span>${name}</div>`;
+                    }
+                    html += renderTree(children, depth + 1);
+                }
+                return html;
+            };
+
+            const listHtml = renderTree(tree);
+            const inCollectionsText = state.settings.language === 'ru' ? 'В коллекциях:' : 'In collections:';
+            collectionsHtml = `<div class="dropdown-divider"></div><div style="font-size: 0.9em; color: var(--text-color);">${inCollectionsText}<div style="margin-top: 2px;">${listHtml}</div></div>`;
         }
+
+
+
+
+
 
         // --- Блок 3: Теги ---
         let tagsHtml = '';
@@ -740,10 +942,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Разбиваем строку "tag1, tag2" в массив и форматируем каждый с решеткой
             const tagsArray = note.tags.split(',').map(t => t.trim()).filter(t => t);
             if (tagsArray.length > 0) {
-                const tagsList = tagsArray.map(t => `<span style="display: block; color: var(--accent-color); padding-left: 8px;">#${t}</span>`).join('');
+                const tagsList = tagsArray.map(t => `<span style="display: block; color: var(--accent-color); padding-left: 8px;">#${escapeHTML(t)}</span>`).join('');
                 tagsHtml = `<div class="dropdown-divider"></div><div style="font-size: 0.9em; color: var(--text-color);">Tags:<div style="margin-top: 4px;">${tagsList}</div></div>`;
             }
         }
+
 
         // --- Блок 3: Сборка финального HTML ---
         return dateHtml + collectionsHtml + tagsHtml;
@@ -755,18 +958,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = translations[lang];
         document.querySelectorAll('[data-translate]').forEach(el => {
             if (t[el.dataset.translate]) {
-                el.textContent = t[el.dataset.translate];
+                // ИСПРАВЛЕНИЕ: Используем innerHTML вместо textContent, чтобы теги <b> и <span> из словаря работали!
+                el.innerHTML = t[el.dataset.translate];
             }
         });
         dom.searchInput.placeholder = t.searchPlaceholder;
         dom.noteModal.titleInput.placeholder = t.noteNamePlaceholder;
+
         dom.noteModal.contentInput.placeholder = t.noteContentPlaceholder;
         dom.collectionModal.nameInput.placeholder = t.collectionNamePlaceholder;
         dom.noteModal.tagsInput.placeholder = t.tagsPlaceholder;
         dom.noteModal.descInput.placeholder = t.descPlaceholder;
+        
+        const collSearchInput = document.getElementById('coll-search-input');
+        if (collSearchInput) collSearchInput.placeholder = t.collSearchPlaceholder;
+        
+        const deepSearchToggle = document.getElementById('deep-search-toggle');
+        if (deepSearchToggle) deepSearchToggle.dataset.tooltipText = t.deepSearchTooltip;
 
         // Динамическое имя для тултипов цвета
         document.querySelectorAll('.theme-dot').forEach(dot => {
+
             const isText = dot.hasAttribute('data-theme-text');
             const key = isText ? dot.dataset.themeText : dot.dataset.themeAccent;
             const prefix = isText ? 'text_' : 'accent_';
@@ -922,7 +1134,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // --- 👇 ЗАМЕНИТЕ ВСЕ ТРИ ФУНКЦИИ (`showCustomAlert`, `showCustomConfirm`, `showCustomPrompt`) НА ЭТОТ БЛОК ---
-    const showCustomAlert = (titleKey, messageKey) => {
+    // ДЕЛАЕМ ИХ ГЛОБАЛЬНЫМИ (window.), ЧТОБЫ ДРУГИЕ СКРИПТЫ (sync_ui.js) МОГЛИ ИХ ВЫЗЫВАТЬ!
+    window.showCustomAlert = (titleKey, messageKey) => {
 
         const t = translations[state.settings.language];
         return new Promise(resolve => {
@@ -932,14 +1145,16 @@ document.addEventListener('DOMContentLoaded', () => {
             buttonsContainer.innerHTML = ''; 
             const okBtn = document.createElement('button');
             okBtn.className = 'modal-btn accent';
-            okBtn.textContent = t.ok;
+            okBtn.textContent = t.ok_btn || 'OK'; // <-- ИСПОЛЬЗУЕМ НОВЫЙ КЛЮЧ
             okBtn.onclick = () => { dom.alertModal.classList.remove('visible'); resolve(); };
             buttonsContainer.appendChild(okBtn);
             dom.alertModal.classList.add('visible');
         });
     };
 
-    const showCustomConfirm = (titleKey, message, okTextKey, cancelTextKey, isDangerous = false) => {
+
+    window.showCustomConfirm = (titleKey, message, okTextKey, cancelTextKey, isDangerous = false) => {
+
         const t = translations[state.settings.language];
         return new Promise(resolve => {
             dom.alertModal.querySelector('#alert-title').textContent = t[titleKey] || titleKey;
@@ -960,9 +1175,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    const showCustomPrompt = (titleKey, message, defaultValue = "") => {
+    window.showCustomPrompt = (titleKey, message, defaultValue = "") => {
         const t = translations[state.settings.language];
         return new Promise(resolve => {
+
             dom.promptModal.querySelector('#prompt-title').textContent = t[titleKey] || titleKey;
             dom.promptModal.querySelector('#prompt-message').textContent = message;
             const input = dom.promptModal.querySelector('#prompt-input');
@@ -1053,14 +1269,73 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👆 КОНЕЦ ВСТАВКИ ---
 
 
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // --- НОВЫЙ БЛОК: Сверхбыстрый парсер Markdown ---
+    function parseMarkdown(text, isPreview = false) {
+        if (!text) return '';
+        // 1. Обязательная базовая защита от XSS
+        let html = escapeHTML(text);
+
+        if (isPreview) {
+            // Для карточек: сжимаем многострочный код в одну линию, чтобы не ломать высоту сетки
+            html = html.replace(/```([\s\S]*?)```/g, (match, code) => `<code class="md-inline-code">${code.replace(/\n/g, ' ')}</code>`);
+            html = html.replace(/^#{1,6}\s+(.+)$/gm, '<b>$1</b>');
+        } else {
+            // Для тултипа: Полноценные блоки. (?:```|$) спасает верстку, если текст был обрезан лимитом в 750 символов
+            html = html.replace(/```([\s\S]*?)(?:```|$)/g, (match, code) => `<pre class="md-code-block"><code>${code}</code></pre>`);
+            html = html.replace(/^###\s+(.+)$/gm, '<h3 class="md-header">$1</h3>');
+            html = html.replace(/^##\s+(.+)$/gm, '<h2 class="md-header">$1</h2>');
+            html = html.replace(/^#\s+(.+)$/gm, '<h1 class="md-header">$1</h1>');
+        }
+
+        // Инлайн-код, жирный и курсив (работают везде)
+        html = html.replace(/`([^`\n]+)`/g, '<code class="md-inline-code">$1</code>');
+        html = html.replace(/\*\*([^\*]+)\*\*/g, '<b>$1</b>');
+        html = html.replace(/\*([^\*]+)\*/g, '<i>$1</i>');
+
+        return html;
+    }
+
+
+        // ИСПРАВЛЕНИЕ 1 и 2: Умное удаление из бесконечного скролла без перерисовки DOM
+    function syncGridAfterDeletion(noteId) {
+
+        const index = currentSearchMatches.indexOf(noteId);
+        if (index !== -1) {
+            // Если карточка была отрисована на экране, уменьшаем счетчик, чтобы не было "дыр" при скролле
+            if (index < currentlyRenderedCount) {
+                currentlyRenderedCount--;
+            }
+            // Удаляем ID из текущего списка поиска
+            currentSearchMatches.splice(index, 1);
+        }
+        removeNoteFromDOM(noteId);
+    }
+
     function createNoteTileElement(noteId) {
         const note = state.notes[noteId];
         if (!note) return null;
         const tile = document.createElement('div');
         tile.className = 'note-tile';
+        
+        // ИСПРАВЛЕНИЕ 3: Сохраняем визуальное выделение при перерисовках
+        if (isSelectionModeActive && selectedNoteIds.has(noteId)) {
+            tile.classList.add('is-selected');
+        }
+        
         tile.dataset.id = noteId;
         tile.setAttribute('draggable', 'true');
         const content = state.notePreviews[noteId] || '';
+
         
         const quickActionsHtml = `
             <div class="quick-actions-bar">
@@ -1068,6 +1343,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="qa-btn qa-delete" data-qa-action="delete"></button>
             </div>
         `;
+
 
         // --- УМНАЯ ПОДКРАСКА ЛИНИИ ---
         const parentCollections = Object.keys(state.collectionNotes).filter(collId => state.collectionNotes[collId].includes(noteId));
@@ -1091,14 +1367,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // ------------------------------
 
+        const safeTitle = escapeHTML(note.title);
+        // ИСПРАВЛЕНИЕ: Пропускаем контент через Markdown-парсер (в режиме превью)
+        const safeContent = parseMarkdown(content, true); 
+        
         tile.innerHTML = `
-            <div class="note-title" data-name="${note.title.replace(/"/g, '&quot;')}">${note.title}</div>
+            <div class="note-title" data-name="${safeTitle}">${safeTitle}</div>
             ${lineStyleHTML}
-            <div class="note-text">${content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+            <div class="note-text">${safeContent}</div>
             ${quickActionsHtml}
         `;
         return tile;
     }
+
+
 
 
     
@@ -1130,11 +1412,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const extraClass = iconKey === 'dash' ? 'icon-dash' : '';
         const iconHtml = svgs[iconKey].replace('<svg ', `<svg class="icon ${extraClass}" ${customColorStyle} `); 
 
+        const safeCollName = escapeHTML(collection.name);
+
         // Внутренности кнопки
         item.innerHTML = `
             <span class="expander-icon">▶</span>
             ${iconHtml}
-            <span data-name="${collection.name}">${collection.name}</span>
+            <span data-name="${safeCollName}">${safeCollName}</span>
             <span class="note-count">0</span>
         `;
         group.appendChild(item);
@@ -1364,31 +1648,12 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.vaultDisplay.textContent = state.settings.current_vault;
         dom.vaultDisplay.title = state.settings.current_vault;
         
-        const noteIds = Object.keys(state.notes);
-
-        if (noteIds.length > 0) {
-            dom.notesGrid.classList.remove('is-empty');
-            document.body.classList.remove('no-notes-present');
-            
-            // --- ИЗМЕНЕННАЯ ЛОГИКА ---
-            // 1. Сортируем как и раньше (от новой к старой)
-            const sortedNoteIds = noteIds.sort((a, b) => new Date(state.notes[b].modified_at) - new Date(state.notes[a].modified_at));
-            
-            // 2. Создаем и ДОБАВЛЯЕМ В КОНЕЦ (appendChild)
-            sortedNoteIds.forEach(noteId => {
-                const tile = createNoteTileElement(noteId);
-                if (tile) {
-                    dom.notesGrid.appendChild(tile);
-                }
-            });
-            // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-
-        } else {
-            dom.notesGrid.classList.add('is-empty');
-            document.body.classList.add('no-notes-present');
-        }
+        // ОПТИМИЗАЦИЯ СКОРОСТИ: Отрисовку сетки полностью берет на себя applyFilters, 
+        // так как он теперь умеет собирать её с нуля через чанки из оперативной памяти.
+        // Это предотвращает двойной рендеринг при старте.
 
         // Сначала рендерим основные коллекции (родителей)
+
         Object.keys(state.collections).forEach(collId => {
             if (!state.collections[collId].parentId) addCollectionToDOM(collId);
         });
@@ -1406,6 +1671,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = translations[state.settings.language];
         let hamburgerHTML = `<div class="dropdown-menu-item" id="add-vault-btn" data-translate="addVault">${t.addVault}</div><div class="dropdown-menu-item" id="rename-vault-btn" data-translate="renameVault">${t.renameVault}</div><div class="dropdown-menu-item" id="delete-vault-btn" data-translate="deleteVault">${t.deleteVault}</div><div class="dropdown-divider"></div><div class="dropdown-menu-item" id="import-vault-btn" data-translate="importVault">${t.importVault}</div><div class="dropdown-menu-item" id="backup-vault-btn" data-translate="exportVault">${t.exportVault}</div>`;
         
+        // --- НОВЫЙ БЛОК: Кнопка загрузки из облака ---
+        hamburgerHTML += `<div class="dropdown-divider"></div>`;
+        hamburgerHTML += `
+            <div class="dropdown-submenu-container" id="cloud-restore-container">
+                <div class="dropdown-menu-item" style="color: var(--accent-color);">
+                    <span data-translate="restoreFromCloud">${t.restoreFromCloud || '⬇ Restore from Cloud'}</span>
+                    <span style="font-size: 0.8em; margin-left: auto;">►</span>
+                </div>
+                <!-- ЖЕСТКОЕ ПОЗИЦИОНИРОВАНИЕ ВПРАВО (потому что это левое меню) -->
+                <div class="dropdown-menu submenu" id="cloud-vaults-list" style="min-width: 150px; left: 100%; right: auto; margin-left: 8px;">
+                    <div class="dropdown-menu-item" style="opacity: 0.5;" data-translate="loading">${t.loading || 'Loading...'}</div>
+                </div>
+            </div>
+        `;
+        // ----------------------------------------------
+
+
+
+
         if (state.vaults.length > 1) {
             hamburgerHTML += `<div class="dropdown-divider"></div><div class="dropdown-header" data-translate="switchVault">${t.switchVault}</div>`;
             state.vaults.forEach(vault => {
@@ -1417,6 +1701,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
         dom.hamburgerMenu.innerHTML = hamburgerHTML;
+
         
         applyTranslations(state.settings.language);
         updateCounters(); 
@@ -1426,36 +1711,87 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
     
+    let collectionRenderCancelToken = null; // ИСПРАВЛЕНИЕ 2: Токен отмены
+
     async function renderCollectionView(collId) {
         const collection = state.collections[collId];
         const notesInCollection = state.collectionNotes[collId] || [];
         dom.collectionView.title.textContent = collection.name;
         dom.collectionView.grid.innerHTML = '';
+        
+        // Отменяем предыдущий цикл рендера, если пользователь быстро кликает по папкам
+        cancelAnimationFrame(collectionRenderCancelToken);
+        
         if (notesInCollection.length > 0) {
-            await Promise.all(notesInCollection.map(async (noteId) => {
-                if (state.notes[noteId] && state.noteContentsCache[noteId] === undefined) {
-                    const content = await eel.get_note_content(noteId)();
-                    state.noteContentsCache[noteId] = content;
+            function renderCollChunks(index = 0) {
+
+                const fragment = document.createDocumentFragment();
+                const end = Math.min(index + 30, notesInCollection.length);
+                
+                for (let i = index; i < end; i++) {
+                    const noteId = notesInCollection[i];
+                    if (state.notes[noteId]) {
+                        const tile = createNoteTileElement(noteId);
+                        if (tile) fragment.appendChild(tile);
+                    }
                 }
-            }));
-            notesInCollection.forEach(noteId => {
-                if (state.notes[noteId]) {
-                    const tile = createNoteTileElement(noteId);
-                    if (tile) dom.collectionView.grid.appendChild(tile);
+                dom.collectionView.grid.appendChild(fragment);
+                
+                // Если остались еще заметки - запрашиваем следующий кадр у браузера
+                if (end < notesInCollection.length) {
+                    collectionRenderCancelToken = requestAnimationFrame(() => renderCollChunks(end));
                 }
-            });
+            }
+            renderCollChunks();
+
+            
         } else {
             const t = translations[state.settings.language];
             dom.collectionView.grid.innerHTML = `<p class="empty-message">${t.emptyCollection}</p>`;
         }
+        
         document.querySelectorAll('.collection-item.selected').forEach(el => el.classList.remove('selected'));
         dom.collectionsList.querySelector(`.collection-item[data-id="${collId}"]`)?.classList.add('selected');
     }
-    
+
+    // УМНАЯ ПРОВЕРКА ФИЛЬТРОВ (Чтобы не перерисовывать DOM при редактировании)
+    function checkNoteMatchesFilters(noteId) {
+        const note = state.notes[noteId];
+        if (!note) return false;
+
+        const searchTerm = dom.searchInput.value.toLowerCase().trim();
+        const uncollectedOnly = dom.uncollectedFilterToggle.checked;
+        const isTagSearch = searchTerm.startsWith('#');
+        let searchWords = [], searchTags = [];
+
+        if (activeFilterTag) searchTags = [activeFilterTag];
+        else if (isTagSearch) searchTags = searchTerm.substring(1).split(',').map(t => t.trim().toLowerCase()).filter(t => t);
+        else searchWords = searchTerm.split(/\s+/).filter(word => word.length > 0);
+
+        if (isTagSearch || activeFilterTag) {
+            if (!note.tags) return false;
+            const noteTags = note.tags.toLowerCase().split(',').map(t => t.trim());
+            if (!searchTags.every(searchTag => noteTags.some(nt => nt.includes(searchTag)))) return false;
+        } else if (searchWords.length > 0) {
+            const title = note.title.toLowerCase();
+            const content = (state.noteContentsCache[noteId] || state.notePreviews[noteId] || "").toLowerCase();
+            if (!searchWords.every(word => title.includes(word) || content.includes(word))) return false;
+        }
+
+        if (uncollectedOnly) {
+            const isCollected = Object.values(state.collectionNotes).some(arr => arr.includes(noteId));
+            if (isCollected) return false;
+        }
+        return true;
+    }
+
+
     function closeCollectionView() {
         currentOpenCollectionId = null;
+        clearCollectionSearch(); // Сбрасываем поиск при закрытии папки
         document.querySelectorAll('.collection-item.selected').forEach(el => el.classList.remove('selected'));
         dom.collectionView.grid.classList.remove('is-shown');
+
 
         dom.notesGridCurtain.classList.add('active');
         setTimeout(() => {
@@ -1591,23 +1927,36 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Отправляем старые данные для всего, кроме контента
         const result = await eel.update_note(noteId, note.title, content, note.tags, note.description)();
-        if (result) {
+        if (result && result.id) {
             state.notes[noteId] = result.data;
             state.noteContentsCache[noteId] = content;
-            state.notePreviews[noteId] = content.substring(0, 150).replace(/\n/g, ' ');
+            state.notePreviews[noteId] = (content || '').substring(0, 400).replace(/\n/g, ' '); 
             updateNoteInDOM(noteId);
-            
+
             const tile = dom.notesGrid.querySelector(`.note-tile[data-id="${noteId}"]`) || 
                          dom.collectionView.grid.querySelector(`.note-tile[data-id="${noteId}"]`);
-            highlightElement(tile);
+                         
+            // ИСПРАВЛЕНИЕ: Мгновенно убираем, если после изменения тега заметка не подходит под фильтр.
+            // Иначе - просто проигрываем анимацию. Никаких фризов!
+            if (!checkNoteMatchesFilters(noteId)) {
+                syncGridAfterDeletion(noteId);
+            } else {
+                highlightElement(tile);
+            }
+            
             showNotification('noteUpdated');
-            renderTagsBar(); // <-- ИСПРАВЛЕНИЕ: На всякий случай обновляем, хотя теги тут не меняются
-            applyFilters();
+            renderTagsBar(); 
+            applyFilters(); // Возвращаем чистый вызов
+        } else if (!result || result.success === false) {
+            // ИСПРАВЛЕНИЕ 5: Перехват полного падения (null)
+            const errMsg = result ? getErrorMessage(result) : "Fatal backend error: Connection lost or request failed.";
+            showCustomAlert('errorTitle', errMsg);
         }
-        currentEditingNoteId = null;
-        initialNoteContent = '';
+        currentQuickEditNoteId = null;
 
+        initialQuickEditContent = '';
     });
+
 
     dom.quickEditModal.cancelBtn.addEventListener('click', closeQuickEditModal);
 // --- 👆 КОНЕЦ ВСТАВКИ ---
@@ -1622,9 +1971,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = translations[state.settings.language];
         
         dom.noteModal.title.textContent = noteId ? t.editNote : t.newNote;
-        dom.noteModal.saveBtn.textContent = 'OK'; // Всегда OK
-        dom.noteModal.cancelBtn.textContent = t.cancel; // Переводится (Нет / Отмена)
+        dom.noteModal.saveBtn.textContent = t.ok_btn || 'OK'; // <-- ИСПОЛЬЗУЕМ НОВЫЙ КЛЮЧ
+        dom.noteModal.cancelBtn.textContent = t.cancel; 
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
 
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
@@ -1720,14 +2070,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                             state.collectionNotes[cId] = state.collectionNotes[cId].filter(nId => nId !== id);
                         });
-                        removeNoteFromDOM(id);
+                        syncGridAfterDeletion(id); // ИСПРАВЛЕНИЕ: Умное извлечение
                     });
                     updateCounters();
                     showNotification('noteDeleted');
-                    applyFilters(); // <--- ДОБАВИТЬ СЮДА
                 }
                 deactivateSelectionMode();
             }
+
         } 
         else if (action === 'add-to-collection') {
             const menuItems = [];
@@ -1879,13 +2229,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 👆 КОНЕЦ НОВОЙ ЛОГИКИ ---
 
     function openCollectionModal(collId = null) {
-
-        renderIconGrid(); // Генерируем сетку, если еще не создана
+        renderIconGrid(); 
         currentEditingCollectionId = collId;
         
         const t = translations[state.settings.language];
         dom.collectionModal.title.textContent = collId ? t.edit : t.newCollection;
-        dom.collectionModal.saveBtn.textContent = 'OK';
+        dom.collectionModal.saveBtn.textContent = t.ok_btn || 'OK'; // <-- ИСПОЛЬЗУЕМ НОВЫЙ КЛЮЧ
         dom.collectionModal.cancelBtn.textContent = t.cancel;
         
         dom.collectionModal.iconWrapper.classList.add('hidden-grid');
@@ -2003,11 +2352,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     function updateDragGhostPosition(e) {
-        // Уменьшили отступы от курсора, чтобы призрак держался ближе.
-        // Оставляем 15px вправо и 15px вниз (как раз хватает, чтобы не перекрыть курсором счетчик)
-        dom.dragGhost.style.left = `${e.clientX + 15}px`;
-        dom.dragGhost.style.top = `${e.clientY + 15}px`;
+        // ОПТИМИЗАЦИЯ GPU: Используем translate3d для перемещения слоя на видеокарте
+        dom.dragGhost.style.transform = `translate3d(${e.clientX + 15}px, ${e.clientY + 15}px, 0)`;
     }
+
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 
@@ -2135,12 +2483,31 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- ИСПРАВЛЕНИЕ: ПРОВЕРЯЕМ ПАЛИТРУ ЦВЕТОВ В ПЕРВУЮ ОЧЕРЕДЬ ---
         const colorPicker = document.getElementById('color-picker-modal');
         if (colorPicker && colorPicker.classList.contains('visible')) {
-            // Имитируем нажатие "Отмена", чтобы корректно завершить Promise в AdvancedColorPicker
             document.getElementById('cp-cancel').click();
             return false;
         }
 
+        // ПРОВЕРЯЕМ ОКНО НАСТРОЕК СИНХРОНИЗАЦИИ
+        const syncModal = document.getElementById('sync-modal');
+        if (syncModal && syncModal.classList.contains('visible')) {
+            const helpView = document.getElementById('sync-help-view');
+            
+            // Если открыта "Помощь" (активна панель поверх формы) - закрываем только её
+            if (helpView && helpView.classList.contains('active')) {
+                document.getElementById('hw-back-btn').click(); // Имитируем клик по кнопке "Назад"
+                return false;
+            }
+            
+            // Если помощь закрыта - штатно закрываем всё окно
+            if (typeof CloudSyncUI !== 'undefined') {
+                CloudSyncUI.closeSettings();
+            }
+            return false;
+        }
+
+
         // --- НОВАЯ ЛОГИКА: Сначала проверяем режим выделения ---
+
         if (isSelectionModeActive) {
             deactivateSelectionMode();
         } 
@@ -2154,11 +2521,21 @@ document.addEventListener('DOMContentLoaded', () => {
             closeCollectionModal();
         } else if (dom.alertModal.classList.contains('visible')) {
             dom.alertModal.classList.remove('visible');
+            
+            // --- НОВАЯ ЗАЩИТА ОТ ЗАВИСАНИЯ ПОТОКА СИНХРОНИЗАЦИИ ---
+            // Если мы закрыли окно по Esc, и это было окно конфликта, шлем сигнал "cancel"
+            if (dom.alertModal.querySelector('#alert-title').textContent.includes('Conflict')) {
+                eel.resolve_sync_conflict('cancel')();
+            }
+            // --------------------------------------------------------
+            
         } else if (dom.promptModal.classList.contains('visible')) {
             dom.promptModal.classList.remove('visible');
         }
         return false;
     });
+
+
 
 
     // --- 👇 ВСТАВИТЬ ДЛЯ ПУНКТА 1 ---
@@ -2187,14 +2564,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // --- 👇 ЗАМЕНИТЕ ВСЮ ЭТУ ФУНКЦИЮ НА ЭТОТ БЛОК ---
+    let gridRenderCancelToken = null; // Глобальный токен для отмены накладывающихся отрисовок
+
+    let currentSearchMatches = [];
+    let currentlyRenderedCount = 0;
+    let gridObserver = null;
+
+    // Функция, которая "доливает" по 40 карточек при скролле вниз
+    function renderNextGridBatch() {
+        if (currentlyRenderedCount >= currentSearchMatches.length) return;
+
+        const oldSentinel = dom.notesGrid.querySelector('#scroll-sentinel');
+        if (oldSentinel) {
+            gridObserver.unobserve(oldSentinel);
+            oldSentinel.remove();
+        }
+
+        const fragment = document.createDocumentFragment();
+        const end = Math.min(currentlyRenderedCount + 40, currentSearchMatches.length);
+
+        for (let i = currentlyRenderedCount; i < end; i++) {
+            const tile = createNoteTileElement(currentSearchMatches[i]);
+            if (tile) fragment.appendChild(tile);
+        }
+
+        currentlyRenderedCount = end;
+
+        // Если есть еще карточки - ставим невидимый "маяк" в самый низ сетки
+        if (currentlyRenderedCount < currentSearchMatches.length) {
+            const sentinel = document.createElement('div');
+            sentinel.id = 'scroll-sentinel';
+            sentinel.style.height = '1px';
+            sentinel.style.opacity = '0';
+            // ИСПРАВЛЕНИЕ ОШИБКИ 2: Заставляем маяк растянуться на всю ширину сетки, чтобы он не занимал место карточки!
+            sentinel.style.gridColumn = '1 / -1';
+            fragment.appendChild(sentinel);
+        }
+
+
+        dom.notesGrid.appendChild(fragment);
+
+        const newSentinel = dom.notesGrid.querySelector('#scroll-sentinel');
+        if (newSentinel && gridObserver) {
+            gridObserver.observe(newSentinel); // Следим за маяком
+        }
+    }
+
+    // Добавлен флаг preserveScroll (по умолчанию false, чтобы поиск сбрасывал скролл наверх)
     function applyFilters() {
         renderTagsBar(); 
 
         const searchTerm = dom.searchInput.value.toLowerCase().trim();
         const uncollectedOnly = dom.uncollectedFilterToggle.checked;
-
-
-        // --- УМНАЯ ЛОГИКА ПОИСКА ---
 
         const isTagSearch = searchTerm.startsWith('#');
         let searchWords = [];
@@ -2213,25 +2634,36 @@ document.addEventListener('DOMContentLoaded', () => {
             collectedNotesSet = new Set(Object.values(state.collectionNotes).flat());
         }
 
-        let visibleCount = 0; // <-- НОВАЯ ПЕРЕМЕННАЯ: Считаем видимые заметки
+        const matchingIds = [];
+        const allIds = Object.keys(state.notes);
+        const sortedNoteIds = allIds.sort((a, b) => new Date(state.notes[b].modified_at) - new Date(state.notes[a].modified_at));
 
-        document.querySelectorAll('#notes-grid .note-tile').forEach(tile => {
-            const noteId = tile.dataset.id;
-            const title = tile.querySelector('.note-title').textContent.toLowerCase();
+        for (const noteId of sortedNoteIds) {
             const note = state.notes[noteId];
-            
+            if (!note) continue;
+
             let searchMatch = true;
 
             if (isTagSearch || activeFilterTag) {
-                if (!note || !note.tags) {
+                if (!note.tags) {
                     searchMatch = false;
                 } else {
                     const noteTags = note.tags.toLowerCase().split(',').map(t => t.trim());
                     searchMatch = searchTags.every(searchTag => noteTags.some(nt => nt.includes(searchTag)));
                 }
             } else if (searchWords.length > 0) {
-                searchMatch = searchWords.every(word => title.includes(word));
+                const title = note.title.toLowerCase();
+                
+                if (isDeepSearchEnabled) {
+                    // ГЛУБОКИЙ ПОИСК: Ищем и по заголовку, и по тексту
+                    const content = (state.noteContentsCache[noteId] || state.notePreviews[noteId] || "").toLowerCase();
+                    searchMatch = searchWords.every(word => title.includes(word) || content.includes(word));
+                } else {
+                    // ОБЫЧНЫЙ ПОИСК: Ищем СТРОГО только по заголовку
+                    searchMatch = searchWords.every(word => title.includes(word));
+                }
             }
+
 
             let uncollectedMatch = true;
 
@@ -2240,25 +2672,117 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (searchMatch && uncollectedMatch) {
-                tile.style.display = 'flex';
-                visibleCount++; // <-- Увеличиваем счетчик
-            } else {
-                tile.style.display = 'none';
+                matchingIds.push(noteId);
             }
-        });
+        }
 
-        // --- НОВАЯ ЛОГИКА: УПРАВЛЕНИЕ EMPTY STATE ---
-        // Если после всех фильтраций на экране 0 заметок - показываем надпись
-        if (visibleCount === 0) {
+        currentSearchMatches = matchingIds;
+        currentlyRenderedCount = 0;
+        
+        const oldSentinel = dom.notesGrid.querySelector('#scroll-sentinel');
+        if (oldSentinel && gridObserver) gridObserver.unobserve(oldSentinel);
+        
+        // ИСПРАВЛЕНИЕ 1: Аккуратно удаляем только элементы, сохраняя "живую" шторку
+        dom.notesGrid.querySelectorAll('.note-tile, #scroll-sentinel').forEach(el => el.remove());
+
+        if (matchingIds.length === 0) {
             dom.notesGrid.classList.add('is-empty');
             document.body.classList.add('no-notes-present');
-        } else {
-            dom.notesGrid.classList.remove('is-empty');
-            document.body.classList.remove('no-notes-present');
+            
+            const emptyOverlay = document.getElementById('empty-state-overlay');
+            const emptyIcon = emptyOverlay.querySelector('.empty-state-icon');
+            const emptyText = emptyOverlay.querySelector('p');
+            const t = translations[state.settings.language];
+            
+            if (allIds.length === 0) {
+                // В хранилище вообще пусто
+                emptyIcon.src = 'icons/icon_add.svg';
+                emptyText.innerHTML = t.emptyStateMessage || 'No prompts yet. Click "New" to create your first one!'; 
+                // Динамически меняем атрибут, чтобы при смене языка в этот момент ничего не сломалось
+                emptyText.dataset.translate = 'emptyStateMessage';
+            } else {
+                // Заметки есть, но поиск не дал результатов
+                emptyIcon.src = 'icons/icon_search.svg';
+                emptyText.innerHTML = t.noSearchResults || 'No prompts match your search.';
+                // Меняем атрибут на "Ничего не найдено"
+                emptyText.dataset.translate = 'noSearchResults';
+            }
+            return;
         }
-        // ----------------------------------------------
+
+
+
+        dom.notesGrid.classList.remove('is-empty');
+        document.body.classList.remove('no-notes-present');
+
+
+        if (!gridObserver) {
+            gridObserver = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    renderNextGridBatch();
+                }
+            }, { root: dom.notesGrid, rootMargin: '400px' });
+        }
+
+        // Сбрасываем скролл наверх честно и без багов
+        dom.notesGrid.scrollTop = 0;
+        renderNextGridBatch();
     }
-// --- 👆 КОНЕЦ ЗАМЕНЫ ---
+
+
+    // --- Логика переключателя Глубокого Поиска (Deep Search) ---
+    let isDeepSearchEnabled = false;
+    const deepSearchToggle = document.getElementById('deep-search-toggle');
+    const searchContainer = document.querySelector('.search-container');
+    const searchInput = document.getElementById('search-input');
+
+    if (deepSearchToggle && searchContainer && searchInput) {
+        // Управление шириной поля поиска через классы
+        searchInput.addEventListener('focus', () => searchContainer.classList.add('is-expanded'));
+        searchInput.addEventListener('blur', () => searchContainer.classList.remove('is-expanded'));
+
+        // ИСПРАВЛЕНИЕ: Предотвращаем потерю фокуса при клике по иконке
+        deepSearchToggle.addEventListener('mousedown', (e) => {
+            e.preventDefault(); 
+        });
+
+        deepSearchToggle.addEventListener('click', async (e) => {
+            e.stopPropagation(); 
+
+            
+            isDeepSearchEnabled = !isDeepSearchEnabled;
+            
+            if (isDeepSearchEnabled) {
+                deepSearchToggle.classList.add('active');
+                
+                // Если мы включаем полный поиск, нам нужно убедиться, что ВЕСЬ текст загружен с Python в JS
+                // Иначе мы будем искать только по закэшированным кускам.
+                const allIds = Object.keys(state.notes);
+                const missingIds = allIds.filter(id => state.noteContentsCache[id] === undefined);
+                
+                if (missingIds.length > 0) {
+                    // Показываем микро-индикатор загрузки прямо на кнопке
+                    deepSearchToggle.innerHTML = `<div class="spinner" style="width: 14px; height: 14px; border-width: 2px;"></div>`;
+                    
+                    // Скачиваем весь текст параллельно батчами
+                    await Promise.all(missingIds.map(async (noteId) => {
+                        const content = await eel.get_note_content(noteId)();
+                        state.noteContentsCache[noteId] = content;
+                    }));
+                    
+                    // Возвращаем иконку
+                    deepSearchToggle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; pointer-events: none;"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>`;
+                }
+            } else {
+                deepSearchToggle.classList.remove('active');
+            }
+            
+            // Если в поле уже что-то введено, сразу перефильтровываем с новыми условиями
+            if (searchInput.value.trim().length > 0) {
+                applyFilters();
+            }
+        });
+    }
 
 
 
@@ -2341,12 +2865,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         panel.innerHTML = matches.map((tag, index) => 
-            `<div class="autocomplete-item" data-index="${index}"><span style="opacity:0.5">#</span> ${tag}</div>`
+            `<div class="autocomplete-item" data-index="${index}"><span style="opacity:0.5">#</span> ${escapeHTML(tag)}</div>`
         ).join('');
         
         currentAutocompleteIndex = -1;
         panel.classList.add('visible');
     }
+
 
     // Слушаем ввод текста
     dom.noteModal.tagsInput.addEventListener('input', (e) => {
@@ -2458,43 +2983,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (currentEditingNoteId) {
             const result = await eel.update_note(currentEditingNoteId, title, content, cleanTags, desc)();
-            if (result) {
+            if (result && result.id) {
                 // 1. Обновляем данные в state
                 state.notes[result.id] = result.data;
                 state.noteContentsCache[result.id] = content;
-                state.notePreviews[result.id] = content.substring(0, 150).replace(/\n/g, ' ');
+                state.notePreviews[result.id] = (content || '').substring(0, 400).replace(/\n/g, ' '); // Защита от null/undefined
                 
                 // 2. Обновляем текст на самой плитке
                 updateNoteInDOM(result.id);
                 
                 const tile = dom.notesGrid.querySelector(`.note-tile[data-id="${result.id}"]`);
 
+                // ИСПРАВЛЕНИЕ: Мгновенно убираем, если не подходит под фильтр
+                if (!checkNoteMatchesFilters(result.id)) {
+                    syncGridAfterDeletion(result.id);
+                } else {
+                    highlightElement(tile);
+                }
 
-                // 4. Подсвечиваем плитку и показываем уведомление
-                highlightElement(tile);
                 showNotification('noteUpdated');
-                renderTagsBar(); // <-- ИСПРАВЛЕНИЕ: Обновляем теги
-                applyFilters();
+                renderTagsBar(); 
+            } else if (result && result.success === false) {
+
+
+  
+
+
+                showCustomAlert('errorTitle', getErrorMessage(result));
             }
         } else {
             // Логика создания новой заметки (остается без изменений)
             const wasEmpty = Object.keys(state.notes).length === 0;
             const result = await eel.create_note(title, content, cleanTags, desc)();
-            if (result) {
+            if (result && result.id) {
                 state.notes[result.id] = result.data;
                 state.noteContentsCache[result.id] = content;
-                state.notePreviews[result.id] = content.substring(0, 150).replace(/\n/g, ' ');
+                state.notePreviews[result.id] = (content || '').substring(0, 400).replace(/\n/g, ' '); // Защита от null/undefined
                 
                 if (wasEmpty) {
+
                     dom.notesGrid.classList.remove('is-empty');
                     document.body.classList.remove('no-notes-present');
                 }
                 
-                addNoteToDOM(result.id, true);
+                // ИСПРАВЛЕНИЕ: Добавляем на экран ТОЛЬКО если новая заметка подходит под текущий фильтр!
+                if (checkNoteMatchesFilters(result.id)) {
+                    addNoteToDOM(result.id, true);
+                    if (typeof currentSearchMatches !== 'undefined') {
+                        currentSearchMatches.unshift(result.id);
+                        currentlyRenderedCount++;
+                    }
+                }
+
                 updateCounters();
                 showNotification('noteCreated');
-                renderTagsBar(); // <-- ИСПРАВЛЕНИЕ: Обновляем теги
-                applyFilters();              
+                renderTagsBar(); 
+            } else if (result && result.success === false) {
+
+
+
+
+
+                showCustomAlert('errorTitle', getErrorMessage(result));
             }
         }
 
@@ -2503,6 +3053,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initialNoteTitle = '';
         initialNoteContent = '';
     });
+
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
 
     dom.noteModal.cancelBtn.addEventListener('click', closeNoteModal);
@@ -2543,7 +3094,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentEditingCollectionId) {
             // Режим РЕДАКТИРОВАНИЯ (Передаем 4 аргумента: ID, Имя, Иконка, Цвет)
             const result = await eel.update_collection(currentEditingCollectionId, name, currentSelectedIconKey, currentSelectedIconColor)();
-            if (result) {
+            if (result && result.id) {
                 // ОБНОВЛЯЕМ STATE ВСЕМИ НОВЫМИ ДАННЫМИ (ВКЛЮЧАЯ ЦВЕТ)
                 state.collections[currentEditingCollectionId] = result.data;
                 
@@ -2579,14 +3130,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 // -----------------------------------------------------------
 
                 showNotification('collectionUpdated'); // <-- ИСПРАВЛЕНИЕ: Правильное уведомление
+            } else if (result && result.success === false) {
+                showCustomAlert('errorTitle', getErrorMessage(result));
             }
         } else {
             // Режим СОЗДАНИЯ
-
-
-            const result = await eel.create_collection(name, currentSelectedIconKey, parentIdForNewSubcollection)();
+            // ИСПРАВЛЕНИЕ 1: Передаем 4 аргумента в правильном порядке, чтобы Python понял, где parentId
+            const result = await eel.create_collection(name, currentSelectedIconKey, currentSelectedIconColor, parentIdForNewSubcollection)();
             
-            if (result) {
+            if (result && result.id) {
+
                 state.collections[result.id] = result.data;
                 state.collectionNotes[result.id] = [];
                 
@@ -2599,12 +3152,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 addCollectionToDOM(result.id, true);
                 showNotification('collectionCreated');
+            } else if (result && result.success === false) {
+                showCustomAlert('errorTitle', getErrorMessage(result));
             }
         }
         
         parentIdForNewSubcollection = null; 
         closeCollectionModal();
     });
+
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 
@@ -2626,7 +3182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- ЛОГИКА QUICK ACTIONS ---
         const qaBtn = event.target.closest('.qa-btn');
         if (qaBtn) {
-            event.stopPropagation(); // Не копируем текст!
+            event.stopPropagation(); // Не вызываем базовое копирование по ЛКМ
             const action = qaBtn.dataset.qaAction;
             
             if (action === 'edit') {
@@ -2634,6 +3190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } 
             else if (action === 'delete') {
                 const t = translations[state.settings.language];
+
                 if (await showCustomConfirm('deleteNoteTitle', t.deleteNoteMessage, 'deleteAction', 'cancel', true)) {
                     const result = await eel.delete_note(noteId)();
                     if (result.success) {
@@ -2644,16 +3201,15 @@ document.addEventListener('DOMContentLoaded', () => {
                             state.collectionNotes[cId] = state.collectionNotes[cId].filter(nId => nId !== result.deleted_id);
                         });
                         
-                        renderFullUI();
+                        // ИСПРАВЛЕНИЕ: Устраняем утечку памяти выделения и чиним индексы скролла!
+                        selectedNoteIds.delete(result.deleted_id);
+                        syncGridAfterDeletion(result.deleted_id); 
                         updateCounters();
-                        if (currentOpenCollectionId) {
-                            renderCollectionView(currentOpenCollectionId);
-                        }
                         showNotification('noteDeleted');
-                        applyFilters();
                     }
                 }
             }
+
             return; // Выходим из функции, чтобы не сработало выделение или копирование
         }
         // --- КОНЕЦ QUICK ACTIONS ---
@@ -2696,12 +3252,18 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     // Действия при клике на любое свободное место
     dom.contentArea.addEventListener('click', (e) => {
-        // Если кликнули по самой заметке - прерываемся, пусть работает логика копирования
+        // Исключение 1: Если кликнули по самой заметке
         if (e.target.closest('.note-tile')) {
             return;
         }
+        
+        // Исключение 2: Если кликнули В ЛЮБОМ МЕСТЕ внутри открытой панели коллекции
+        // Это защищает поиск, заголовок и пустое пространство между карточками от случайного закрытия
+        if (e.target.closest('#collection-view-panel')) {
+            return;
+        }
 
-        // Действие 1: Закрываем правую шторку с содержимым коллекции (если она открыта)
+        // Действие 1: Закрываем правую шторку (только если кликнули мимо нее в главную область экрана)
         if (currentOpenCollectionId) {
             closeCollectionView();
         } 
@@ -2714,6 +3276,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
+
+
 
 
     const hideTooltip = () => {
@@ -2741,7 +3305,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tooltip.dataset.currentHalf = currentHalf;
 
             if (isLeftHalf && note && note.description && note.description.trim() !== '') {
-                tooltip.textContent = note.description.substring(0, 500);
+                // ИСПРАВЛЕНИЕ: Рендерим Markdown для описания
+                tooltip.innerHTML = parseMarkdown(note.description.substring(0, 500), false);
                 tooltip.classList.remove('metadata-tooltip');
             } else {
                 let content = state.noteContentsCache[noteId];
@@ -2751,12 +3316,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (!content) return;
                 
-                tooltip.textContent = content.substring(0, 750);
+                // ИСПРАВЛЕНИЕ: Рендерим Markdown для контента
+                let snippet = content.length > 750 ? content.substring(0, 750) + '...' : content;
+                tooltip.innerHTML = parseMarkdown(snippet, false);
                 tooltip.classList.remove('metadata-tooltip');
             }
         }
 
         tooltip.classList.add('visible');
+
 
         const { offsetWidth: tooltipWidth, offsetHeight: tooltipHeight } = tooltip;
         const { clientX: mouseX, clientY: mouseY } = e;
@@ -3164,9 +3732,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
-        // Теперь оба фильтра вызывают одну и ту же функцию
-    dom.searchInput.addEventListener('input', applyFilters);
+    // Защита от спама рендеринга при быстром вводе текста (Debounce 150ms)
+    let searchDebounceTimer = null;
+    dom.searchInput.addEventListener('input', () => {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+            applyFilters();
+        }, 150);
+    });
     dom.uncollectedFilterToggle.addEventListener('change', applyFilters);
+
 
     dom.hamburgerBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -3292,21 +3867,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // --- 👇 ЗАМЕНИТЕ ДВА ПРЕДЫДУЩИХ ОБРАБОТЧИКА НА ЭТОТ БЛОК ---
-    // "Умный" делегированный обработчик для всех подменю в меню опций
-    dom.optionsMenu.addEventListener('mouseover', (e) => {
+    // "Умный" делегированный обработчик для всех подменю во всех меню
+    function handleSubmenuMouseOver(e) {
         const submenuContainer = e.target.closest('.dropdown-submenu-container');
         if (!submenuContainer) return;
 
         const submenu = submenuContainer.querySelector('.submenu');
         if (submenu) {
-            // Когда курсор НАД контейнером, отменяем любой таймер на его закрытие
             clearTimeout(submenu.hideTimer);
-            showSubmenu(submenu);
+            showSubmenu(submenu, submenuContainer.closest('.dropdown-menu')); // Передаем родительское меню
         }
-    });
+    }
 
-    dom.optionsMenu.addEventListener('mouseout', (e) => {
-        if (activeDotContext) return; // <-- ЗАЩИТА ОКНА ТЕМ
+    function handleSubmenuMouseOut(e) {
+        if (activeDotContext) return; 
         
         const submenuContainer = e.target.closest('.dropdown-submenu-container');
         if (!submenuContainer) return;
@@ -3314,15 +3888,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const submenu = submenuContainer.querySelector('.submenu');
 
         if (submenu) {
-            // Когда курсор ПОКИНУЛ контейнер, запускаем таймер на его закрытие
             submenu.hideTimer = setTimeout(() => {
                 hideSubmenu(submenu);
             }, 500);
         }
-    });
+    }
+
+    dom.optionsMenu.addEventListener('mouseover', handleSubmenuMouseOver);
+    dom.optionsMenu.addEventListener('mouseout', handleSubmenuMouseOut);
+    
+    // ДОБАВЛЕНО: Те же самые обработчики для меню-бургера (где теперь тоже есть подменю)
+    dom.hamburgerMenu.addEventListener('mouseover', handleSubmenuMouseOver);
+    dom.hamburgerMenu.addEventListener('mouseout', handleSubmenuMouseOut);
 
     // Новая вспомогательная функция для показа подменю
-    function showSubmenu(submenu) {
+    function showSubmenu(submenu, parentMenu) {
+        // Прячем все ДРУГИЕ подменю в ЭТОМ ЖЕ меню
+        if (parentMenu) {
+            parentMenu.querySelectorAll('.submenu').forEach(otherSubmenu => {
+                if (otherSubmenu !== submenu) hideSubmenu(otherSubmenu);
+            });
+        }
+        
+        clearTimeout(submenu.hideTimer);
+        submenu.classList.remove('is-closing');
+        submenu.classList.add('visible');
+    }
+
+    function hideSubmenu(submenu) {
         // Прячем все ДРУГИЕ подменю
         dom.optionsMenu.querySelectorAll('.submenu').forEach(otherSubmenu => {
             if (otherSubmenu !== submenu) {
@@ -3477,7 +4070,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             }
-
             case 'backup-vault-btn': {
                 showLoader();
                 const result = await eel.backup_current_vault()();
@@ -3498,8 +4090,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 await eel.switch_vault(vaultName)();
             }
         }
+
+        // --- НОВАЯ ЛОГИКА: Клик по облачному хранилищу ---
+        if (target.classList.contains('cloud-vault-item')) {
+            const vaultName = target.dataset.vault;
+            const vaultExt = target.dataset.ext; // '.enc' или '.zip'
+            
+            if (state.vaults.includes(vaultName)) {
+                // Если оно уже есть локально - просто переключаемся на него
+                await eel.switch_vault(vaultName)();
+            } else {
+                // Создаем папку, переключаемся и ПРИНУДИТЕЛЬНО ВЫТЯГИВАЕМ ИМЕННО ВЫБРАННЫЙ ФАЙЛ
+                showLoader();
+                await eel.download_vault_from_cloud(vaultName, vaultExt)();
+                hideLoader();
+                reload_app(); 
+            }
+        }
+    });
+
+    
+
+    // --- НОВАЯ ЛОГИКА: Загрузка списка при наведении ---
+    dom.hamburgerMenu.addEventListener('mouseover', async (e) => {
+        const container = e.target.closest('#cloud-restore-container');
+        if (!container) return;
+
+        const submenu = container.querySelector('#cloud-vaults-list');
+        if (submenu && !submenu.dataset.loaded) {
+            submenu.dataset.loaded = 'true'; // Защита от спама запросами
+            const t = translations[state.settings.language];
+            
+            const result = await eel.fetch_remote_vaults()();
+            if (result && result.success) {
+                if (result.vaults.length > 0) {
+                    // v.name = "Work", v.ext = ".enc"
+                    submenu.innerHTML = result.vaults.map(v => {
+                        const icon = v.ext === '.enc' ? '🔒' : '☁️';
+                        const extLabel = v.ext === '.enc' ? '(Encrypted)' : '(Zip)';
+                        return `<div class="dropdown-menu-item cloud-vault-item" data-vault="${v.name}" data-ext="${v.ext}">${icon} ${v.name} <span style="font-size: 0.8em; opacity: 0.5; margin-left: 5px;">${extLabel}</span></div>`;
+                    }).join('');
+                } else {
+                    submenu.innerHTML = `<div class="dropdown-menu-item" style="opacity: 0.5;">${t.noVaultsFound || 'No vaults found'}</div>`;
+                }
+            } else {
+
+                submenu.innerHTML = `<div class="dropdown-menu-item" style="color: var(--accent-color-danger); font-size: 0.8em;">${t.notConnected || 'Not connected'}</div>`;
+                submenu.dataset.loaded = ''; // Разрешаем повторную попытку
+            }
+        }
     });
 // --- 👆 КОНЕЦ ЗАМЕНЫ ---
+
+
 
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -3591,11 +4234,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 👇 ВСТАВИТЬ СЮДА ---
     // Умная функция авто-прокрутки для любого скроллящегося контейнера
+    let cachedScrollRects = new WeakMap();
+    document.addEventListener('dragend', () => cachedScrollRects = new WeakMap()); // Сброс кэша при броске
+
     function handleAutoScroll(e, container) {
         if (!draggedElement.id) return;
 
-        const rect = container.getBoundingClientRect();
+        // Извлекаем из кэша (экономит колоссальное время на Layout Thrashing)
+        let rect = cachedScrollRects.get(container);
+        if (!rect) {
+            rect = container.getBoundingClientRect();
+            cachedScrollRects.set(container, rect);
+        }
+        
         // Задаем "горячие зоны" сверху и снизу (40 пикселей от края)
+
         const hotZone = 40; 
         
         // Вычисляем, насколько курсор зашел в верхнюю или нижнюю горячую зону
@@ -3664,11 +4317,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ В DRAGOVER ---
         if (draggedElement.type === 'collection') {
-            document.querySelectorAll('.collection-item').forEach(el => {
-                el.classList.remove('drag-over-indicator', 'drag-over-nest');
-            });
+            // ОПТИМИЗАЦИЯ CPU: Снимаем классы только с активных элементов, а не прочесываем весь DOM
+            const oldInd = dom.collectionsList.querySelector('.drag-over-indicator');
+            if (oldInd) oldInd.classList.remove('drag-over-indicator');
+            const oldNest = dom.collectionsList.querySelector('.drag-over-nest');
+            if (oldNest) oldNest.classList.remove('drag-over-nest');
 
             const target = e.target.closest('.collection-item:not(#add-collection-btn)');
+
             
             if (target && draggedElement.id !== target.dataset.id && target.dataset.id !== 'coll_favorites') {
                 const targetId = target.dataset.id;
@@ -3695,17 +4351,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ В DRAGOVER ---
-
         if (draggedElement.type === 'note') {
             const item = e.target.closest('.collection-item');
             
             // 1. УПРАВЛЕНИЕ ИСЧЕЗНОВЕНИЕМ ВЫДЕЛЕНИЯ
-            // Сначала очищаем класс со ВСЕХ остальных папок, чтобы не залипало
-            document.querySelectorAll('.collection-item.drag-hovered').forEach(el => {
-                if (el !== item) el.classList.remove('drag-hovered');
-            });
+            // ОПТИМИЗАЦИЯ CPU: Ищем только один активный элемент (O(1) вместо O(N))
+            const oldHovered = dom.collectionsList.querySelector('.collection-item.drag-hovered');
+            if (oldHovered && oldHovered !== item) {
+                oldHovered.classList.remove('drag-hovered');
+            }
             
             // Если мы над валидной папкой - гасим её выделение
+
             if (item && item.classList.contains('drag-over')) {
                 item.classList.add('drag-hovered');
             }
@@ -3784,15 +4441,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await eel.add_notes_to_collection_batch(idsToProcess, collectionId)();
             if (result.success) {
-                idsToProcess.forEach(id => {
+                // Переворачиваем массив, чтобы при поочередном добавлении в начало сохранился исходный порядок выделения
+                idsToProcess.reverse().forEach(id => {
                     if (!state.collectionNotes[collectionId].includes(id)) {
-                        state.collectionNotes[collectionId].push(id);
+                        state.collectionNotes[collectionId].unshift(id); // Добавляем в начало
                     }
-                    // <-- ОБНОВЛЕНИЕ ЛИНИИ: Сразу перекрашиваем плитку на экране после добавления
                     updateNoteInDOM(id);
+                    
+                    if (dom.uncollectedFilterToggle.checked) {
+                        syncGridAfterDeletion(id);
+                    }
                 });
+
                 updateCounters();
                 if (result.added_count > 0) {
+
                     showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
                 }
 
@@ -3800,10 +4463,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (currentOpenCollectionId === collectionId) {
                     renderCollectionView(collectionId);
                 }
-                applyFilters();
+                // Вызов убран
             }
             deactivateSelectionMode();
         } 
+
 
 
         
@@ -3946,9 +4610,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- НОВАЯ, УМНАЯ ЛОГИКА ---
             const idsToRemove = draggedElement.isBatch ? Array.from(selectedNoteIds) : [draggedElement.id];
 
-            // Нам нужно вызвать eel.remove_note_from_collection для каждого.
-            // Создадим новую "пакетную" функцию для эффективности.
-            // А пока - используем цикл.
             for (const noteId of idsToRemove) {
                 await eel.remove_note_from_collection(noteId, currentOpenCollectionId)();
                 state.collectionNotes[currentOpenCollectionId] = state.collectionNotes[currentOpenCollectionId].filter(id => id !== noteId);
@@ -3958,10 +4619,17 @@ document.addEventListener('DOMContentLoaded', () => {
             updateCounters();
             renderCollectionView(currentOpenCollectionId); // Перерисовываем панель
             deactivateSelectionMode();
-            applyFilters(); // <--- ДОБАВИТЬ СЮД
+            
+            // ИСПРАВЛЕНИЕ: Если включен фильтр "Без коллекции", нам нужно, чтобы заметка мгновенно 
+            // появилась в главной сетке (ведь мы её только что освободили от папки).
+            if (dom.uncollectedFilterToggle.checked) {
+                applyFilters(true); // Мягкая синхронизация (добавит заметку на экран без сброса скролла)
+            }
             // --- КОНЕЦ НОВОЙ ЛОГИКИ ---
         }
+
     });
+
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
@@ -4071,16 +4739,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     delete state.noteContentsCache[id];
                     delete state.notePreviews[id];
                     Object.keys(state.collectionNotes).forEach(cId => {
-
                         state.collectionNotes[cId] = state.collectionNotes[cId].filter(nId => nId !== id);
                     });
-                    removeNoteFromDOM(id);
+                    syncGridAfterDeletion(id); // ИСПРАВЛЕНИЕ: Умное извлечение
                 });
                 updateCounters();
                 showNotification('noteDeleted');
-                applyFilters(); // <--- ДОБАВИТЬ СЮДА
             }
             deactivateSelectionMode();
+
+
         } 
         // --- ЛОГИКА ДЛЯ КОЛЛЕКЦИИ ---
         else if (draggedElement.type === 'collection') {
@@ -4238,13 +4906,69 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (target.matches('[data-action="change-notes-dir"]')) {
+        if (target.matches('[data-action="cloud-sync"]')) {
             hideAllAnimatedMenus();
-            await eel.change_notes_directory()();
+            // Вызываем публичный метод из нашего нового файла sync_ui.js
+            CloudSyncUI.openSettings();
             return;
         }
 
+        if (target.matches('[data-action="change-notes-dir"]')) {
+            hideAllAnimatedMenus();
+            
+            // 1. Сначала спрашиваем путь у системы
+            const pickResult = await eel.pick_notes_directory()();
+            
+            if (pickResult && pickResult.success) {
+                const t = translations[state.settings.language];
+                
+                // 2. Строим кастомное окно с 3 кнопками
+                dom.alertModal.querySelector('#alert-title').textContent = t.moveDataTitle;
+                dom.alertModal.querySelector('#alert-message').textContent = t.moveDataMessage;
+                
+                const buttonsContainer = dom.alertModal.querySelector('#alert-buttons');
+                buttonsContainer.innerHTML = '';
+                
+                new Promise(resolve => {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'modal-btn';
+                    cancelBtn.textContent = t.cancel;
+                    cancelBtn.onclick = () => { dom.alertModal.classList.remove('visible'); resolve('cancel'); };
+                    
+                    const freshBtn = document.createElement('button');
+                    freshBtn.className = 'modal-btn';
+                    freshBtn.textContent = t.startFreshBtn;
+                    freshBtn.onclick = () => { dom.alertModal.classList.remove('visible'); resolve('fresh'); };
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'modal-btn accent';
+                    copyBtn.textContent = t.moveDataBtn;
+                    copyBtn.onclick = () => { dom.alertModal.classList.remove('visible'); resolve('copy'); };
+                    
+                    buttonsContainer.appendChild(cancelBtn);
+                    buttonsContainer.appendChild(freshBtn);
+                    buttonsContainer.appendChild(copyBtn);
+                    
+                    dom.alertModal.classList.add('visible');
+                }).then(async (decision) => {
+                    if (decision === 'cancel') return;
+                    
+                    showLoader();
+                    // 3. Отправляем команду в Python (True = копировать, False = оставить пустой)
+                    const applyResult = await eel.apply_notes_directory(pickResult.path, decision === 'copy')();
+                    hideLoader();
+                    
+                    if (applyResult && !applyResult.success) {
+                        showCustomAlert('errorTitle', applyResult.message || 'Error changing directory');
+                    }
+                });
+            }
+            return;
+        }
+
+
         // --- ИЗМЕНЕННАЯ ЛОГИКА ---
+
         if (target.matches('[data-action="tutorial"]')) {
             hideAllAnimatedMenus();
             // Напрямую запускаем обучение без лишних вопросов
@@ -4261,7 +4985,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const paths = await eel.get_app_paths()();
             
             // HTML сжат в одну строку, чтобы избежать багов с переносом строк (pre-wrap)
-            const htmlMessage = `<div style="text-align: center; margin-bottom: 20px;"><h2 style="color: var(--accent-color); margin-bottom: 5px; font-weight:700;">Prompt Manager v2.5</h2><span style="font-size: 0.8em; color: var(--text-color-dark);">The Customization & Architecture Update</span></div><div style="font-size: 0.85em; text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); max-width: 100%; overflow: hidden;"><div style="margin-bottom: 12px;"><strong style="color: var(--text-color);">Installation Folder</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Deleted on uninstall.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.install_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.install_dir}</a></div><div style="margin-bottom: 12px;"><strong style="color: var(--text-color);">Data & Settings</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Kept safe on uninstall.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.app_data_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.app_data_dir}</a></div><div><strong style="color: var(--text-color);">Active Vault</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Contains your notes and metadata.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.notes_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.notes_dir}</a></div></div>`;
+            const htmlMessage = `<div style="text-align: center; margin-bottom: 20px;"><h2 style="color: var(--accent-color); margin-bottom: 5px; font-weight:700;">Prompt Manager v3.0</h2><span style="font-size: 0.8em; color: var(--text-color-dark);">The Customization & Architecture Update</span></div><div style="font-size: 0.85em; text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); max-width: 100%; overflow: hidden;"><div style="margin-bottom: 12px;"><strong style="color: var(--text-color);">Installation Folder</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Deleted on uninstall.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.install_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.install_dir}</a></div><div style="margin-bottom: 12px;"><strong style="color: var(--text-color);">Data & Settings</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Kept safe on uninstall.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.app_data_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.app_data_dir}</a></div><div><strong style="color: var(--text-color);">Active Vault</strong><br><span style="color: var(--text-color-dark); font-size: 0.85em;">Contains your notes and metadata.</span><br><a href="#" onclick="eel.open_folder_in_explorer('${paths.notes_dir.replace(/\\/g, '\\\\')}')" style="color: var(--accent-color); text-decoration: none; word-wrap: anywhere; display: inline-block; margin-top: 2px;">${paths.notes_dir}</a></div></div>`;
             
             const t = translations[state.settings.language];
             dom.alertModal.querySelector('#alert-title').textContent = t.aboutApp || 'About App';
@@ -4329,10 +5053,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (item.type === 'short-divider') return '<div class="short-divider"></div>';
             if (item.type === 'header') return `<div class="dropdown-header">${t[item.labelKey]}</div>`;
             if (item.type === 'collections-submenu') return item.html; // <-- НОВАЯ СТРОКА
-            return `<div class="dropdown-menu-item" data-action="${item.action}">${item.label}</div>`;
+            return `<div class="dropdown-menu-item" data-action="${item.action}">${escapeHTML(item.label)}</div>`;
         }).join('');
 
         const metadataItem = dom.contextMenu.querySelector('[data-action="show-metadata"]');
+
         if (metadataItem) {
             let metadataTimer;
             const tooltip = dom.noteTooltip;
@@ -4370,11 +5095,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             metadataItem.addEventListener('mouseover', showMetaTooltip);
             metadataItem.addEventListener('mouseleave', hideMetaTooltip);
-            tooltip.addEventListener('mouseenter', () => clearTimeout(metadataTimer));
-            tooltip.addEventListener('mouseleave', hideMetaTooltip);
+            
+            // ЗАЩИТА ОТ УТЕЧКИ ПАМЯТИ: 
+            // Используем свойства onmouseenter/onmouseleave вместо addEventListener. 
+            // Это гарантирует, что старые функции будут затерты новыми, а не накопятся.
+            tooltip.onmouseenter = () => clearTimeout(metadataTimer);
+            tooltip.onmouseleave = hideMetaTooltip;
         }
 
         dom.contextMenu.classList.remove('is-closing');
+
         dom.contextMenu.classList.add('visible');
         
         const { offsetWidth: menuWidth, offsetHeight: menuHeight } = dom.contextMenu;
@@ -4422,12 +5152,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="context-collection-group">
                             <div class="dropdown-menu-item context-collection-parent" style="justify-content: flex-start;">
                                 <span class="expander-icon" style="visibility:visible; transform: scale(0.55); margin-right: 8px; transition: transform 0.2s;">▶</span>
-                                <span style="pointer-events: none;">${state.collections[parentId].name}</span>
+                                <span style="pointer-events: none;">${escapeHTML(state.collections[parentId].name)}</span>
                             </div>
                             <div class="context-subcollections-list" style="display:none; flex-direction:column; padding-left: 15px; background: rgba(0,0,0,0.1); border-radius: 4px; margin: 2px 5px;">
                                 ${availableChildren.map(childId => `
                                     <div class="dropdown-menu-item" data-action="add-to-collection-${childId}">
-                                        <span style="color: var(--text-color-dark); margin-right: 5px; font-weight:300;">-</span> ${state.collections[childId].name}
+                                        <span style="color: var(--text-color-dark); margin-right: 5px; font-weight:300;">-</span> ${escapeHTML(state.collections[childId].name)}
                                     </div>
                                 `).join('')}
                             </div>
@@ -4438,9 +5168,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Если нет подколлекций (обычная папка)
                 if (!(state.collectionNotes[parentId] && state.collectionNotes[parentId].includes(noteId))) {
                     hasAddableCollections = true;
-                    collectionsHtml += `<div class="dropdown-menu-item" data-action="add-to-collection-${parentId}">${state.collections[parentId].name}</div>`;
+                    collectionsHtml += `<div class="dropdown-menu-item" data-action="add-to-collection-${parentId}">${escapeHTML(state.collections[parentId].name)}</div>`;
                 }
             }
+
         });
 
         if (hasAddableCollections) {
@@ -4484,7 +5215,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let menuItems = [
             { label: t.metadata, action: 'show-metadata' },
             { type: 'divider' },
-            { label: t.quickEdit, action: 'quick-edit' }, // <-- ДОБАВЛЕНО
+            { label: t.copy, action: 'copy-note' }, // <-- НОВАЯ КНОПКА "СКОПИРОВАТЬ"
+            { label: t.quickEdit, action: 'quick-edit' }, 
             { label: t.edit, action: 'edit-note' },
             { label: t.delete, action: 'delete-note' },
             { type: 'divider' },
@@ -4494,6 +5226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         const submenuItem = generateCollectionsSubmenu(noteId);
+
         if (submenuItem) {
             menuItems.push({ type: 'divider' });
             menuItems.push(submenuItem);
@@ -4525,7 +5258,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let menuItems = [
             { label: t.metadata, action: 'show-metadata' },
             { type: 'divider' },
-            { label: t.quickEdit, action: 'quick-edit' }, // <-- ДОБАВЛЕНО
+            { label: t.copy, action: 'copy-note' }, // <-- НОВАЯ КНОПКА "СКОПИРОВАТЬ"
+            { label: t.quickEdit, action: 'quick-edit' }, 
             { label: t.edit, action: 'edit-note' },
             { label: t.delete, action: 'delete-note' },
             { type: 'divider' },
@@ -4534,6 +5268,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         // 2. Генерируем всплывающее меню с коллекциями
+
         // Передаем currentOpenCollectionId, чтобы исключить текущую коллекцию из списка
         const submenuItem = generateCollectionsSubmenu(noteId, currentOpenCollectionId);
         
@@ -4815,23 +5550,46 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const result = await eel.add_notes_to_collection_batch(selectedIds, collectionId)();
             if (result.success && result.added_count > 0) {
-                selectedIds.forEach(id => {
+                selectedIds.reverse().forEach(id => {
                     if (!state.collectionNotes[collectionId].includes(id)) {
-                        state.collectionNotes[collectionId].push(id);
+                        state.collectionNotes[collectionId].unshift(id); // Добавляем в начало
+                    }
+                    updateNoteInDOM(id);
+                    if (dom.uncollectedFilterToggle.checked) {
+                        syncGridAfterDeletion(id);
                     }
                 });
                 updateCounters();
+
+
                 showNotification(t.notesAddedToCollection(result.added_count, state.collections[collectionId].name));
-                applyFilters(); // <--- ДОБАВИТЬ СЮДА
-                
+                // Вызов убран
             }
             deactivateSelectionMode();
             return;
         }
+
         
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
         if (action === 'select-note') {
             activateSelectionMode(noteId);
+            return;
+        }
+
+        // ИСПРАВЛЕНИЕ: Логика кнопки копирования из ПКМ-меню
+        if (action === 'copy-note') {
+            try {
+                let fullContent = state.noteContentsCache[noteId];
+                // Если текст еще не загружен в кэш (например, длинная заметка), скачиваем его
+                if (fullContent === undefined) {
+                    fullContent = await eel.get_note_content(noteId)();
+                    state.noteContentsCache[noteId] = fullContent;
+                }
+                await navigator.clipboard.writeText(fullContent);
+                showNotification('copied'); // Покажет красивую зеленую плашку и проиграет звук
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+            }
             return;
         }
 
@@ -4844,6 +5602,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (action === 'delete-note') {
 // --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
 
+
             if (await showCustomConfirm('deleteNoteTitle', t.deleteNoteMessage, 'deleteAction', 'cancel', true)) {
                 const result = await eel.delete_note(noteId)();
                 if (result.success) {
@@ -4851,19 +5610,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     delete state.noteContentsCache[result.deleted_id];
                     delete state.notePreviews[result.deleted_id];
                     Object.keys(state.collectionNotes).forEach(cId => {
-
                         state.collectionNotes[cId] = state.collectionNotes[cId].filter(nId => nId !== result.deleted_id);
                     });
                     
-                    renderFullUI();
+                    syncGridAfterDeletion(result.deleted_id); // Умное извлечение
                     updateCounters();
-                    if (currentOpenCollectionId) {
-                        renderCollectionView(currentOpenCollectionId);
-                    }
                     showNotification('noteDeleted');
-                    applyFilters(); // <--- ДОБАВИТЬ СЮДА
-                    
                 }
+
+
+
             }
         }
         else if (action.startsWith('add-to-collection-')) {
@@ -4872,26 +5628,40 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 state.collectionNotes[collectionId] = state.collectionNotes[collectionId] || [];
                 if (!state.collectionNotes[collectionId].includes(noteId)) {
-                    state.collectionNotes[collectionId].push(noteId);
+                    state.collectionNotes[collectionId].unshift(noteId); // Добавляем в начало
                 }
                 showNotification('noteAddedToCollection');
+
                 updateCounters();
                 if (currentOpenCollectionId === collectionId) renderCollectionView(collectionId);
-                applyFilters(); // <--- ДОБАВИТЬ СЮДА
-
+                // Вызов убран
             }
         }
+
         else if (action === 'remove-from-collection') {
             const result = await eel.remove_note_from_collection(noteId, collId)();
             if (result.success) {
                 state.collectionNotes[collId] = state.collectionNotes[collId].filter(id => id !== noteId);
-                renderCollectionView(collId);
+                
+                // ИСПРАВЛЕНИЕ: Удаляем ТОЛЬКО из шторки коллекции, не трогая главный экран
+                const collTile = dom.collectionView.grid.querySelector(`.note-tile[data-id="${noteId}"]`);
+                if (collTile) {
+                    collTile.classList.add('fluid-removing');
+                    collTile.addEventListener('animationend', () => collTile.remove(), { once: true });
+                }
+                
                 updateCounters();
                 showNotification('removeFromCollection');
-                applyFilters(); // <--- ДОБАВИТЬ СЮДА
                 
+                // Если активен фильтр "Uncollected", заметка должна появиться на главном экране
+                if (dom.uncollectedFilterToggle.checked) {
+                    applyFilters(true); // Мягкая синхронизация
+                }
             }
         }
+
+
+
         else if (action === 'create-subcollection') {
             parentIdForNewSubcollection = collId;
             openCollectionModal(); // Открываем стандартное окно
@@ -4923,18 +5693,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         const groupToRemove = dom.collectionsList.querySelector(`.collection-group[data-group-id="${id}"]`);
                         if (groupToRemove) {
-                            groupToRemove.classList.add('fading-out');
-                            groupToRemove.addEventListener('transitionend', () => groupToRemove.remove(), { once: true });
+                            groupToRemove.remove(); // Удаляем мгновенно и без багов
                         }
 
                     });
                     
-                    renderFullUI(); // Проще перерисовать дерево целиком
                     updateCounters();
                     showNotification('collectionDeleted');
-                    applyFilters(); // Обновляем список нераспределенных
+
                 }
             }
+
         }
     });
 
@@ -4987,11 +5756,127 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- 👆 КОНЕЦ НОВОГО БЛОКА ---
 
+    // --- Логика локального поиска по открытой коллекции ---
+    let collSearchDebounceTimer = null;
+    
+    function applyCollectionSearch() {
+        // Мы используем DOM напрямую, так как элементы создаются позже и могут не попасть в const dom = {}
+        const input = document.getElementById('coll-search-input');
+        const grid = document.getElementById('collection-notes-grid');
+        if (!input || !grid) return;
+
+        const term = input.value.toLowerCase().trim();
+        const container = input.closest('.coll-search-container');
+        
+        // Управляем стилем "раскрытости" лупы
+        if (term.length > 0) {
+            container.classList.add('has-text');
+        } else {
+            container.classList.remove('has-text');
+        }
+
+        const isTagSearch = term.startsWith('#');
+        const searchTags = isTagSearch ? term.substring(1).split(',').map(t => t.trim().toLowerCase()).filter(t => t) : [];
+        const searchWords = !isTagSearch ? term.split(/\s+/).filter(w => w.length > 0) : [];
+
+        // Перебираем только те карточки, которые сейчас лежат в правой панели
+        grid.querySelectorAll('.note-tile').forEach(tile => {
+            // Если поле пустое - показываем всё (пустая строка означает "нет инлайн-стиля")
+            if (term.length === 0) {
+                tile.style.display = ''; 
+                return;
+            }
+
+            const noteId = tile.dataset.id;
+            const note = state.notes[noteId];
+            if (!note) return;
+
+            let match = true;
+
+            if (isTagSearch) {
+                if (!note.tags) {
+                    match = false;
+                } else {
+                    const noteTags = note.tags.toLowerCase().split(',').map(t => t.trim());
+                    match = searchTags.every(tag => noteTags.some(nt => nt.includes(tag)));
+                }
+            } else {
+                const title = note.title.toLowerCase();
+                
+                if (isDeepSearchEnabled) {
+                    const content = (state.noteContentsCache[noteId] || state.notePreviews[noteId] || "").toLowerCase();
+                    match = searchWords.every(word => title.includes(word) || content.includes(word));
+                } else {
+                    match = searchWords.every(word => title.includes(word));
+                }
+            }
+
+
+            // ЖЕЛЕЗНОЕ ПРАВИЛО: Прячем через инлайн-стиль, перебивая вообще всё
+            if (match) {
+                tile.style.display = ''; // Возвращаем к стандартному CSS
+            } else {
+                tile.style.display = 'none'; // Прячем намертво
+            }
+        });
+
+        // ИСПРАВЛЕНИЕ: Показываем "Ничего не найдено" внутри коллекции, если все скрыты
+        let hasVisible = Array.from(grid.querySelectorAll('.note-tile')).some(t => t.style.display !== 'none');
+        let emptyMsgEl = grid.querySelector('.coll-empty-search-msg');
+
+        if (!hasVisible && term.length > 0) {
+            // Если нет видимых и мы что-то ищем
+            if (!emptyMsgEl) {
+                const t = translations[state.settings.language];
+                grid.insertAdjacentHTML('beforeend', `<p class="coll-empty-search-msg" style="text-align: center; color: var(--text-color-dark); margin-top: 30px; font-weight: 500;">${t.noSearchResults}</p>`);
+            }
+        } else {
+            // Если есть видимые ИЛИ мы очистили поиск
+            if (emptyMsgEl) emptyMsgEl.remove();
+        }
+    }
+
+
+    // Слушатель привязываем через глобальный делегат, так как input пересоздается при renderFullUI
+    document.addEventListener('input', (e) => {
+        if (e.target.id === 'coll-search-input') {
+            clearTimeout(collSearchDebounceTimer);
+            collSearchDebounceTimer = setTimeout(applyCollectionSearch, 100);
+        }
+    });
+    
+    // Сброс поиска при закрытии панели
+    function clearCollectionSearch() {
+        const input = document.getElementById('coll-search-input');
+        if (input) {
+            input.value = '';
+            input.closest('.coll-search-container').classList.remove('has-text');
+        }
+    }
+
+    // --- Логика кнопки "Копировать" внутри Быстрого Редактора ---
+    document.getElementById('quick-edit-copy-btn').addEventListener('click', async () => {
+        const text = dom.quickEditModal.contentInput.value;
+        if (!text) return;
+        try {
+            await navigator.clipboard.writeText(text);
+
+            showNotification('copied'); // ИСПОЛЬЗУЕМ СУЩЕСТВУЮЩИЙ КЛЮЧ
+            
+            const btn = document.getElementById('quick-edit-copy-btn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="#30D158" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"></polyline></svg><span style="color: #30D158;">Copied!</span>`;
+            setTimeout(() => { btn.innerHTML = originalHtml; }, 1500);
+        } catch (err) {
+            console.error('Failed to copy text: ', err);
+        }
+    });
 
     // --- 7. Инициализация приложения ---
 
 // --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ ---
     async function initializeApp() {
+
         // Устанавливаем иконки при запуске
         document.querySelector('.collections-header .icon').src = 'icons/icon_collections.svg';
         document.getElementById('add-collection-btn').querySelector('.icon').src = 'icons/icon_add.svg';
@@ -5057,8 +5942,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <div class="dropdown-menu-item" style="justify-content: space-between; padding-right: 8px;">
                     <span data-translate="sound">${t.sound}</span>
-                    <!-- Используем тот же ID, но добавляем pointer-events: none на сам пункт меню, 
-                         чтобы клик точно попадал на label со слайдером -->
                     <label class="switch" style="transform: scale(0.8); margin: 0; cursor: pointer;" onclick="event.stopPropagation();">
                         <input type="checkbox" id="sound-toggle" style="display: none;" ${state.settings.sound_enabled !== false ? 'checked' : ''}>
                         <div class="slider-track"><div class="slider-nub"></div></div>
@@ -5066,9 +5949,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-menu-item" data-action="change-notes-dir"><span data-translate="changeNotesDir">${t.changeNotesDir}</span></div>
+                <div class="dropdown-menu-item" data-action="cloud-sync"><span data-translate="cloudSyncTitle">${t.cloudSyncTitle || 'Cloud Sync...'}</span></div>
                 <div class="dropdown-divider"></div>
+                <div class="dropdown-menu-item" data-action="change-notes-dir"><span data-translate="changeNotesDir">${t.changeNotesDir}</span></div>
+
                 <div class="dropdown-menu-item" data-action="tutorial"><span data-translate="showTutorial">${t.showTutorial}</span></div>
+
+
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-menu-item" data-action="about-app"><span data-translate="aboutApp">${t.aboutApp}</span></div>
 
@@ -5234,12 +6121,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (filteredTags.length === 0) {
             tagsListContainer.innerHTML = '<div style="color: var(--text-color-dark); font-size: 0.85em; padding-left: 4px;">No tags found...</div>';
         } else {
-            tagsListContainer.innerHTML = filteredTags.map(([tag, count]) => `
-                <span class="tag-pill ${activeFilterTag === tag ? 'active' : ''}" data-tag="${tag}">
-                    #${tag} <span>${count}</span>
+            tagsListContainer.innerHTML = filteredTags.map(([tag, count]) => {
+                const safeTag = escapeHTML(tag);
+                // ИСПРАВЛЕНИЕ 3: Полное экранирование атрибута для защиты от закрытия тега (>)
+                return `
+                <span class="tag-pill ${activeFilterTag === tag ? 'active' : ''}" data-tag="${safeTag}">
+                    #${safeTag} <span>${count}</span>
                 </span>
-            `).join('');
+                `;
+            }).join('');
+
         }
+
+
 
         // Оставляем класс для удержания панели, если тег был нажат мышкой
         if (activeFilterTag) {
@@ -5337,13 +6231,19 @@ window.addEventListener('unhandledrejection', function(event) {
         
         // Очищаем трейсбэк от личных путей (на всякий случай, если Python-декоратор пропустил)
         let cleanTraceback = reason.errorTraceback;
-        if (cleanTraceback.includes('Users\\')) {
-            // Простейшая очистка пути до папки пользователя
-            cleanTraceback = cleanTraceback.replace(/C:\\Users\\[^\\]+\\/gi, '[USER_DIR]\\');
-        }
+        
+        // Очистка для Windows (любой диск, например C:\Users\Name\ или D:\Users\Name\)
+        cleanTraceback = cleanTraceback.replace(/[a-zA-Z]:\\Users\\[^\\]+\\/gi, '[USER_DIR]\\');
+        
+        // Очистка для macOS (/Users/Name/)
+        cleanTraceback = cleanTraceback.replace(/\/Users\/[^\/]+\//gi, '[USER_DIR]/');
+        
+        // Очистка для Linux (/home/Name/)
+        cleanTraceback = cleanTraceback.replace(/\/home\/[^\/]+\//gi, '[USER_DIR]/');
 
         showFatalErrorScreen(`Backend Crash:\n\n${cleanTraceback}`);
     } else if (reason instanceof Error) {
+
         // Обычная JS ошибка в промисе
         showFatalErrorScreen(`Frontend Promise Error: ${reason.message}\n${reason.stack}`);
     }
@@ -5353,7 +6253,7 @@ window.addEventListener('unhandledrejection', function(event) {
 // 3. Глобальная функция копирования (вызывается напрямую из HTML)
 
 window.copyFatalErrorLog = function() {
-    const appVersion = "v2.5";
+    const appVersion = "v3.0";
     const userAgent = navigator.userAgent;
     
     let currentLang = 'unknown';

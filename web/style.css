@@ -540,18 +540,28 @@ body[data-theme-base="light"] .icon-btn img {
     display: flex;
     align-items: center;
     width: 260px;
-    /* Фиксированная база */
     transition: width 0.3s var(--smooth);
 }
 
-.search-container:focus-within {
+/* ИСПРАВЛЕНИЕ: Меняем :focus-within на JS-класс, чтобы клик по кнопке не расширял поле */
+.search-container.is-expanded {
     width: 320px;
-    /* Плавно расширяем весь контейнер при фокусе */
+}
+
+#deep-search-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+#deep-search-toggle.active {
+    opacity: 1 !important;
+    color: var(--accent-color);
+    background-color: rgba(var(--accent-color-rgb), 0.15);
 }
 
 #search-input {
     width: 100%;
-    padding: 10px 16px 10px 42px;
+    /* Добавляем правый паддинг, чтобы текст не залезал под новую кнопку */
+    padding: 10px 40px 10px 42px;
+
     font-size: 0.9em;
     background-color: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -700,11 +710,14 @@ body[data-theme-base="light"] .icon-btn img {
 
 /* Стили сплющенной карточки */
 #notes-grid.list-view .note-tile {
-    height: 90px; /* Слегка увеличили высоту для 2 строк */
+    /* ЖЕСТКИЙ ЛИМИТ: Карточка не может быть больше 80px */
+    height: 80px !important; 
+    min-height: 80px !important; 
+    max-height: 80px !important; 
     padding: 12px 20px;
     flex-direction: row; 
     align-items: center; 
-    gap: 15px;
+    gap: 15px; /* Вернули комфортный отступ по горизонтали */
 }
 
 #notes-grid.list-view .note-tile::before {
@@ -730,31 +743,27 @@ body[data-theme-base="light"] .icon-btn img {
     flex-grow: 1;
     font-size: 0.85em;
     
-    /* Секретный соус для Flex-контейнера: разрешаем блоку с текстом расти в высоту */
-    min-height: 2.8em; /* 2 строчки по 1.4 line-height */
+    /* ЖЕСТКИЙ ЛИМИТ ВЫСОТЫ ТЕКСТА: Ровно 2 строки (1.4em * 2 = 2.8em) */
+    height: 2.8em; 
+    max-height: 2.8em;
     line-height: 1.4;
     
     display: -webkit-box;
-    -webkit-line-clamp: 2; 
+    -webkit-line-clamp: 2 !important; /* Гарантируем 2 строки */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     
-    /* Жестко разрешаем перенос строк (на случай, если где-то выше остался nowrap) */
+    /* Важно: запрещаем тексту сохранять оригинальные абзацы (Enter), превращаем в сплошной текст */
     white-space: normal !important;
     word-break: break-word;
     
-    /* Принудительно центрируем сам блок текста по вертикали относительно родительского Flex */
     align-self: center; 
-    
     -webkit-mask-image: none; 
     mask-image: none;
-    margin: 0; /* Убираем любые возможные отступы, которые могут сжимать текст */
+    margin: 0;
 }
 
-
-
-/* --- 👆 КОНЕЦ БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ --- */
 
 
 
@@ -793,15 +802,24 @@ body[data-theme-base="light"] .icon-btn img {
 
 /* --- Плитка заметки (Стеклянная карточка) --- */
 .note-tile {
+    /* --- ЖЕСТКАЯ ИЗОЛЯЦИЯ DOM --- */
+    contain: layout style paint; /* Оставляем только защиту от тяжелого D&D */
+
+    /* ВАЖНО: will-change удалено, так как на 5000+ узлов оно сжигает всю видеопамять */
+    /* ----------------------------------------------------------------------- */
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+
     border: 1px solid rgba(255, 255, 255, 0.08);
+
     border-radius: 20px;
-    padding: 16px 20px; /* УМЕНЬШИЛИ ОТСТУПЫ (было 24px) */
+    padding: 16px 20px; 
     cursor: pointer;
-    height: 150px;
+    /* УБИРАЕМ жесткую высоту. Пусть карточка тянется под контент (заголовок + линия + ровно 4 строки текста) */
+    height: auto; 
+    min-height: 150px; /* Защита, чтобы совсем пустые карточки не схлопывались */
     display: flex;
     flex-direction: column;
-    gap: 4px; /* УМЕНЬШИЛИ GAP между элементами (было 12px) */
+    gap: 0; 
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     transition: transform 0.4s var(--spring), box-shadow 0.4s ease, border-color 0.4s ease;
@@ -842,7 +860,7 @@ body[data-theme-base="light"] .icon-btn img {
     overflow: hidden;
     text-overflow: ellipsis;
     color: var(--note-title-color);
-    padding-bottom: 8px;
+    padding-bottom: 2px; /* Почти обнулили отступ под заголовком */
 }
 
 /* Удаляем старый псевдоэлемент, так как теперь линия - это реальный <div> */
@@ -855,11 +873,24 @@ body[data-theme-base="light"] .icon-btn img {
     height: 1px;
     min-height: 1px;
     width: 100%;
-    margin-top: 4px; /* УМЕНЬШИЛИ (было 8px) */
-    margin-bottom: 4px; /* УМЕНЬШИЛИ (было 8px) */
+    margin-top: 0; /* ПРИЖАЛИ К ЗАГОЛОВКУ */
+    margin-bottom: 4px; /* Дали маааленький отступ от текста */
     opacity: 0.7;
     flex-shrink: 0; 
 }
+
+
+/* Стили для нашей новой физической линии */
+.note-custom-line {
+    height: 1px;
+    min-height: 1px;
+    width: 100%;
+    margin-top: 4px; 
+    margin-bottom: 0px; /* УБРАЛИ НИЖНИЙ ОТСТУП, чтобы текст прижался к линии */
+    opacity: 0.7;
+    flex-shrink: 0; 
+}
+
 
 
 /* Резервный цвет (нейтрально-белый), если у папки нет своего кастомного цвета */
@@ -882,8 +913,77 @@ body[data-theme-base="light"] .note-custom-line.default-line {
 
 /* Фикс: У заголовка в сетке теперь убираем нижний отступ, так как его дает линия */
 .note-title {
-    padding-bottom: 0;
+    font-weight: 600;
+    font-size: 1.1em;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--note-title-color);
+    /* ЖЕСТКИЙ НОЛЬ: Убиваем все возможные отступы */
+    padding-bottom: 0; 
+    margin-bottom: 0; 
+    /* Сплющиваем высоту строки, чтобы браузер не создавал невидимое "пузо" под буквами */
+    line-height: 1.1; 
 }
+
+/* Удаляем старый псевдоэлемент, так как теперь линия - это реальный <div> */
+.note-title::after {
+    display: none !important;
+}
+
+/* Стили для нашей новой физической линии */
+.note-custom-line {
+    height: 1px;
+    min-height: 1px;
+    width: 100%;
+    /* ОТРИЦАТЕЛЬНЫЙ МАРДЖИН: Насильно втягиваем линию вверх, под саму базовую линию текста */
+    margin-top: -2px; 
+    margin-bottom: 4px; /* Оставляем крошечный отступ от нижнего текста, чтобы не было грязи */
+    opacity: 0.7;
+    flex-shrink: 0; 
+}
+
+
+/* Резервный цвет (нейтрально-белый), если у папки нет своего кастомного цвета */
+.note-custom-line.default-line {
+    /* Полупрозрачный белый (или цвет текста в светлой теме), затухающий вправо */
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.4), transparent);
+}
+
+/* Для светлой темы делаем линию темной */
+body[data-theme-base="light"] .note-custom-line.default-line {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.3), transparent);
+}
+
+/* Адаптация: Скрываем линию в компактном режиме List View */
+#notes-grid.list-view .note-custom-line,
+#collection-notes-grid.list-view .note-custom-line {
+    display: none;
+}
+
+.note-text {
+    font-size: var(--note-preview-font-size);
+    color: var(--note-text-color);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 4 !important; /* ЖЕСТКО 4 СТРОКИ: перебиваем любые другие стили */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    flex-grow: 1;
+    margin-top: 2px; 
+    opacity: 0.9;
+    align-self: stretch; /* Позволяем тексту тянуться на всю доступную ширину */
+    width: 100%;
+    white-space: pre-wrap;
+    
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+
+
 
 
 
@@ -892,20 +992,21 @@ body[data-theme-base="light"] .note-custom-line.default-line {
     color: var(--note-text-color);
     line-height: 1.4;
     display: -webkit-box;
-    /* Убираем жесткий line-clamp, пусть текст льется до конца карточки, а маска его растворит */
     -webkit-box-orient: vertical;
     overflow: hidden;
     flex-grow: 1;
-    margin-top: 0px;
+    margin-top: 0; /* Вернули нормальный отступ */
     opacity: 0.9;
     align-self: flex-start;
     width: 100%;
     white-space: pre-wrap;
     
-    /* НОВОЕ: Плавное растворение текста снизу (Fade Out) */
+    /* Плавное растворение текста снизу (Fade Out) */
     -webkit-mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 25px), transparent 100%);
     mask-image: linear-gradient(to bottom, black 0%, black calc(100% - 25px), transparent 100%);
 }
+
+
 
 /* Адаптация для компактного (List) вида, чтобы там маска не съедала текст */
 #notes-grid.list-view .note-text,
@@ -1409,12 +1510,16 @@ body.is-dragging-note #drag-delete-zone, body.is-dragging-collection #drag-delet
 /* --- 👇 НАЧАЛО БЛОКА ДЛЯ ПОЛНОЙ ЗАМЕНЫ (style.css) --- */
 #drag-ghost {
     position: fixed;
+    top: 0;
+    left: 0;
     pointer-events: none;
     z-index: 9999;
     opacity: 0;
     transition: opacity 0.15s;
-    /* Убираем жесткую привязку ширины, чтобы он подстраивался под содержимое */
+    /* ОПТИМИЗАЦИЯ GPU: Движение без участия CPU */
+    will-change: transform;
 }
+
 
 #drag-ghost.visible {
     opacity: 1;
@@ -1925,6 +2030,19 @@ body.is-dragging-collection .collection-item {
     }
 }
 
+/* ИСПРАВЛЕНИЕ: Анимация появления, которая не ломает центрирование */
+@keyframes fade-in-center {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+
 @keyframes submenu-fade-in {
     from {
         opacity: 0;
@@ -2057,8 +2175,10 @@ body.no-notes-present #empty-state-overlay {
     display: flex;
     flex-direction: column;
     align-items: center;
-    animation: fade-in-down 0.5s var(--spring);
+    /* ИСПРАВЛЕНИЕ: Используем специальную анимацию для центрированных элементов */
+    animation: fade-in-center 0.5s var(--spring) forwards;
 }
+
 
 #empty-state-overlay p {
     font-size: 1.1em;
@@ -2262,11 +2382,14 @@ body.no-notes-present #empty-state-overlay {
 /* --- 👇 ВСТАВИТЬ В КОНЕЦ ФАЙЛА style.css --- */
 /* КОМПАКТНЫЙ РЕЖИМ ДЛЯ ПАНЕЛИ КОЛЛЕКЦИИ */
 #collection-notes-grid.list-view {
-    gap: 10px; /* Чуть увеличили отступ между 2-строчными карточками */
+    gap: 8px; 
 }
 
 #collection-notes-grid.list-view .note-tile {
-    height: 75px; /* Увеличили высоту под 2 строки */
+    /* ЖЕСТКИЙ ЛИМИТ: Карточка не может быть больше 65px */
+    height: 65px !important;
+    min-height: 65px !important;
+    max-height: 65px !important;
     padding: 10px 14px;
     flex-direction: row;
     align-items: center;
@@ -2292,11 +2415,13 @@ body.no-notes-present #empty-state-overlay {
     flex-grow: 1;
     font-size: 0.8em;
     
-    min-height: 2.8em;
+    /* ЖЕСТКИЙ ЛИМИТ ВЫСОТЫ ТЕКСТА: Ровно 2 строки */
+    height: 2.8em;
+    max-height: 2.8em;
     line-height: 1.4;
     
     display: -webkit-box;
-    -webkit-line-clamp: 2; 
+    -webkit-line-clamp: 2 !important; 
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2309,6 +2434,7 @@ body.no-notes-present #empty-state-overlay {
     mask-image: none;
     margin: 0;
 }
+
 
 
 
@@ -2422,13 +2548,14 @@ body[data-theme-base="light"] .qa-btn.qa-delete {
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.search-container:focus-within #tags-bar,
+.search-container.is-expanded #tags-bar,
 #tags-bar:hover,
 #tags-bar.has-active-tag {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scale(1);
 }
+
 
 /* НОВОЕ ПРАВИЛО: Принудительное скрытие, если ищем по названию (нет решетки) */
 #tags-bar.force-hide {
@@ -2649,4 +2776,297 @@ body[data-theme-base="light"] .tag-pill:hover {
     opacity: 0.6; /* Делаем дефис чуть тусклее */
 }
 /* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 НОВЫЙ БЛОК: Анимация Cloud Sync --- */
+.sync-spinning {
+    /* Меняем линейную анимацию на сложную кубическую кривую (резкий старт, плавный финиш) */
+    animation: sync-spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    color: var(--accent-color);
+}
+
+.sync-error {
+    color: var(--accent-color-danger) !important;
+}
+
+.sync-success {
+    color: #30D158 !important; /* Зеленый Apple */
+}
+
+@keyframes sync-spin {
+    0% { transform: rotate(0deg); }
+    /* Делаем "остановку" на половине пути */
+    45% { transform: rotate(180deg); }
+    50% { transform: rotate(180deg); }
+    /* Завершаем оборот */
+    95% { transform: rotate(360deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#sync-status-container:hover {
+    color: var(--text-color) !important;
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 НОВЫЙ БЛОК: СТИЛИ ГЛАЗИКА В ИНПУТАХ --- */
+.password-toggle-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 40px; /* Немного уменьшили зону клика */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    
+    /* АБСОЛЮТНО ПРОЗРАЧНЫЙ ФОН */
+    background: transparent;
+    
+    color: var(--text-color-dark);
+    transition: color 0.2s var(--spring);
+}
+
+/* Удаляем правило для светлой темы, так как градиента больше нет */
+
+
+.password-toggle-btn:hover {
+    color: var(--text-color); /* При наведении иконка загорается */
+}
+
+.password-toggle-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* --- 👇 НОВЫЙ БЛОК: СТИЛИ HELP-ОКНА (АККОРДЕОН) --- */
+#sync-help-btn:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+#sync-help-view.active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translateX(0) !important;
+}
+
+/* Скрываем скроллбар в окне помощи */
+#sync-help-view::-webkit-scrollbar { width: 4px; }
+#sync-help-view::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+
+/* Плавное размытие (растворение) текста при скролле сверху и снизу */
+#sync-help-view {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 20px, black calc(100% - 60px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 20px, black calc(100% - 60px), transparent 100%);
+}
+
+.hw-provider-item {
+
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s var(--spring);
+}
+
+.hw-provider-header {
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: var(--text-color);
+}
+
+.hw-provider-header:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Микро-тег описания. Скрыт текст по умолчанию, появляется при наведении */
+.hw-tag {
+    font-size: 0.75em;
+    color: var(--text-color-dark);
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.hw-provider-header:hover .hw-tag {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.hw-provider-item.expanded .hw-provider-header {
+    background: rgba(var(--accent-color-rgb), 0.15);
+    color: var(--accent-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hw-provider-item.expanded .hw-tag {
+    display: none; /* Прячем тег, когда открыто описание */
+}
+
+.hw-provider-body {
+    max-height: 0;
+    padding: 0 12px;
+    font-size: 0.85em;
+    line-height: 1.5;
+    color: var(--text-color-dark);
+    opacity: 0;
+    transition: all 0.4s var(--spring);
+}
+
+.hw-provider-body a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.hw-provider-body a:hover {
+    text-decoration: underline;
+}
+
+.hw-provider-item.expanded .hw-provider-body {
+    max-height: 300px;
+    padding: 12px;
+    opacity: 1;
+}
+
+body[data-theme-base="light"] .hw-provider-item {
+    background: rgba(255, 255, 255, 0.5);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+body[data-theme-base="light"] .hw-provider-header:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+/* --- 👆 КОНЕЦ НОВОГО БЛОКА --- */
+
+/* ГЛОБАЛЬНАЯ ОПТИМИЗАЦИЯ D&D: Отключаем пересчет геометрии мыши для внутренностей карточек */
+body.is-dragging-note .note-tile * {
+    pointer-events: none !important;
+}
+
+/* --- Поиск внутри коллекции --- */
+.coll-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 32px; /* Стартовая ширина (только иконка) */
+    height: 32px;
+    transition: width 0.3s var(--smooth);
+    border-radius: 100px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    overflow: hidden;
+}
+
+body[data-theme-base="light"] .coll-search-container {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.coll-search-container:focus-within,
+.coll-search-container.has-text {
+    width: 160px; /* Раскрывается при клике или если есть текст */
+    border-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+body[data-theme-base="light"] .coll-search-container:focus-within,
+body[data-theme-base="light"] .coll-search-container.has-text {
+    border-color: rgba(0, 0, 0, 0.15);
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+.coll-search-icon {
+    position: absolute;
+    left: 8px;
+    width: 14px;
+    height: 14px;
+    opacity: 0.6;
+    pointer-events: none;
+    filter: invert(var(--icon-invert, 1));
+}
+
+body[data-theme-base="light"] .coll-search-icon {
+    filter: invert(0);
+}
+
+#coll-search-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: var(--text-color);
+    font-size: 0.85em;
+    padding: 0 10px 0 30px;
+    outline: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.coll-search-container:focus-within #coll-search-input,
+.coll-search-container.has-text #coll-search-input {
+    opacity: 1;
+}
+
+/* Скрываем плейсхолдер, если инпут не в фокусе (чтобы он не мелькал при сжатии) */
+#coll-search-input:not(:focus)::placeholder {
+    color: transparent;
+}
+
+/* ========================================= */
+/* --- НАСТРОЙКИ MARKDOWN И РЕДАКТОРА ---    */
+/* ========================================= */
+
+/* Делаем шрифты в редакторе моноширинными (как в IDE) для удобства написания промптов */
+#note-content-input, #quick-edit-content-input {
+    font-family: 'Consolas', 'Courier New', monospace;
+    line-height: 1.6;
+    tab-size: 4;
+}
+
+/* Стили для многострочных блоков кода (```) */
+.md-code-block {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 8px 0;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9em;
+    color: #E0E0E0;
+    white-space: pre-wrap; /* Чтобы код не вылезал за границы тултипа */
+    word-break: break-all;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+body[data-theme-base="light"] .md-code-block {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #333333;
+}
+
+/* Стили для инлайн-кода (`) */
+.md-inline-code {
+    background-color: rgba(var(--accent-color-rgb), 0.15);
+    color: var(--accent-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+/* Стили для заголовков */
+.md-header {
+    margin: 14px 0 6px 0;
+    font-weight: 700;
+    color: var(--text-color);
+}
+.md-header:first-child {
+    margin-top: 0;
+}
 
